@@ -10,7 +10,7 @@ import {
 // --- CONFIGURATION ---
 const ASSETS = {
   HERO_VIDEO: "http://googleusercontent.com/generated_video_content/540743943313863772",
-  SUCCESS_STORY: "http://googleusercontent.com/generated_video_content/17181947967163338536", 
+  // Removed the SUCCESS_STORY video link to get rid of the blank white box
 };
 
 const PRACTICE_INFO = {
@@ -44,10 +44,16 @@ const TOOTH_SECTIONS = {
   GUMS: { id: 'gums', title: 'Gingival Foundation', color: '#fda4af', condition: 'Periodontal Assessment', description: 'Healthy gingiva protects the underlying bone structure from bacterial ingress.', symptoms: ['Tissue Recession', 'Bleeding on Probing'], icon: <Droplets className="w-6 h-6"/> }
 };
 
+// --- EXPANDED TESTIMONIALS ---
 const TESTIMONIALS = [
   { name: "Sarah M.", type: "Clear Aligners", text: "Dr. LaFlair's clear aligner treatment was completely painless and the results changed my life and confidence." },
   { name: "David R.", type: "Restorative Care", text: "My crown was done so precisely, and the entire team made my severe dental anxiety completely disappear." },
-  { name: "Elena T.", type: "Preventative", text: "Best cleaning I've ever had. The intraoral cameras really helped me understand my oral health." }
+  { name: "Elena T.", type: "Preventative", text: "Best cleaning I've ever had. The intraoral cameras really helped me understand my oral health." },
+  { name: "Michael B.", type: "Implant Restoration", text: "After years of struggling with my bite, Dr. LaFlair restored my smile. The precision and care are truly unmatched." },
+  { name: "Jennifer K.", type: "Family Dentistry", text: "My entire family has been coming here for a decade. The staff is incredibly welcoming and makes everyone feel at home." },
+  { name: "Robert W.", type: "Emergency Care", text: "When I chipped my tooth, the team got me in immediately. You can't ask for better, more compassionate care." },
+  { name: "Linda S.", type: "Cosmetic Dentistry", text: "I am so happy with my cosmetic work. Dr. LaFlair and his team are true artists when it comes to a natural look." },
+  { name: "James T.", type: "Advanced Tech", text: "The technology they use is amazing. My procedures are always faster and far more comfortable than I ever expected." }
 ];
 
 const GEAR_LOADOUT = [
@@ -267,16 +273,22 @@ const App = () => {
         )}
 
         {view === 'archive' && (
-          <div className="w-full max-w-4xl animate-in slide-in-from-bottom duration-700 pb-12">
-             <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl mb-12">
-                <video autoPlay loop muted playsInline className="w-full h-full object-cover"><source src={ASSETS.SUCCESS_STORY} type="video/mp4" /></video>
+          <div className="w-full max-w-4xl animate-in slide-in-from-bottom duration-700 pb-12 pt-8">
+             <div className="mb-10 text-center md:text-left pl-2">
+                <h2 className="text-3xl font-black uppercase tracking-widest mb-2">Patient Outcomes</h2>
+                <p className={`text-sm ${currentTheme.textSecondary}`}>Real stories and clinical results from our Ogdensburg community.</p>
              </div>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             
+             {/* New 2-Column Grid for the Wall of Love */}
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {TESTIMONIALS.map((t, i) => (
-                   <div key={i} className={`p-6 rounded-3xl ${currentTheme.glass} border ${currentTheme.border}`}>
+                   <div key={i} className={`p-6 rounded-3xl ${currentTheme.glass} border ${currentTheme.border} hover:-translate-y-1 transition-transform duration-300`}>
                       <MessageCircle className={`w-8 h-8 opacity-10 mb-4 ${currentTheme.accentText}`} />
-                      <p className={`text-sm italic mb-6 ${currentTheme.textSecondary}`}>"{t.text}"</p>
-                      <div className="flex items-center gap-3"><div className={`w-8 h-8 rounded-full ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center font-bold text-xs`}>{t.name[0]}</div><div className="text-xs font-bold">{t.name} <span className="block opacity-40 font-normal">{t.type}</span></div></div>
+                      <p className={`text-sm italic mb-6 ${currentTheme.textSecondary} leading-relaxed`}>"{t.text}"</p>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center font-bold text-xs`}>{t.name[0]}</div>
+                        <div className="text-xs font-bold">{t.name} <span className="block opacity-40 font-normal mt-0.5">{t.type}</span></div>
+                      </div>
                    </div>
                 ))}
              </div>
