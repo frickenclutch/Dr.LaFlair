@@ -10,7 +10,6 @@ import {
 // --- CONFIGURATION ---
 const ASSETS = {
   HERO_VIDEO: "http://googleusercontent.com/generated_video_content/540743943313863772",
-  // Removed the SUCCESS_STORY video link to get rid of the blank white box
 };
 
 const PRACTICE_INFO = {
@@ -25,13 +24,13 @@ const PRACTICE_INFO = {
 const THEMES = {
   APPLE: {
     bg: "bg-[#fafaf9]", card: "bg-white", textPrimary: "text-stone-900", textSecondary: "text-stone-500", 
-    border: "border-stone-200", glass: "bg-white/80 backdrop-blur-md border-b border-stone-200",
+    border: "border-stone-200", glass: "bg-white/90 backdrop-blur-xl border-b border-stone-200",
     accentText: "text-indigo-600", accentBg: "bg-indigo-600", accentBgSoft: "bg-indigo-600/10", 
     accentBorder: "border-indigo-600", healthBar: "from-indigo-500 to-indigo-600"
   },
   LAB: {
     bg: "bg-[#050505]", card: "bg-[#0a0a0b]", textPrimary: "text-cyan-50", textSecondary: "text-stone-400", 
-    border: "border-white/10", glass: "bg-black/50 backdrop-blur-xl border-b border-white/10",
+    border: "border-white/10", glass: "bg-black/60 backdrop-blur-xl border-b border-white/10",
     accentText: "text-cyan-400", accentBg: "bg-cyan-400", accentBgSoft: "bg-cyan-400/10", 
     accentBorder: "border-cyan-400", healthBar: "from-indigo-500 to-cyan-400"
   }
@@ -44,7 +43,6 @@ const TOOTH_SECTIONS = {
   GUMS: { id: 'gums', title: 'Gingival Foundation', color: '#fda4af', condition: 'Periodontal Assessment', description: 'Healthy gingiva protects the underlying bone structure from bacterial ingress.', symptoms: ['Tissue Recession', 'Bleeding on Probing'], icon: <Droplets className="w-6 h-6"/> }
 };
 
-// --- EXPANDED TESTIMONIALS ---
 const TESTIMONIALS = [
   { name: "Sarah M.", type: "Clear Aligners", text: "Dr. LaFlair's clear aligner treatment was completely painless and the results changed my life and confidence." },
   { name: "David R.", type: "Restorative Care", text: "My crown was done so precisely, and the entire team made my severe dental anxiety completely disappear." },
@@ -222,30 +220,53 @@ const App = () => {
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
 
-      <div className={`fixed top-0 left-0 right-0 z-50 p-4 ${currentTheme.glass}`}>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4 w-full md:w-1/3">
-            <div className={`p-2 rounded-lg ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}><Activity className="w-5 h-5 animate-pulse" /></div>
-            <div className="flex-1">
-              <div className="flex justify-between mb-1"><span className="text-[10px] font-black uppercase tracking-widest opacity-50">Oral Vitality</span><span className="text-[10px] font-bold">{healthScore}%</span></div>
-              <div className="h-1 w-full bg-stone-500/20 rounded-full overflow-hidden">
-                <div className={`h-full transition-all duration-1000 bg-gradient-to-r ${healthScore > 50 ? currentTheme.healthBar : 'from-red-600 to-red-400'}`} style={{ width: `${healthScore}%` }} />
+      {/* --- NEW HUD LAYOUT --- */}
+      <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
+        <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
+          
+          <div className="flex items-center justify-between xl:justify-start gap-8 w-full xl:w-auto">
+            {/* 1. PERSISTENT LOGO BRANDING */}
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => changeView('anatomy')}>
+              <div className={`w-10 h-10 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform`}>
+                <Sparkles size={20} />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-black text-sm uppercase tracking-tighter leading-none">
+                  Christopher LaFlair <span className="opacity-50">DDS</span>
+                </span>
+                <span className={`text-[9px] font-bold uppercase tracking-[0.2em] mt-1 ${currentTheme.accentText}`}>
+                  Smiles That Last
+                </span>
+              </div>
+            </div>
+
+            {/* 2. COMPACT HEALTH BAR (Desktop/Tablet Only) */}
+            <div className="hidden md:flex items-center gap-3 w-32 lg:w-40 border-l border-stone-500/20 pl-6">
+              <div className="flex-1">
+                <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
+                <div className="h-1 w-full bg-stone-500/20 rounded-full overflow-hidden">
+                  <div className={`h-full transition-all duration-1000 bg-gradient-to-r ${healthScore > 50 ? currentTheme.healthBar : 'from-red-600 to-red-400'}`} style={{ width: `${healthScore}%` }} />
+                </div>
               </div>
             </div>
           </div>
-          <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+
+          {/* 3. CENTER NAVIGATION */}
+          <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
             {['anatomy', 'archive', 'tech', 'finance'].map(v => (
               <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>{v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v}</button>
             ))}
           </div>
-          <div className="hidden md:flex items-center gap-4">
+
+          {/* 4. RIGHT ACTIONS */}
+          <div className="hidden lg:flex items-center gap-4 shrink-0">
             <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform`}>{isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}</button>
             <button onClick={handleBook} className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform`}>Request Consultation</button>
           </div>
         </div>
       </div>
 
-      <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-20 md:mt-0">
+      <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-28 md:mt-24 xl:mt-0">
         {view === 'anatomy' && (
           <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000">
              <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`}`} style={{ touchAction: 'none' }}>
@@ -279,7 +300,6 @@ const App = () => {
                 <p className={`text-sm ${currentTheme.textSecondary}`}>Real stories and clinical results from our Ogdensburg community.</p>
              </div>
              
-             {/* New 2-Column Grid for the Wall of Love */}
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {TESTIMONIALS.map((t, i) => (
                    <div key={i} className={`p-6 rounded-3xl ${currentTheme.glass} border ${currentTheme.border} hover:-translate-y-1 transition-transform duration-300`}>
