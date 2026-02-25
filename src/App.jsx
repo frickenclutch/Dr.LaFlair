@@ -4,7 +4,7 @@ import {
   MapPin, Phone, CreditCard, ArrowLeft, Activity, 
   Heart, Moon, Sun, Users, Monitor, Crosshair, 
   Database, Shield, ArrowRight, Loader2, Lock, 
-  CheckCircle, MessageCircle 
+  CheckCircle, MessageCircle, Clock
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
@@ -17,7 +17,9 @@ const PRACTICE_INFO = {
   doctor: "Clinical Director: Dr. Chris LaFlair",
   address: "1107 Linden St., Ogdensburg, NY 13669",
   phone: "315-393-2240",
-  email: "office@drchrislaflair.com"
+  email: "office@drchrislaflair.com",
+  hours: "Mon - Thu: 7:30 AM - 3:30 PM",
+  closed: "Fri - Sun: Closed"
 };
 
 // FULLY EXPLICIT THEMES TO PREVENT TAILWIND PURGE
@@ -220,12 +222,11 @@ const App = () => {
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
 
-      {/* --- NEW HUD LAYOUT --- */}
+      {/* --- HUD LAYOUT --- */}
       <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
         <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
           
           <div className="flex items-center justify-between xl:justify-start gap-8 w-full xl:w-auto">
-            {/* 1. PERSISTENT LOGO BRANDING */}
             <div className="flex items-center gap-3 cursor-pointer group" onClick={() => changeView('anatomy')}>
               <div className={`w-10 h-10 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform`}>
                 <Sparkles size={20} />
@@ -240,7 +241,6 @@ const App = () => {
               </div>
             </div>
 
-            {/* 2. COMPACT HEALTH BAR (Desktop/Tablet Only) */}
             <div className="hidden md:flex items-center gap-3 w-32 lg:w-40 border-l border-stone-500/20 pl-6">
               <div className="flex-1">
                 <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
@@ -251,14 +251,13 @@ const App = () => {
             </div>
           </div>
 
-          {/* 3. CENTER NAVIGATION */}
           <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
-            {['anatomy', 'archive', 'tech', 'finance'].map(v => (
+            {/* Swapped 'finance' for 'connect' in the navigation array */}
+            {['anatomy', 'archive', 'tech', 'connect'].map(v => (
               <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>{v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v}</button>
             ))}
           </div>
 
-          {/* 4. RIGHT ACTIONS */}
           <div className="hidden lg:flex items-center gap-4 shrink-0">
             <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform`}>{isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}</button>
             <button onClick={handleBook} className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform`}>Request Consultation</button>
@@ -267,6 +266,7 @@ const App = () => {
       </div>
 
       <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-28 md:mt-24 xl:mt-0">
+        
         {view === 'anatomy' && (
           <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000">
              <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`}`} style={{ touchAction: 'none' }}>
@@ -331,12 +331,59 @@ const App = () => {
            </div>
         )}
 
-        {view === 'finance' && (
-            <div className="relative aspect-[1.6/1] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-indigo-900 to-black p-10 text-white flex flex-col justify-between cursor-pointer group" onClick={handleBook}>
-                <div className="flex justify-between items-start"><CreditCard className="w-10 h-10 text-cyan-400" /><div className="text-right font-mono text-[10px] opacity-60">CARECREDIT_PORTAL</div></div>
-                <p className="text-2xl font-black uppercase tracking-widest">Zero Interest Pathways</p>
-                <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-10 h-1 bg-white/20 rounded-full" />)}</div>
-            </div>
+        {/* --- NEW CONNECT VIEW (Replaces old 'finance' view) --- */}
+        {view === 'connect' && (
+           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 animate-in zoom-in duration-700 pb-12 pt-8">
+              
+              {/* Patient Services Card (Clickable Links) */}
+              <div className={`p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border flex flex-col justify-between h-full shadow-lg`}>
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-widest mb-8">Patient Services</h3>
+                  
+                  <div className="space-y-6">
+                    {/* Native Map Link */}
+                    <a href={`https://maps.google.com/?q=${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><MapPin size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Clinical Location</p>
+                        <p className="font-bold text-sm">1107 Linden St.</p>
+                        <p className={`text-sm ${currentTheme.textSecondary}`}>Ogdensburg, NY 13669</p>
+                      </div>
+                    </a>
+
+                    {/* Native Phone Dial Link */}
+                    <a href={`tel:${PRACTICE_INFO.phone.replace(/-/g, '')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><Phone size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Direct Line</p>
+                        <p className="font-bold text-lg">{PRACTICE_INFO.phone}</p>
+                      </div>
+                    </a>
+
+                    {/* Operating Hours */}
+                    <div className="flex items-start gap-4 p-4 -ml-4">
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 shadow-sm`}><Clock size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1`}>Operating Hours</p>
+                        <p className="font-bold text-sm">{PRACTICE_INFO.hours.split(':')[0]}: <span className="font-normal">{PRACTICE_INFO.hours.split(':').slice(1).join(':')}</span></p>
+                        <p className={`text-sm ${currentTheme.textSecondary}`}>{PRACTICE_INFO.closed}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Finance / CareCredit Card */}
+              <div className="relative h-full min-h-[400px] w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-indigo-900 to-black p-10 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform" onClick={handleBook}>
+                  <div className="flex justify-between items-start"><CreditCard className="w-10 h-10 text-cyan-400" /><div className="text-right font-mono text-[10px] opacity-60">CARECREDIT_PORTAL</div></div>
+                  <div>
+                    <p className="text-3xl font-black uppercase tracking-widest mb-4 leading-tight">Zero Interest<br/>Pathways</p>
+                    <p className="text-sm opacity-80 mb-8 max-w-[85%] leading-relaxed">Explore flexible financing options to ensure your preventative and restorative care is always stress-free.</p>
+                    <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-10 h-1 bg-white/20 rounded-full" />)}</div>
+                  </div>
+              </div>
+
+           </div>
         )}
       </div>
 
