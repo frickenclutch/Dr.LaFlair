@@ -21,16 +21,19 @@ const PRACTICE_INFO = {
   email: "office@drchrislaflair.com"
 };
 
+// FULLY EXPLICIT THEMES TO PREVENT TAILWIND PURGE
 const THEMES = {
   APPLE: {
-    bg: "bg-[#fafaf9]", card: "bg-white", textPrimary: "text-stone-900",
-    textSecondary: "text-stone-500", accent: "indigo-600", border: "border-stone-200",
-    glass: "bg-white/80 backdrop-blur-md border-b border-stone-200"
+    bg: "bg-[#fafaf9]", card: "bg-white", textPrimary: "text-stone-900", textSecondary: "text-stone-500", 
+    border: "border-stone-200", glass: "bg-white/80 backdrop-blur-md border-b border-stone-200",
+    accentText: "text-indigo-600", accentBg: "bg-indigo-600", accentBgSoft: "bg-indigo-600/10", 
+    accentBorder: "border-indigo-600", healthBar: "from-indigo-500 to-indigo-600"
   },
   LAB: {
-    bg: "bg-[#050505]", card: "bg-[#0a0a0b]", textPrimary: "text-cyan-50",
-    textSecondary: "text-stone-400", accent: "cyan-400", border: "border-white/10",
-    glass: "bg-black/50 backdrop-blur-xl border-b border-white/10"
+    bg: "bg-[#050505]", card: "bg-[#0a0a0b]", textPrimary: "text-cyan-50", textSecondary: "text-stone-400", 
+    border: "border-white/10", glass: "bg-black/50 backdrop-blur-xl border-b border-white/10",
+    accentText: "text-cyan-400", accentBg: "bg-cyan-400", accentBgSoft: "bg-cyan-400/10", 
+    accentBorder: "border-cyan-400", healthBar: "from-indigo-500 to-cyan-400"
   }
 };
 
@@ -216,22 +219,22 @@ const App = () => {
       <div className={`fixed top-0 left-0 right-0 z-50 p-4 ${currentTheme.glass}`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4 w-full md:w-1/3">
-            <div className={`p-2 rounded-lg bg-${currentTheme.accent}/20 text-${currentTheme.accent}`}><Activity className="w-5 h-5 animate-pulse" /></div>
+            <div className={`p-2 rounded-lg ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}><Activity className="w-5 h-5 animate-pulse" /></div>
             <div className="flex-1">
               <div className="flex justify-between mb-1"><span className="text-[10px] font-black uppercase tracking-widest opacity-50">Oral Vitality</span><span className="text-[10px] font-bold">{healthScore}%</span></div>
               <div className="h-1 w-full bg-stone-500/20 rounded-full overflow-hidden">
-                <div className={`h-full transition-all duration-1000 bg-gradient-to-r ${healthScore > 50 ? `from-indigo-500 to-${currentTheme.accent}` : 'from-red-600 to-red-400'}`} style={{ width: `${healthScore}%` }} />
+                <div className={`h-full transition-all duration-1000 bg-gradient-to-r ${healthScore > 50 ? currentTheme.healthBar : 'from-red-600 to-red-400'}`} style={{ width: `${healthScore}%` }} />
               </div>
             </div>
           </div>
           <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
             {['anatomy', 'archive', 'tech', 'finance'].map(v => (
-              <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `text-${currentTheme.accent} border-b-2 border-${currentTheme.accent} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>{v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v}</button>
+              <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>{v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v}</button>
             ))}
           </div>
           <div className="hidden md:flex items-center gap-4">
             <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform`}>{isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}</button>
-            <button onClick={handleBook} className={`px-6 py-2 rounded-full bg-${currentTheme.accent} text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform`}>Book Appointment</button>
+            <button onClick={handleBook} className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform`}>Request Consultation</button>
           </div>
         </div>
       </div>
@@ -239,7 +242,7 @@ const App = () => {
       <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-20 md:mt-0">
         {view === 'anatomy' && (
           <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000">
-             <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? 'brightness-125 scale-105' : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`}`} style={{ touchAction: 'none' }}>
+             <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`}`} style={{ touchAction: 'none' }}>
                 <path d="M 50 360 Q 150 310, 200 330 Q 250 310, 350 360 L 350 500 L 50 500 Z" fill={selectedSection?.id === 'gums' ? TOOTH_SECTIONS.GUMS.color : (isDarkMode ? "#2d1a1c" : "#fecdd3")} className="transition-colors cursor-pointer hover:opacity-80" onClick={(e) => { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.GUMS); }} />
                 <g>
                     <path d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
@@ -255,7 +258,7 @@ const App = () => {
                   className={`transition-all ${isDragging ? 'duration-0' : 'duration-500'} ${chipStatus === 'intact' ? 'cursor-pointer hover:brightness-125' : 'cursor-grab active:cursor-grabbing'}`}
                   onClick={chipStatus === 'intact' ? breakTooth : undefined}
                   onPointerDown={handlePointerDown} />
-                {isSparkling && <g className="pointer-events-none">{[130, 280, 200].map((cx, i) => <circle key={i} cx={cx} cy={150+(i*50)} r={10+(i*5)} fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2" className="animate-ping" style={{ animationDelay: `${i*0.2}s`, animationDuration: '1.5s' }} />)}</g>}
+                {isSparkling && <g className="pointer-events-none">{[130, 280, 200].map((cx, i) => <circle key={i} cx={cx} cy={150+(i*50)} r={10+(i*5)} fill={isDarkMode ? "rgba(34,211,238, 0.2)" : "rgba(79,70,229, 0.2)"} stroke={isDarkMode ? "#22d3ee" : "#4f46e5"} strokeWidth="2" className="animate-ping" style={{ animationDelay: `${i*0.2}s`, animationDuration: '1.5s' }} />)}</g>}
              </svg>
              <div className="absolute -bottom-10 left-0 right-0 text-center pointer-events-none font-bold text-[10px] uppercase tracking-widest opacity-60">
                 {chipStatus === 'intact' ? 'Tap Fragment to Simulate Decay or Double Click for Cleaning' : 'Drag fragment to restore structural integrity'}
@@ -271,9 +274,9 @@ const App = () => {
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {TESTIMONIALS.map((t, i) => (
                    <div key={i} className={`p-6 rounded-3xl ${currentTheme.glass} border ${currentTheme.border}`}>
-                      <MessageCircle className={`w-8 h-8 opacity-10 mb-4 text-${currentTheme.accent}`} />
+                      <MessageCircle className={`w-8 h-8 opacity-10 mb-4 ${currentTheme.accentText}`} />
                       <p className={`text-sm italic mb-6 ${currentTheme.textSecondary}`}>"{t.text}"</p>
-                      <div className="flex items-center gap-3"><div className={`w-8 h-8 rounded-full bg-${currentTheme.accent}/20 text-${currentTheme.accent} flex items-center justify-center font-bold text-xs`}>{t.name[0]}</div><div className="text-xs font-bold">{t.name} <span className="block opacity-40 font-normal">{t.type}</span></div></div>
+                      <div className="flex items-center gap-3"><div className={`w-8 h-8 rounded-full ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center font-bold text-xs`}>{t.name[0]}</div><div className="text-xs font-bold">{t.name} <span className="block opacity-40 font-normal">{t.type}</span></div></div>
                    </div>
                 ))}
              </div>
@@ -286,7 +289,7 @@ const App = () => {
                  <div key={g.id} className={`group relative p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border hover:border-transparent transition-all overflow-hidden`}>
                     {renderTechBackground(g.id)}
                     <div className="relative z-10 transition-colors duration-500 group-hover:text-white">
-                        <div className={`w-14 h-14 rounded-2xl bg-${currentTheme.accent}/10 text-${currentTheme.accent} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-white/20 group-hover:text-white transition-all shadow-sm`}>{g.icon}</div>
+                        <div className={`w-14 h-14 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-white/20 group-hover:text-white transition-all shadow-sm`}>{g.icon}</div>
                         <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:text-white/80`}>SPEC: {g.spec}</p>
                         <h3 className="text-2xl font-bold mb-3 group-hover:text-white">{g.name}</h3>
                         <p className={`text-sm mt-3 ${currentTheme.textSecondary} group-hover:text-white/90 leading-relaxed`}>{g.detail}</p>
@@ -313,9 +316,9 @@ const App = () => {
              <p className={`text-lg leading-relaxed ${currentTheme.textSecondary}`}>{selectedSection.description}</p>
              <div className={`p-6 rounded-3xl border ${currentTheme.border} bg-stone-500/5`}>
                 <h4 className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-4">Clinical Indicators</h4>
-                <ul className="space-y-4">{selectedSection.symptoms.map(s => <li key={s} className="flex gap-3 text-sm font-medium items-center"><Heart size={14} className={`text-${currentTheme.accent}`}/> {s}</li>)}</ul>
+                <ul className="space-y-4">{selectedSection.symptoms.map(s => <li key={s} className="flex gap-3 text-sm font-medium items-center"><Heart size={14} className={`${currentTheme.accentText}`}/> {s}</li>)}</ul>
              </div>
-             <button onClick={handleBook} className={`w-full py-5 rounded-2xl bg-${currentTheme.accent} text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:scale-[1.02] transition-transform`}>Request Consultation</button>
+             <button onClick={handleBook} className={`w-full py-5 rounded-2xl ${currentTheme.accentBg} text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:scale-[1.02] transition-transform`}>Request Consultation</button>
           </div>
         ) : (
           <div className="space-y-12 animate-in fade-in duration-500">
@@ -328,14 +331,14 @@ const App = () => {
                 <div className="relative h-48">{ STAFF_CARDS.map((s, i) => (
                   <div key={i} onClick={() => setActiveStaff(i)} className={`absolute inset-x-0 p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} transition-all duration-500 cursor-pointer flex items-center gap-4`} style={{ transform: `translateY(${(i-activeStaff)*15}px) scale(${i === activeStaff ? 1 : 0.95})`, opacity: i === activeStaff ? 1 : 0.3, zIndex: 10 - Math.abs(i-activeStaff) }}>
                      {s.image ? (
-                         <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 border-${currentTheme.accent}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.replace(/ /g, '+') + '&background=random'; }} />
+                         <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 ${currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.replace(/ /g, '+') + '&background=random'; }} />
                      ) : (
-                         <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center bg-${currentTheme.accent}/10 text-${currentTheme.accent} font-bold text-xl border-2 border-${currentTheme.accent}/20`}>
+                         <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center ${currentTheme.accentBgSoft} ${currentTheme.accentText} font-bold text-xl border-2 ${currentTheme.accentBorder}`}>
                              {s.name[0]}
                          </div>
                      )}
                      <div>
-                        <p className={`text-[10px] font-black text-${currentTheme.accent} uppercase mb-1`}>{s.role}</p>
+                        <p className={`text-[10px] font-black ${currentTheme.accentText} uppercase mb-1`}>{s.role}</p>
                         <h4 className="text-lg font-bold">{s.name}</h4>
                         <p className="text-xs opacity-50 mt-1 line-clamp-2">{s.bio}</p>
                      </div>
