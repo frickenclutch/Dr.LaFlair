@@ -63,10 +63,11 @@ const GEAR_LOADOUT = [
   { id: 'shield', name: "Advanced Sterilization", icon: <Shield className="w-6 h-6"/>, spec: "Infection Control", detail: "Hospital-grade protocols exceeding industry standards for absolute safety." }
 ];
 
+// --- UPDATED STAFF CARDS (Real Data) ---
 const STAFF_CARDS = [
-  { name: "Dr. Chris LaFlair", role: "Lead Dentist", bio: "20+ years of restorative expertise in high-precision family dentistry.", xp: "20+ Years", spec: "Restorative", image: "image_216fce.png" },
-  { name: "Clinical Hygienists", role: "Preventative", bio: "Dedicated to foundational oral health and a gentle patient experience.", xp: "Dedicated", spec: "Periodontal" },
-  { name: "Administrative Ops", role: "Coordination", bio: "Streamlining patient financing and insurance pathways for stress-free care.", xp: "Expert", spec: "Patient Finance" }
+  { name: "Dr. Chris LaFlair", role: "Lead Dentist", bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere.", image: "image_216fce.png" },
+  { name: "Renee & Suellen", role: "Front Desk & Assistants", bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling and insurance coordination." },
+  { name: "Stephanie & Maria", role: "Dental Hygienists", bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible." }
 ];
 
 const App = () => {
@@ -74,7 +75,6 @@ const App = () => {
   const [view, setView] = useState('anatomy'); 
   const [selectedSection, setSelectedSection] = useState(null);
   const [healthScore, setHealthScore] = useState(85);
-  const [activeStaff, setActiveStaff] = useState(0);
   
   const [isSparkling, setIsSparkling] = useState(false);
   const [chipStatus, setChipStatus] = useState('intact'); 
@@ -222,7 +222,6 @@ const App = () => {
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
 
-      {/* --- HUD LAYOUT --- */}
       <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
         <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
           
@@ -252,7 +251,6 @@ const App = () => {
           </div>
 
           <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
-            {/* Swapped 'finance' for 'connect' in the navigation array */}
             {['anatomy', 'archive', 'tech', 'connect'].map(v => (
               <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>{v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v}</button>
             ))}
@@ -299,7 +297,6 @@ const App = () => {
                 <h2 className="text-3xl font-black uppercase tracking-widest mb-2">Patient Outcomes</h2>
                 <p className={`text-sm ${currentTheme.textSecondary}`}>Real stories and clinical results from our Ogdensburg community.</p>
              </div>
-             
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {TESTIMONIALS.map((t, i) => (
                    <div key={i} className={`p-6 rounded-3xl ${currentTheme.glass} border ${currentTheme.border} hover:-translate-y-1 transition-transform duration-300`}>
@@ -331,17 +328,12 @@ const App = () => {
            </div>
         )}
 
-        {/* --- NEW CONNECT VIEW (Replaces old 'finance' view) --- */}
         {view === 'connect' && (
            <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 animate-in zoom-in duration-700 pb-12 pt-8">
-              
-              {/* Patient Services Card (Clickable Links) */}
               <div className={`p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border flex flex-col justify-between h-full shadow-lg`}>
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-widest mb-8">Patient Services</h3>
-                  
                   <div className="space-y-6">
-                    {/* Native Map Link */}
                     <a href={`https://maps.google.com/?q=${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
                       <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><MapPin size={20}/></div>
                       <div>
@@ -350,8 +342,6 @@ const App = () => {
                         <p className={`text-sm ${currentTheme.textSecondary}`}>Ogdensburg, NY 13669</p>
                       </div>
                     </a>
-
-                    {/* Native Phone Dial Link */}
                     <a href={`tel:${PRACTICE_INFO.phone.replace(/-/g, '')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
                       <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><Phone size={20}/></div>
                       <div>
@@ -359,8 +349,6 @@ const App = () => {
                         <p className="font-bold text-lg">{PRACTICE_INFO.phone}</p>
                       </div>
                     </a>
-
-                    {/* Operating Hours */}
                     <div className="flex items-start gap-4 p-4 -ml-4">
                       <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 shadow-sm`}><Clock size={20}/></div>
                       <div>
@@ -373,7 +361,6 @@ const App = () => {
                 </div>
               </div>
 
-              {/* Finance / CareCredit Card */}
               <div className="relative h-full min-h-[400px] w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-indigo-900 to-black p-10 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform" onClick={handleBook}>
                   <div className="flex justify-between items-start"><CreditCard className="w-10 h-10 text-cyan-400" /><div className="text-right font-mono text-[10px] opacity-60">CARECREDIT_PORTAL</div></div>
                   <div>
@@ -382,7 +369,6 @@ const App = () => {
                     <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-10 h-1 bg-white/20 rounded-full" />)}</div>
                   </div>
               </div>
-
            </div>
         )}
       </div>
@@ -405,24 +391,30 @@ const App = () => {
                  <h2 className="text-5xl font-black uppercase tracking-tighter leading-none mb-4">Clinical Portal</h2>
                  <p className={`text-lg leading-relaxed ${currentTheme.textSecondary}`}>Led by Dr. Chris LaFlair, our practice delivers restorative precision and pain-free preventative care to the Ogdensburg community.</p>
              </section>
+             
+             {/* --- UPDATED CLINICAL TEAM SECTION --- */}
              <section>
                 <div className="flex items-center gap-2 mb-6 opacity-30 font-black text-[10px] uppercase tracking-widest"><Users size={14}/> Clinical Team</div>
-                <div className="relative h-48">{ STAFF_CARDS.map((s, i) => (
-                  <div key={i} onClick={() => setActiveStaff(i)} className={`absolute inset-x-0 p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} transition-all duration-500 cursor-pointer flex items-center gap-4`} style={{ transform: `translateY(${(i-activeStaff)*15}px) scale(${i === activeStaff ? 1 : 0.95})`, opacity: i === activeStaff ? 1 : 0.3, zIndex: 10 - Math.abs(i-activeStaff) }}>
-                     {s.image ? (
-                         <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 ${currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.replace(/ /g, '+') + '&background=random'; }} />
-                     ) : (
-                         <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center ${currentTheme.accentBgSoft} ${currentTheme.accentText} font-bold text-xl border-2 ${currentTheme.accentBorder}`}>
-                             {s.name[0]}
-                         </div>
-                     )}
-                     <div>
-                        <p className={`text-[10px] font-black ${currentTheme.accentText} uppercase mb-1`}>{s.role}</p>
-                        <h4 className="text-lg font-bold">{s.name}</h4>
-                        <p className="text-xs opacity-50 mt-1 line-clamp-2">{s.bio}</p>
-                     </div>
-                  </div>
-                ))}</div>
+                
+                <div className="flex flex-col gap-4">
+                  {STAFF_CARDS.map((s, i) => (
+                    <div key={i} className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm hover:shadow-md transition-shadow`}>
+                       {s.image ? (
+                           <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 ${currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.replace(/ /g, '+') + '&background=random'; }} />
+                       ) : (
+                           <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center ${currentTheme.accentBgSoft} ${currentTheme.accentText} font-bold text-xl border-2 ${currentTheme.accentBorder}`}>
+                               {s.name[0]}
+                           </div>
+                       )}
+                       <div>
+                          <p className={`text-[10px] font-black ${currentTheme.accentText} uppercase mb-1`}>{s.role}</p>
+                          <h4 className="text-lg font-bold leading-tight mb-1">{s.name}</h4>
+                          <p className={`text-xs ${currentTheme.textSecondary} leading-relaxed line-clamp-3`}>{s.bio}</p>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+
              </section>
           </div>
         )}
