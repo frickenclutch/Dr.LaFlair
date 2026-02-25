@@ -3,7 +3,7 @@
 A high-fidelity, interactive dental anatomy and patient education interface. This application serves as a digital "Anatomy Lab" to help patients visualize oral health and restorative procedures.
 
 ## 🚀 Live Demo
-[Insert Your GitHub Pages Link Here]
+[https://dr-la-flair.vercel.app/]
 
 ## 🛠️ Tech Stack
 - **Framework:** React.js (Vite)
