@@ -476,7 +476,6 @@ const handlePointerDown = (e) => {
             </div>
 
              <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
-
       {view === 'archive' && (
           <div className="w-full max-w-4xl animate-in slide-in-from-bottom duration-700 pb-12 pt-8">
              <div className="mb-10 text-center md:text-left pl-2">
