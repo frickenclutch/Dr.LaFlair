@@ -215,25 +215,40 @@ const App = () => {
     }
   };
 
-  const handlePointerDown = (e) => {
+ const handlePointerDown = (e) => {
     if (chipStatus !== 'broken' || isXrayMode) return;
     e.preventDefault();
     e.stopPropagation();
     dragRef.current = true;
     setIsDragging(true);
-    dragOffset.current = { startX: e.clientX, startY: e.clientY, chipX: chipPos.x, chipY: chipPos.y };
+    // Track current position in real-time to prevent React state lag
+    dragOffset.current = { 
+      startX: e.clientX, 
+      startY: e.clientY, 
+      chipX: chipPos.x, 
+      chipY: chipPos.y,
+      currentX: chipPos.x,
+      currentY: chipPos.y
+    };
   };
 
-const handlePointerMove = (e) => {
+  const handlePointerMove = (e) => {
     // 1. Tooth Fragment Dragging Logic
     if (dragRef.current) {
       e.preventDefault();
       const dx = e.clientX - dragOffset.current.startX;
       const dy = e.clientY - dragOffset.current.startY;
-      setChipPos({ x: dragOffset.current.chipX + dx, y: dragOffset.current.chipY + dy });
+      const newX = dragOffset.current.chipX + dx;
+      const newY = dragOffset.current.chipY + dy;
+      
+      // Save exact location to ref for perfect drop accuracy
+      dragOffset.current.currentX = newX;
+      dragOffset.current.currentY = newY;
+      
+      setChipPos({ x: newX, y: newY });
     }
     
-    // 2. NEW: Before/After Slider Dragging Logic
+    // 2. Before/After Slider Dragging Logic
     if (isDraggingSlider && sliderRef.current) {
       e.preventDefault();
       const rect = sliderRef.current.getBoundingClientRect();
@@ -246,15 +261,32 @@ const handlePointerMove = (e) => {
     // Release the Slider
     if (isDraggingSlider) setIsDraggingSlider(false);
 
-    // Tooth Fragment Repair Logic
-    if (!dragRef.current && chipStatus === 'broken') {
-        executeRepair(); return;
-    }
-    if (!dragRef.current) return;
+    // Stop if we weren't actually dragging the tooth (Fixes background click bug)
+    if (!dragRef.current) return; 
+    
     dragRef.current = false;
     setIsDragging(false);
-    const dist = Math.sqrt(chipPos.x*chipPos.x + chipPos.y*chipPos.y);
-    if (dist < 60) executeRepair();
+
+    // Read from our real-time ref to guarantee perfect drop math
+    const finalX = dragOffset.current.currentX;
+    const finalY = dragOffset.current.currentY;
+    
+    // Calculate distance to the perfect fit (0,0)
+    const distToTarget = Math.sqrt(finalX * finalX + finalY * finalY);
+    
+    // Calculate if they just clicked/tapped the fragment without moving it much
+    const dragDistance = Math.sqrt(
+      Math.pow(finalX - dragOffset.current.chipX, 2) + 
+      Math.pow(finalY - dragOffset.current.chipY, 2)
+    );
+
+    // Generous 100px drop zone, OR allow simple tapping
+    if (distToTarget < 100 || dragDistance < 5) {
+        executeRepair();
+    } else {
+        // Penalty: Snap it back to the broken position if they miss the drop zone!
+        setChipPos({ x: 40, y: 120 });
+    }
   };
 
   const executeRepair = () => {
