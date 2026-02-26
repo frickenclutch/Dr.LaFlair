@@ -64,6 +64,83 @@ const STAFF_CARDS = [
   { name: "Renee & Suellen", role: "Front Desk & Assistants", bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling." },
   { name: "Stephanie & Maria", role: "Dental Hygienists", bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible." }
 ];
+// --- NEW NATIVE SVG SMILE COMPONENT ---
+const SmileSVG = ({ type }) => {
+  const isBefore = type === 'before';
+  
+  return (
+    <svg viewBox="0 0 800 400" className="w-full h-full bg-stone-900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id={`tooth-grad-${type}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={isBefore ? '#fef08a' : '#ffffff'} />
+          <stop offset="100%" stopColor={isBefore ? '#d97706' : '#e7e5e4'} />
+        </linearGradient>
+        <linearGradient id="lip-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fb7185" />
+          <stop offset="100%" stopColor="#be123c" />
+        </linearGradient>
+        <clipPath id={`mouth-clip-${type}`}>
+          <path d="M 100 200 C 250 140, 550 140, 700 200 C 550 280, 250 280, 100 200 Z" />
+        </clipPath>
+      </defs>
+
+      {/* Background Skin Area */}
+      <rect width="800" height="400" fill={isBefore ? "#e7e5e4" : "#f5f5f4"} />
+
+      {/* Mouth Cavity (Darkness) */}
+      <path d="M 100 200 C 250 140, 550 140, 700 200 C 550 280, 250 280, 100 200 Z" fill="#1c1917" />
+
+      {/* Teeth & Gums Clipped inside Mouth */}
+      <g clipPath={`url(#mouth-clip-${type})`}>
+        {/* Upper & Lower Gums */}
+        <path d="M 0 0 L 800 0 L 800 170 C 550 155, 250 155, 0 170 Z" fill={isBefore ? '#f87171' : '#fda4af'} />
+        <path d="M 0 400 L 800 400 L 800 245 C 550 260, 250 260, 0 245 Z" fill={isBefore ? '#f87171' : '#fda4af'} />
+
+        {/* Upper Teeth Arch */}
+        <g stroke="#292524" strokeWidth="1.5" fill={`url(#tooth-grad-${type})`}>
+          <rect x="360" y="160" width="38" height="55" rx="6" />
+          <rect x="402" y="160" width="38" height="55" rx="6" />
+          <rect x="325" y="158" width="32" height="48" rx="5" />
+          <rect x="443" y="158" width="32" height="48" rx="5" />
+          <rect x="295" y="155" width="28" height="45" rx="4" />
+          <rect x="477" y="155" width="28" height="45" rx="4" />
+          <rect x="270" y="155" width="22" height="40" rx="3" />
+          <rect x="508" y="155" width="22" height="40" rx="3" />
+        </g>
+
+        {/* Lower Teeth Arch */}
+        <g stroke="#292524" strokeWidth="1.5" fill={`url(#tooth-grad-${type})`}>
+          <rect x="365" y="217" width="33" height="40" rx="5" />
+          <rect x="402" y="217" width="33" height="40" rx="5" />
+          <rect x="335" y="219" width="28" height="38" rx="4" />
+          <rect x="437" y="219" width="28" height="38" rx="4" />
+          <rect x="308" y="222" width="25" height="35" rx="4" />
+          <rect x="467" y="222" width="25" height="35" rx="4" />
+        </g>
+        
+        {/* Plaque/Stain Overlay (Only visible if 'before') */}
+        {isBefore && (
+          <g fill="#ca8a04" opacity="0.4" filter="blur(3px)">
+             <ellipse cx="380" cy="165" rx="20" ry="10" />
+             <ellipse cx="420" cy="165" rx="20" ry="10" />
+             <ellipse cx="340" cy="165" rx="15" ry="8" />
+             <ellipse cx="460" cy="165" rx="15" ry="8" />
+             <ellipse cx="380" cy="245" rx="15" ry="10" />
+             <ellipse cx="420" cy="245" rx="15" ry="10" />
+          </g>
+        )}
+      </g>
+
+      {/* Upper & Lower Lips */}
+      <path d="M 100 200 C 250 100, 550 100, 700 200 C 550 140, 250 140, 100 200 Z" fill="url(#lip-grad)" />
+      <path d="M 100 200 C 250 300, 550 300, 700 200 C 550 280, 250 280, 100 200 Z" fill="url(#lip-grad)" />
+      
+      {/* Subtle Lip Highlights */}
+      <path d="M 300 128 Q 400 120 500 128" stroke="#fecdd3" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.6"/>
+      <path d="M 320 285 Q 400 295 480 285" stroke="#fecdd3" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.4"/>
+    </svg>
+  );
+};
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -384,7 +461,7 @@ const handlePointerMove = (e) => {
              >
                 {/* AFTER IMAGE (Perfect Smile - Bottom Layer) */}
                 <div className="absolute inset-0 bg-stone-900 pointer-events-none">
-                   <img src="http://googleusercontent.com/image_collection/image_retrieval/13319065758805232888_0" alt="After Treatment" className="w-full h-full object-cover" draggable="false" />
+                   <SmileSVG type="after" />
                    <div className="absolute bottom-4 right-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">After</div>
                 </div>
 
@@ -394,7 +471,7 @@ const handlePointerMove = (e) => {
                   style={{ clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)` }}
                 >
                    {/* We use the exact same image, but apply CSS filters to make it look like a "Before" photo */}
-                   <img src="http://googleusercontent.com/image_collection/image_retrieval/13319065758805232888_0" alt="Before Treatment" className="w-full h-full object-cover brightness-75 contrast-125 sepia-[.35] hue-rotate-[-10deg]" draggable="false" />
+                   <SmileSVG type="before" />
                    <div className="absolute bottom-4 left-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">Before</div>
                 </div>
 
