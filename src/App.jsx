@@ -456,7 +456,7 @@ const handlePointerMove = (e) => {
              {/* --- NEW BEFORE & AFTER SLIDER --- */}
              <div 
                 ref={sliderRef}
-                className={`relative w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border}`}
+                className={`relative w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border} touch-none`}
                 onPointerDown={(e) => { e.preventDefault(); setIsDraggingSlider(true); }}
              >
                 {/* AFTER IMAGE (Perfect Smile - Bottom Layer) */}
