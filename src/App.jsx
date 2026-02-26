@@ -26,7 +26,8 @@ const THEMES = {
     border: "border-stone-200", glass: "bg-white/90 backdrop-blur-xl border-b border-stone-200",
     accentText: "text-indigo-600", accentBg: "bg-indigo-600", accentBgSoft: "bg-indigo-600/10", 
     accentBorder: "border-indigo-600", healthBar: "from-indigo-500 to-indigo-600",
-    xrayGlow: "drop-shadow-[0_0_15px_rgba(79,70,229,0.5)]", xrayLine: "#4f46e5"
+    // CHANGED: X-Ray is now a sharp clinical black/slate in Light Mode
+    xrayGlow: "drop-shadow-[0_0_15px_rgba(0,0,0,0.25)]", xrayLine: "#171717" 
   },
   LAB: {
     bg: "bg-[#050505]", card: "bg-[#0a0a0b]", textPrimary: "text-cyan-50", textSecondary: "text-stone-400", 
@@ -70,13 +71,10 @@ const App = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [healthScore, setHealthScore] = useState(85);
   
-  // Interactive States
   const [isSparkling, setIsSparkling] = useState(false);
   const [chipStatus, setChipStatus] = useState('intact'); 
   const [chipPos, setChipPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  
-  // NEW X-RAY STATE
   const [isXrayMode, setIsXrayMode] = useState(false);
 
   const currentTheme = isDarkMode ? THEMES.LAB : THEMES.APPLE;
@@ -112,7 +110,7 @@ const App = () => {
 
   const breakTooth = (e) => {
     e.stopPropagation();
-    if (chipStatus !== 'broken' && !isXrayMode) { // Prevent breaking during Xray
+    if (chipStatus !== 'broken' && !isXrayMode) { 
       setChipStatus('broken');
       setChipPos({ x: 40, y: 120 }); 
       setHealthScore(25);
@@ -195,7 +193,6 @@ const App = () => {
         @keyframes xray-scan { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
       `}</style>
 
-      {/* STICKY MOBILE CTA BUTTON */}
       <button onClick={handleCall} className={`md:hidden fixed bottom-6 right-6 z-[100] w-14 h-14 rounded-full ${currentTheme.accentBg} text-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95 transition-all`}>
         <Phone size={24} className={isDarkMode ? "text-white" : "text-white"} />
       </button>
@@ -209,7 +206,6 @@ const App = () => {
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
 
-      {/* --- HUD --- */}
       <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
         <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
           
@@ -233,6 +229,7 @@ const App = () => {
                   </div>
                 </div>
               </div>
+
               <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform shrink-0`}>
                 {isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}
               </button>
@@ -251,13 +248,11 @@ const App = () => {
         </div>
       </div>
 
-      {/* --- MAIN CONTENT AREA --- */}
       <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-28 md:mt-24 xl:mt-0">
         
         {view === 'anatomy' && (
           <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000 flex flex-col items-center">
             
-            {/* NEW X-RAY TOGGLE UI */}
             <div className={`absolute top-0 right-0 z-20 flex items-center gap-3 p-2 pr-4 rounded-full ${currentTheme.glass} border ${currentTheme.border} cursor-pointer hover:scale-105 transition-all`} onClick={() => { setIsXrayMode(!isXrayMode); if(chipStatus==='broken') executeRepair(); }}>
                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isXrayMode ? currentTheme.accentBg : 'bg-stone-500/20'} ${isXrayMode ? 'text-white' : ''}`}>
                  <Search size={14} />
@@ -265,29 +260,25 @@ const App = () => {
                <span className={`text-[10px] font-black uppercase tracking-widest ${isXrayMode ? currentTheme.accentText : 'opacity-50'}`}>X-Ray Mode</span>
             </div>
 
-            {/* TOOTH SVG WITH X-RAY LOGIC INTEGRATED */}
              <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
                 
-                {/* X-Ray Scanline Background (Only visible in Xray mode) */}
                 {isXrayMode && (
                   <rect x="50" y="100" width="300" height="400" fill={`url(#xray-grid-${isDarkMode ? 'dark' : 'light'})`} opacity="0.3" className="pointer-events-none" />
                 )}
                 
-                {/* SVG Definitions for Xray Grids */}
                 <defs>
                   <pattern id="xray-grid-dark" width="20" height="20" patternUnits="userSpaceOnUse">
                     <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#22d3ee" strokeWidth="0.5" opacity="0.5"/>
                   </pattern>
                   <pattern id="xray-grid-light" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#4f46e5" strokeWidth="0.5" opacity="0.5"/>
+                    {/* CHANGED: Black grid lines for light mode */}
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#171717" strokeWidth="0.5" opacity="0.15"/>
                   </pattern>
                 </defs>
 
-                {/* Gums (Fade out in Xray Mode) */}
                 <path d="M 50 360 Q 150 310, 200 330 Q 250 310, 350 360 L 350 500 L 50 500 Z" fill={selectedSection?.id === 'gums' ? TOOTH_SECTIONS.GUMS.color : (isDarkMode ? "#2d1a1c" : "#fecdd3")} className={`transition-all duration-700 ${isXrayMode ? 'opacity-10' : 'cursor-pointer hover:opacity-80'}`} onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.GUMS); } }} />
                 
                 <g>
-                    {/* Main Enamel Body (Turns to glowing wireframe in Xray Mode) */}
                     <path d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
                       fill={isXrayMode ? "transparent" : (selectedSection?.id === 'enamel' ? (isDarkMode ? "#2a3d46" : "#ffffff") : (isDarkMode ? "#1c1c1e" : "#f5f5f4"))} 
                       stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
@@ -295,18 +286,15 @@ const App = () => {
                       className={`transition-all duration-700 ${isXrayMode ? '' : 'cursor-pointer hover:brightness-110'}`} 
                       onClick={!isXrayMode ? handleEnamelClick : undefined} />
                     
-                    {/* Nerve (Pulses brightly in Xray Mode) */}
                     <path d="M 160 240 C 180 220, 220 220, 240 240 C 250 270, 250 300, 240 320 C 230 370, 230 400, 220 400 C 210 400, 210 370, 200 330 C 190 370, 190 400, 180 400 C 170 400, 170 370, 160 320 C 150 300, 150 270, 160 240 Z" 
                       fill={isXrayMode ? currentTheme.xrayLine : (selectedSection?.id === 'nerve' ? TOOTH_SECTIONS.NERVE.color : (isDarkMode ? "rgba(248, 113, 113, 0.15)" : "#fecaca"))} 
                       className={`transition-all duration-700 ${isXrayMode ? 'opacity-80 animate-pulse' : 'cursor-pointer hover:opacity-100'}`} 
                       onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.NERVE); } }} />
                     
-                    {/* Cavity / Broken Fragment (Hidden during X-Ray) */}
                     {!isXrayMode && <circle cx="140" cy="220" r="14" fill={TOOTH_SECTIONS.CAVITY.color} className={`transition-all cursor-pointer ${selectedSection?.id === 'cavity' ? 'scale-150' : 'animate-pulse opacity-70 hover:opacity-100'}`} onClick={(e) => { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.CAVITY); }} />}
                     {(!isXrayMode && chipStatus === 'broken') && <path d="M 220 160 L 250 230 L 280 240 L 250 200 Z" fill="#ef4444" className="animate-pulse opacity-60 pointer-events-none" />}
                 </g>
                 
-                {/* Breakable Fragment (Becomes wireframe during Xray, disabled dragging) */}
                 <path d="M 220 160 C 240 120, 280 120, 280 180 C 285 200, 285 220, 280 240 L 250 230 L 220 160 Z" 
                   fill={isXrayMode ? "transparent" : (isDarkMode ? "#1c1c1e" : "#f5f5f4")} 
                   stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
@@ -325,7 +313,6 @@ const App = () => {
           </div>
         )}
 
-        {/* ... (The Archive, Tech, and Connect views remain exactly the same as before) ... */}
         {view === 'archive' && (
           <div className="w-full max-w-4xl animate-in slide-in-from-bottom duration-700 pb-12 pt-8">
              <div className="mb-10 text-center md:text-left pl-2">
@@ -408,7 +395,6 @@ const App = () => {
         )}
       </div>
 
-      {/* --- RIGHT INFO PANEL --- */}
       <div className={`w-full md:w-[450px] lg:w-[500px] ${currentTheme.card} border-l ${currentTheme.border} p-10 pt-32 overflow-y-auto z-20 shadow-2xl relative shrink-0`}>
         {selectedSection ? (
           <div className="animate-in slide-in-from-right duration-500 space-y-8">
