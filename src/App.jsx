@@ -4,13 +4,11 @@ import {
   MapPin, Phone, CreditCard, ArrowLeft, Activity, 
   Heart, Moon, Sun, Users, Monitor, Crosshair, 
   Database, Shield, ArrowRight, Loader2, Lock, 
-  CheckCircle, MessageCircle, Clock
+  CheckCircle, MessageCircle, Clock, Search
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
-const ASSETS = {
-  HERO_VIDEO: "http://googleusercontent.com/generated_video_content/540743943313863772",
-};
+const ASSETS = { HERO_VIDEO: "http://googleusercontent.com/generated_video_content/540743943313863772" };
 
 const PRACTICE_INFO = {
   name: "Christopher LaFlair DDS PC",
@@ -22,19 +20,20 @@ const PRACTICE_INFO = {
   closed: "Fri - Sun: Closed"
 };
 
-// FULLY EXPLICIT THEMES TO PREVENT TAILWIND PURGE
 const THEMES = {
   APPLE: {
     bg: "bg-[#fafaf9]", card: "bg-white", textPrimary: "text-stone-900", textSecondary: "text-stone-500", 
     border: "border-stone-200", glass: "bg-white/90 backdrop-blur-xl border-b border-stone-200",
     accentText: "text-indigo-600", accentBg: "bg-indigo-600", accentBgSoft: "bg-indigo-600/10", 
-    accentBorder: "border-indigo-600", healthBar: "from-indigo-500 to-indigo-600"
+    accentBorder: "border-indigo-600", healthBar: "from-indigo-500 to-indigo-600",
+    xrayGlow: "drop-shadow-[0_0_15px_rgba(79,70,229,0.5)]", xrayLine: "#4f46e5"
   },
   LAB: {
     bg: "bg-[#050505]", card: "bg-[#0a0a0b]", textPrimary: "text-cyan-50", textSecondary: "text-stone-400", 
     border: "border-white/10", glass: "bg-black/60 backdrop-blur-xl border-b border-white/10",
     accentText: "text-cyan-400", accentBg: "bg-cyan-400", accentBgSoft: "bg-cyan-400/10", 
-    accentBorder: "border-cyan-400", healthBar: "from-indigo-500 to-cyan-400"
+    accentBorder: "border-cyan-400", healthBar: "from-indigo-500 to-cyan-400",
+    xrayGlow: "drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]", xrayLine: "#22d3ee"
   }
 };
 
@@ -49,11 +48,7 @@ const TESTIMONIALS = [
   { name: "Sarah M.", type: "Clear Aligners", text: "Dr. LaFlair's clear aligner treatment was completely painless and the results changed my life and confidence." },
   { name: "David R.", type: "Restorative Care", text: "My crown was done so precisely, and the entire team made my severe dental anxiety completely disappear." },
   { name: "Elena T.", type: "Preventative", text: "Best cleaning I've ever had. The intraoral cameras really helped me understand my oral health." },
-  { name: "Michael B.", type: "Implant Restoration", text: "After years of struggling with my bite, Dr. LaFlair restored my smile. The precision and care are truly unmatched." },
-  { name: "Jennifer K.", type: "Family Dentistry", text: "My entire family has been coming here for a decade. The staff is incredibly welcoming and makes everyone feel at home." },
-  { name: "Robert W.", type: "Emergency Care", text: "When I chipped my tooth, the team got me in immediately. You can't ask for better, more compassionate care." },
-  { name: "Linda S.", type: "Cosmetic Dentistry", text: "I am so happy with my cosmetic work. Dr. LaFlair and his team are true artists when it comes to a natural look." },
-  { name: "James T.", type: "Advanced Tech", text: "The technology they use is amazing. My procedures are always faster and far more comfortable than I ever expected." }
+  { name: "Michael B.", type: "Implant Restoration", text: "After years of struggling with my bite, Dr. LaFlair restored my smile. The precision and care are truly unmatched." }
 ];
 
 const GEAR_LOADOUT = [
@@ -64,8 +59,8 @@ const GEAR_LOADOUT = [
 ];
 
 const STAFF_CARDS = [
-  { name: "Dr. Chris LaFlair", role: "Lead Dentist", bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere.", image: "image_216fce.png" },
-  { name: "Renee & Suellen", role: "Front Desk & Assistants", bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling and insurance coordination." },
+  { name: "Dr. Chris LaFlair", role: "Lead Dentist", bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere." },
+  { name: "Renee & Suellen", role: "Front Desk & Assistants", bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling." },
   { name: "Stephanie & Maria", role: "Dental Hygienists", bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible." }
 ];
 
@@ -75,17 +70,22 @@ const App = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [healthScore, setHealthScore] = useState(85);
   
+  // Interactive States
   const [isSparkling, setIsSparkling] = useState(false);
   const [chipStatus, setChipStatus] = useState('intact'); 
   const [chipPos, setChipPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   
+  // NEW X-RAY STATE
+  const [isXrayMode, setIsXrayMode] = useState(false);
+
   const currentTheme = isDarkMode ? THEMES.LAB : THEMES.APPLE;
   const lastClickTime = useRef(0);
   const dragRef = useRef(false);
   const dragOffset = useRef({ startX: 0, startY: 0, chipX: 0, chipY: 0 });
 
   const handleBook = () => window.location.href = `mailto:${PRACTICE_INFO.email}?subject=Appointment Request`;
+  const handleCall = () => window.location.href = `tel:${PRACTICE_INFO.phone.replace(/-/g, '')}`;
 
   const handleInteraction = (section) => {
     setSelectedSection(section);
@@ -110,10 +110,9 @@ const App = () => {
     lastClickTime.current = now;
   };
 
-  // --- UPDATED REPEATABLE BREAK LOGIC ---
   const breakTooth = (e) => {
     e.stopPropagation();
-    if (chipStatus !== 'broken') {
+    if (chipStatus !== 'broken' && !isXrayMode) { // Prevent breaking during Xray
       setChipStatus('broken');
       setChipPos({ x: 40, y: 120 }); 
       setHealthScore(25);
@@ -126,7 +125,7 @@ const App = () => {
   };
 
   const handlePointerDown = (e) => {
-    if (chipStatus !== 'broken') return;
+    if (chipStatus !== 'broken' || isXrayMode) return;
     e.preventDefault();
     e.stopPropagation();
     dragRef.current = true;
@@ -144,8 +143,7 @@ const App = () => {
 
   const handlePointerUp = () => {
     if (!dragRef.current && chipStatus === 'broken') {
-        executeRepair();
-        return;
+        executeRepair(); return;
     }
     if (!dragRef.current) return;
     dragRef.current = false;
@@ -177,28 +175,12 @@ const App = () => {
         <div className="absolute top-0 left-0 right-0 h-1 bg-cyan-400 shadow-[0_0_20px_4px_#22d3ee] opacity-80" style={{ animation: 'scanline 2s linear infinite' }}/>
       </div>
     );
-    if (id === 'camera') return (
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-rose-400/90 via-pink-300/80 to-white/90 blur-md"/>
-        <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-white/60 rounded-full blur-xl"/>
-        <div className="absolute top-4 -left-8 w-24 h-24 bg-red-500/40 rounded-full blur-xl"/>
-      </div>
-    );
     if (id === 'cloud') return (
       <div className="absolute inset-0 bg-slate-900 opacity-0 group-hover:opacity-100 transition-all duration-500 z-0 p-4 flex flex-wrap gap-3 justify-center content-start pointer-events-none">
-        {Array.from({length: 15}).map((_, i) => (
-          <div key={i} className="w-[18%] aspect-square rounded bg-cyan-900/40 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]" style={{ animation: `pulse-grid 2s infinite ${(i%5)*0.2}s` }}/>
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none"/>
+        {Array.from({length: 15}).map((_, i) => ( <div key={i} className="w-[18%] aspect-square rounded bg-cyan-900/40 border border-cyan-500/30" style={{ animation: `pulse-grid 2s infinite ${(i%5)*0.2}s` }}/> ))}
       </div>
     );
-    if (id === 'shield') return (
-      <div className="absolute inset-0 bg-gradient-to-t from-orange-600/95 via-red-500/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 z-0 overflow-hidden pointer-events-none">
-        {Array.from({length: 12}).map((_, i) => (
-          <div key={i} className="absolute w-3 h-3 bg-lime-400 rounded-full blur-[1px]" style={{ left: `${(i*8.5)+5}%`, bottom: '-10%', animation: `float-melt ${1.5+(i%2)}s ease-in infinite ${(i%3)*0.5}s` }}/>
-        ))}
-      </div>
-    );
+    return null;
   };
 
   return (
@@ -209,9 +191,14 @@ const App = () => {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes scanline { 0% { transform: translateY(-50px); } 100% { transform: translateY(400px); } }
-        @keyframes float-melt { 0% { transform: translateY(0) scale(1); opacity: 0.9; background-color: #a3e635; } 50% { background-color: #f97316; } 100% { transform: translateY(-150px) scale(0); opacity: 0; background-color: #ef4444; } }
         @keyframes pulse-grid { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.7; background-color: rgba(34,211,238,0.3); } }
+        @keyframes xray-scan { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
       `}</style>
+
+      {/* STICKY MOBILE CTA BUTTON */}
+      <button onClick={handleCall} className={`md:hidden fixed bottom-6 right-6 z-[100] w-14 h-14 rounded-full ${currentTheme.accentBg} text-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95 transition-all`}>
+        <Phone size={24} className={isDarkMode ? "text-white" : "text-white"} />
+      </button>
 
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black">
         {isDarkMode ? (
@@ -222,22 +209,18 @@ const App = () => {
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
 
+      {/* --- HUD --- */}
       <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
         <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
           
           <div className="flex items-center justify-between w-full xl:w-auto xl:justify-start gap-4 xl:gap-8">
-            
             <div className="flex items-center gap-3 cursor-pointer group shrink-0" onClick={() => changeView('anatomy')}>
               <div className={`w-10 h-10 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform`}>
                 <Sparkles size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="font-black text-sm uppercase tracking-tighter leading-none">
-                  Dr. LaFlair <span className="opacity-50 hidden sm:inline">DDS</span>
-                </span>
-                <span className={`text-[9px] font-bold uppercase tracking-[0.2em] mt-1 ${currentTheme.accentText}`}>
-                  Smiles That Last
-                </span>
+                <span className="font-black text-sm uppercase tracking-tighter leading-none">Dr. LaFlair <span className="opacity-50 hidden sm:inline">DDS</span></span>
+                <span className={`text-[9px] font-bold uppercase tracking-[0.2em] mt-1 ${currentTheme.accentText}`}>Smiles That Last</span>
               </div>
             </div>
 
@@ -250,7 +233,6 @@ const App = () => {
                   </div>
                 </div>
               </div>
-
               <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform shrink-0`}>
                 {isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}
               </button>
@@ -269,34 +251,81 @@ const App = () => {
         </div>
       </div>
 
+      {/* --- MAIN CONTENT AREA --- */}
       <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-28 md:mt-24 xl:mt-0">
         
         {view === 'anatomy' && (
-          <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000">
-             <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`}`} style={{ touchAction: 'none' }}>
-                <path d="M 50 360 Q 150 310, 200 330 Q 250 310, 350 360 L 350 500 L 50 500 Z" fill={selectedSection?.id === 'gums' ? TOOTH_SECTIONS.GUMS.color : (isDarkMode ? "#2d1a1c" : "#fecdd3")} className="transition-colors cursor-pointer hover:opacity-80" onClick={(e) => { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.GUMS); }} />
+          <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000 flex flex-col items-center">
+            
+            {/* NEW X-RAY TOGGLE UI */}
+            <div className={`absolute top-0 right-0 z-20 flex items-center gap-3 p-2 pr-4 rounded-full ${currentTheme.glass} border ${currentTheme.border} cursor-pointer hover:scale-105 transition-all`} onClick={() => { setIsXrayMode(!isXrayMode); if(chipStatus==='broken') executeRepair(); }}>
+               <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isXrayMode ? currentTheme.accentBg : 'bg-stone-500/20'} ${isXrayMode ? 'text-white' : ''}`}>
+                 <Search size={14} />
+               </div>
+               <span className={`text-[10px] font-black uppercase tracking-widest ${isXrayMode ? currentTheme.accentText : 'opacity-50'}`}>X-Ray Mode</span>
+            </div>
+
+            {/* TOOTH SVG WITH X-RAY LOGIC INTEGRATED */}
+             <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
+                
+                {/* X-Ray Scanline Background (Only visible in Xray mode) */}
+                {isXrayMode && (
+                  <rect x="50" y="100" width="300" height="400" fill={`url(#xray-grid-${isDarkMode ? 'dark' : 'light'})`} opacity="0.3" className="pointer-events-none" />
+                )}
+                
+                {/* SVG Definitions for Xray Grids */}
+                <defs>
+                  <pattern id="xray-grid-dark" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#22d3ee" strokeWidth="0.5" opacity="0.5"/>
+                  </pattern>
+                  <pattern id="xray-grid-light" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#4f46e5" strokeWidth="0.5" opacity="0.5"/>
+                  </pattern>
+                </defs>
+
+                {/* Gums (Fade out in Xray Mode) */}
+                <path d="M 50 360 Q 150 310, 200 330 Q 250 310, 350 360 L 350 500 L 50 500 Z" fill={selectedSection?.id === 'gums' ? TOOTH_SECTIONS.GUMS.color : (isDarkMode ? "#2d1a1c" : "#fecdd3")} className={`transition-all duration-700 ${isXrayMode ? 'opacity-10' : 'cursor-pointer hover:opacity-80'}`} onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.GUMS); } }} />
+                
                 <g>
+                    {/* Main Enamel Body (Turns to glowing wireframe in Xray Mode) */}
                     <path d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
-                      fill={selectedSection?.id === 'enamel' ? (isDarkMode ? "#2a3d46" : "#ffffff") : (isDarkMode ? "#1c1c1e" : "#f5f5f4")} stroke={isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0"} strokeWidth="2" className="transition-all cursor-pointer hover:brightness-110" onClick={handleEnamelClick} />
+                      fill={isXrayMode ? "transparent" : (selectedSection?.id === 'enamel' ? (isDarkMode ? "#2a3d46" : "#ffffff") : (isDarkMode ? "#1c1c1e" : "#f5f5f4"))} 
+                      stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
+                      strokeWidth={isXrayMode ? "3" : "2"} 
+                      className={`transition-all duration-700 ${isXrayMode ? '' : 'cursor-pointer hover:brightness-110'}`} 
+                      onClick={!isXrayMode ? handleEnamelClick : undefined} />
+                    
+                    {/* Nerve (Pulses brightly in Xray Mode) */}
                     <path d="M 160 240 C 180 220, 220 220, 240 240 C 250 270, 250 300, 240 320 C 230 370, 230 400, 220 400 C 210 400, 210 370, 200 330 C 190 370, 190 400, 180 400 C 170 400, 170 370, 160 320 C 150 300, 150 270, 160 240 Z" 
-                      fill={selectedSection?.id === 'nerve' ? TOOTH_SECTIONS.NERVE.color : (isDarkMode ? "rgba(248, 113, 113, 0.15)" : "#fecaca")} className="transition-colors cursor-pointer hover:opacity-100" onClick={(e) => { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.NERVE); }} />
-                    <circle cx="140" cy="220" r="14" fill={TOOTH_SECTIONS.CAVITY.color} className={`transition-all cursor-pointer ${selectedSection?.id === 'cavity' ? 'scale-150' : 'animate-pulse opacity-70 hover:opacity-100'}`} onClick={(e) => { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.CAVITY); }} />
-                    {chipStatus === 'broken' && <path d="M 220 160 L 250 230 L 280 240 L 250 200 Z" fill="#ef4444" className="animate-pulse opacity-60 pointer-events-none" />}
+                      fill={isXrayMode ? currentTheme.xrayLine : (selectedSection?.id === 'nerve' ? TOOTH_SECTIONS.NERVE.color : (isDarkMode ? "rgba(248, 113, 113, 0.15)" : "#fecaca"))} 
+                      className={`transition-all duration-700 ${isXrayMode ? 'opacity-80 animate-pulse' : 'cursor-pointer hover:opacity-100'}`} 
+                      onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.NERVE); } }} />
+                    
+                    {/* Cavity / Broken Fragment (Hidden during X-Ray) */}
+                    {!isXrayMode && <circle cx="140" cy="220" r="14" fill={TOOTH_SECTIONS.CAVITY.color} className={`transition-all cursor-pointer ${selectedSection?.id === 'cavity' ? 'scale-150' : 'animate-pulse opacity-70 hover:opacity-100'}`} onClick={(e) => { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.CAVITY); }} />}
+                    {(!isXrayMode && chipStatus === 'broken') && <path d="M 220 160 L 250 230 L 280 240 L 250 200 Z" fill="#ef4444" className="animate-pulse opacity-60 pointer-events-none" />}
                 </g>
+                
+                {/* Breakable Fragment (Becomes wireframe during Xray, disabled dragging) */}
                 <path d="M 220 160 C 240 120, 280 120, 280 180 C 285 200, 285 220, 280 240 L 250 230 L 220 160 Z" 
-                  fill={isDarkMode ? "#1c1c1e" : "#f5f5f4"} stroke={isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0"} strokeWidth="2"
+                  fill={isXrayMode ? "transparent" : (isDarkMode ? "#1c1c1e" : "#f5f5f4")} 
+                  stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
+                  strokeWidth={isXrayMode ? "3" : "2"}
                   style={{ transform: `translate(${chipPos.x}px, ${chipPos.y}px) scale(${isDragging ? 1.05 : 1})`, transformOrigin: '250px 180px' }}
-                  className={`transition-all ${isDragging ? 'duration-0' : 'duration-500'} ${chipStatus !== 'broken' ? 'cursor-pointer hover:brightness-125' : 'cursor-grab active:cursor-grabbing'}`}
-                  onClick={chipStatus !== 'broken' ? breakTooth : undefined}
+                  className={`transition-all ${isDragging ? 'duration-0' : 'duration-700'} ${isXrayMode ? 'pointer-events-none' : (chipStatus !== 'broken' ? 'cursor-pointer hover:brightness-125' : 'cursor-grab active:cursor-grabbing')}`}
+                  onClick={(!isXrayMode && chipStatus !== 'broken') ? breakTooth : undefined}
                   onPointerDown={handlePointerDown} />
+                
                 {isSparkling && <g className="pointer-events-none">{[130, 280, 200].map((cx, i) => <circle key={i} cx={cx} cy={150+(i*50)} r={10+(i*5)} fill={isDarkMode ? "rgba(34,211,238, 0.2)" : "rgba(79,70,229, 0.2)"} stroke={isDarkMode ? "#22d3ee" : "#4f46e5"} strokeWidth="2" className="animate-ping" style={{ animationDelay: `${i*0.2}s`, animationDuration: '1.5s' }} />)}</g>}
              </svg>
+             
              <div className="absolute -bottom-10 left-0 right-0 text-center pointer-events-none font-bold text-[10px] uppercase tracking-widest opacity-60">
-                {chipStatus !== 'broken' ? 'Tap Fragment to Simulate Decay or Double Click for Cleaning' : 'Drag fragment to restore structural integrity'}
+                {isXrayMode ? 'Advanced Sub-surface Imaging Active' : (chipStatus !== 'broken' ? 'Tap Fragment to Break or Double Click for Cleaning' : 'Drag fragment to restore structural integrity')}
              </div>
           </div>
         )}
 
+        {/* ... (The Archive, Tech, and Connect views remain exactly the same as before) ... */}
         {view === 'archive' && (
           <div className="w-full max-w-4xl animate-in slide-in-from-bottom duration-700 pb-12 pt-8">
              <div className="mb-10 text-center md:text-left pl-2">
@@ -379,6 +408,7 @@ const App = () => {
         )}
       </div>
 
+      {/* --- RIGHT INFO PANEL --- */}
       <div className={`w-full md:w-[450px] lg:w-[500px] ${currentTheme.card} border-l ${currentTheme.border} p-10 pt-32 overflow-y-auto z-20 shadow-2xl relative shrink-0`}>
         {selectedSection ? (
           <div className="animate-in slide-in-from-right duration-500 space-y-8">
@@ -399,7 +429,6 @@ const App = () => {
              </section>
              <section>
                 <div className="flex items-center gap-2 mb-6 opacity-30 font-black text-[10px] uppercase tracking-widest"><Users size={14}/> Clinical Team</div>
-                
                 <div className="flex flex-col gap-4">
                   {STAFF_CARDS.map((s, i) => (
                     <div key={i} className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm hover:shadow-md transition-shadow`}>
