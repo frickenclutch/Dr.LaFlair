@@ -384,7 +384,7 @@ const handlePointerMove = (e) => {
              >
                 {/* AFTER IMAGE (Perfect Smile - Bottom Layer) */}
                 <div className="absolute inset-0 bg-stone-900 pointer-events-none">
-                   <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1200&q=80" alt="After Treatment" className="w-full h-full object-cover" draggable="false" />
+                   <img src="http://googleusercontent.com/image_collection/image_retrieval/13319065758805232888_0" alt="After Treatment" className="w-full h-full object-cover" draggable="false" />
                    <div className="absolute bottom-4 right-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">After</div>
                 </div>
 
@@ -394,7 +394,7 @@ const handlePointerMove = (e) => {
                   style={{ clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)` }}
                 >
                    {/* We use the exact same image, but apply CSS filters to make it look like a "Before" photo */}
-                   <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1200&q=80" alt="Before Treatment" className="w-full h-full object-cover brightness-75 contrast-125 sepia-[.35] hue-rotate-[-10deg]" draggable="false" />
+                   <img src="http://googleusercontent.com/image_collection/image_retrieval/13319065758805232888_0" alt="Before Treatment" className="w-full h-full object-cover brightness-75 contrast-125 sepia-[.35] hue-rotate-[-10deg]" draggable="false" />
                    <div className="absolute bottom-4 left-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">Before</div>
                 </div>
 
