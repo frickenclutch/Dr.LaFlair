@@ -77,6 +77,9 @@ const App = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isXrayMode, setIsXrayMode] = useState(false);
   const [plaqueLevel, setPlaqueLevel] = useState(100);
+  const [sliderPos, setSliderPos] = useState(50);
+  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
+  const sliderRef = useRef(null);
 
   const currentTheme = isDarkMode ? THEMES.LAB : THEMES.APPLE;
   const lastClickTime = useRef(0);
@@ -144,15 +147,29 @@ const App = () => {
     dragOffset.current = { startX: e.clientX, startY: e.clientY, chipX: chipPos.x, chipY: chipPos.y };
   };
 
-  const handlePointerMove = (e) => {
-    if (!dragRef.current) return;
-    e.preventDefault();
-    const dx = e.clientX - dragOffset.current.startX;
-    const dy = e.clientY - dragOffset.current.startY;
-    setChipPos({ x: dragOffset.current.chipX + dx, y: dragOffset.current.chipY + dy });
+const handlePointerMove = (e) => {
+    // 1. Tooth Fragment Dragging Logic
+    if (dragRef.current) {
+      e.preventDefault();
+      const dx = e.clientX - dragOffset.current.startX;
+      const dy = e.clientY - dragOffset.current.startY;
+      setChipPos({ x: dragOffset.current.chipX + dx, y: dragOffset.current.chipY + dy });
+    }
+    
+    // 2. NEW: Before/After Slider Dragging Logic
+    if (isDraggingSlider && sliderRef.current) {
+      e.preventDefault();
+      const rect = sliderRef.current.getBoundingClientRect();
+      const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+      setSliderPos((x / rect.width) * 100);
+    }
   };
 
   const handlePointerUp = () => {
+    // Release the Slider
+    if (isDraggingSlider) setIsDraggingSlider(false);
+
+    // Tooth Fragment Repair Logic
     if (!dragRef.current && chipStatus === 'broken') {
         executeRepair(); return;
     }
@@ -352,12 +369,47 @@ const App = () => {
           </div>
         )}
 
-        {view === 'archive' && (
+      {view === 'archive' && (
           <div className="w-full max-w-4xl animate-in slide-in-from-bottom duration-700 pb-12 pt-8">
              <div className="mb-10 text-center md:text-left pl-2">
                 <h2 className="text-3xl font-black uppercase tracking-widest mb-2">Patient Outcomes</h2>
                 <p className={`text-sm ${currentTheme.textSecondary}`}>Real stories and clinical results from our Ogdensburg community.</p>
              </div>
+
+             {/* --- NEW BEFORE & AFTER SLIDER --- */}
+             <div 
+                ref={sliderRef}
+                className={`relative w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border}`}
+                onPointerDown={(e) => { e.preventDefault(); setIsDraggingSlider(true); }}
+             >
+                {/* AFTER IMAGE (Perfect Smile - Bottom Layer) */}
+                <div className="absolute inset-0 bg-stone-900 pointer-events-none">
+                   <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1200&q=80" alt="After Treatment" className="w-full h-full object-cover" draggable="false" />
+                   <div className="absolute bottom-4 right-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">After</div>
+                </div>
+
+                {/* BEFORE IMAGE (Stained Smile - Top Layer clipped by CSS) */}
+                <div 
+                  className="absolute inset-0 bg-stone-900 pointer-events-none" 
+                  style={{ clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)` }}
+                >
+                   {/* We use the exact same image, but apply CSS filters to make it look like a "Before" photo */}
+                   <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1200&q=80" alt="Before Treatment" className="w-full h-full object-cover brightness-75 contrast-125 sepia-[.35] hue-rotate-[-10deg]" draggable="false" />
+                   <div className="absolute bottom-4 left-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">Before</div>
+                </div>
+
+                {/* DRAG HANDLE */}
+                <div className="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_10px_rgba(0,0,0,0.5)] pointer-events-none" style={{ left: `${sliderPos}%`, transform: 'translateX(-50%)' }}>
+                   <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-xl transition-transform duration-300 ${isDraggingSlider ? 'scale-125' : 'group-hover:scale-110'}`}>
+                      <div className="flex gap-1.5">
+                         <div className="w-0.5 h-4 bg-stone-400 rounded-full" />
+                         <div className="w-0.5 h-4 bg-stone-400 rounded-full" />
+                      </div>
+                   </div>
+                </div>
+             </div>
+             
+             {/* EXISTING TESTIMONIALS */}
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {TESTIMONIALS.map((t, i) => (
                    <div key={i} className={`p-6 rounded-3xl ${currentTheme.glass} border ${currentTheme.border} hover:-translate-y-1 transition-transform duration-300`}>
