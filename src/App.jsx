@@ -63,7 +63,6 @@ const GEAR_LOADOUT = [
   { id: 'shield', name: "Advanced Sterilization", icon: <Shield className="w-6 h-6"/>, spec: "Infection Control", detail: "Hospital-grade protocols exceeding industry standards for absolute safety." }
 ];
 
-// --- UPDATED STAFF CARDS (Real Data) ---
 const STAFF_CARDS = [
   { name: "Dr. Chris LaFlair", role: "Lead Dentist", bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere.", image: "image_216fce.png" },
   { name: "Renee & Suellen", role: "Front Desk & Assistants", bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling and insurance coordination." },
@@ -222,17 +221,21 @@ const App = () => {
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
 
+      {/* --- RE-ENGINEERED HUD FOR MOBILE VISIBILITY --- */}
       <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
         <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
           
-          <div className="flex items-center justify-between xl:justify-start gap-8 w-full xl:w-auto">
-            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => changeView('anatomy')}>
+          {/* TOP ROW: Logo + Mobile-Friendly Actions */}
+          <div className="flex items-center justify-between w-full xl:w-auto xl:justify-start gap-4 xl:gap-8">
+            
+            {/* Logo */}
+            <div className="flex items-center gap-3 cursor-pointer group shrink-0" onClick={() => changeView('anatomy')}>
               <div className={`w-10 h-10 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform`}>
                 <Sparkles size={20} />
               </div>
               <div className="flex flex-col">
                 <span className="font-black text-sm uppercase tracking-tighter leading-none">
-                  Christopher LaFlair <span className="opacity-50">DDS</span>
+                  Dr. LaFlair <span className="opacity-50 hidden sm:inline">DDS</span>
                 </span>
                 <span className={`text-[9px] font-bold uppercase tracking-[0.2em] mt-1 ${currentTheme.accentText}`}>
                   Smiles That Last
@@ -240,24 +243,34 @@ const App = () => {
               </div>
             </div>
 
-            <div className="hidden md:flex items-center gap-3 w-32 lg:w-40 border-l border-stone-500/20 pl-6">
-              <div className="flex-1">
-                <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
-                <div className="h-1 w-full bg-stone-500/20 rounded-full overflow-hidden">
-                  <div className={`h-full transition-all duration-1000 bg-gradient-to-r ${healthScore > 50 ? currentTheme.healthBar : 'from-red-600 to-red-400'}`} style={{ width: `${healthScore}%` }} />
+            {/* Mobile-Visible Action Group */}
+            <div className="flex items-center gap-4">
+              {/* Vitality Bar (Hidden on tiny screens, visible on tablets/desktops) */}
+              <div className="hidden md:flex items-center gap-3 w-32 border-l border-stone-500/20 pl-4">
+                <div className="flex-1">
+                  <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
+                  <div className="h-1 w-full bg-stone-500/20 rounded-full overflow-hidden">
+                    <div className={`h-full transition-all duration-1000 bg-gradient-to-r ${healthScore > 50 ? currentTheme.healthBar : 'from-red-600 to-red-400'}`} style={{ width: `${healthScore}%` }} />
+                  </div>
                 </div>
               </div>
+
+              {/* DARK MODE TOGGLE: Now permanently visible on all screen sizes */}
+              <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform shrink-0`}>
+                {isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}
+              </button>
             </div>
           </div>
 
+          {/* CENTER NAVIGATION */}
           <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
             {['anatomy', 'archive', 'tech', 'connect'].map(v => (
               <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>{v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v}</button>
             ))}
           </div>
 
+          {/* RIGHT DESKTOP ACTIONS */}
           <div className="hidden lg:flex items-center gap-4 shrink-0">
-            <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform`}>{isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}</button>
             <button onClick={handleBook} className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform`}>Request Consultation</button>
           </div>
         </div>
@@ -391,8 +404,6 @@ const App = () => {
                  <h2 className="text-5xl font-black uppercase tracking-tighter leading-none mb-4">Clinical Portal</h2>
                  <p className={`text-lg leading-relaxed ${currentTheme.textSecondary}`}>Led by Dr. Chris LaFlair, our practice delivers restorative precision and pain-free preventative care to the Ogdensburg community.</p>
              </section>
-             
-             {/* --- UPDATED CLINICAL TEAM SECTION --- */}
              <section>
                 <div className="flex items-center gap-2 mb-6 opacity-30 font-black text-[10px] uppercase tracking-widest"><Users size={14}/> Clinical Team</div>
                 
@@ -414,7 +425,6 @@ const App = () => {
                     </div>
                   ))}
                 </div>
-
              </section>
           </div>
         )}
