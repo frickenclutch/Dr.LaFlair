@@ -110,9 +110,10 @@ const App = () => {
     lastClickTime.current = now;
   };
 
+  // --- UPDATED REPEATABLE BREAK LOGIC ---
   const breakTooth = (e) => {
     e.stopPropagation();
-    if (chipStatus === 'intact') {
+    if (chipStatus !== 'broken') {
       setChipStatus('broken');
       setChipPos({ x: 40, y: 120 }); 
       setHealthScore(25);
@@ -221,14 +222,11 @@ const App = () => {
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
 
-      {/* --- RE-ENGINEERED HUD FOR MOBILE VISIBILITY --- */}
       <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
         <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
           
-          {/* TOP ROW: Logo + Mobile-Friendly Actions */}
           <div className="flex items-center justify-between w-full xl:w-auto xl:justify-start gap-4 xl:gap-8">
             
-            {/* Logo */}
             <div className="flex items-center gap-3 cursor-pointer group shrink-0" onClick={() => changeView('anatomy')}>
               <div className={`w-10 h-10 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform`}>
                 <Sparkles size={20} />
@@ -243,9 +241,7 @@ const App = () => {
               </div>
             </div>
 
-            {/* Mobile-Visible Action Group */}
             <div className="flex items-center gap-4">
-              {/* Vitality Bar (Hidden on tiny screens, visible on tablets/desktops) */}
               <div className="hidden md:flex items-center gap-3 w-32 border-l border-stone-500/20 pl-4">
                 <div className="flex-1">
                   <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
@@ -255,21 +251,18 @@ const App = () => {
                 </div>
               </div>
 
-              {/* DARK MODE TOGGLE: Now permanently visible on all screen sizes */}
               <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform shrink-0`}>
                 {isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}
               </button>
             </div>
           </div>
 
-          {/* CENTER NAVIGATION */}
           <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
             {['anatomy', 'archive', 'tech', 'connect'].map(v => (
               <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>{v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v}</button>
             ))}
           </div>
 
-          {/* RIGHT DESKTOP ACTIONS */}
           <div className="hidden lg:flex items-center gap-4 shrink-0">
             <button onClick={handleBook} className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform`}>Request Consultation</button>
           </div>
@@ -293,13 +286,13 @@ const App = () => {
                 <path d="M 220 160 C 240 120, 280 120, 280 180 C 285 200, 285 220, 280 240 L 250 230 L 220 160 Z" 
                   fill={isDarkMode ? "#1c1c1e" : "#f5f5f4"} stroke={isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0"} strokeWidth="2"
                   style={{ transform: `translate(${chipPos.x}px, ${chipPos.y}px) scale(${isDragging ? 1.05 : 1})`, transformOrigin: '250px 180px' }}
-                  className={`transition-all ${isDragging ? 'duration-0' : 'duration-500'} ${chipStatus === 'intact' ? 'cursor-pointer hover:brightness-125' : 'cursor-grab active:cursor-grabbing'}`}
-                  onClick={chipStatus === 'intact' ? breakTooth : undefined}
+                  className={`transition-all ${isDragging ? 'duration-0' : 'duration-500'} ${chipStatus !== 'broken' ? 'cursor-pointer hover:brightness-125' : 'cursor-grab active:cursor-grabbing'}`}
+                  onClick={chipStatus !== 'broken' ? breakTooth : undefined}
                   onPointerDown={handlePointerDown} />
                 {isSparkling && <g className="pointer-events-none">{[130, 280, 200].map((cx, i) => <circle key={i} cx={cx} cy={150+(i*50)} r={10+(i*5)} fill={isDarkMode ? "rgba(34,211,238, 0.2)" : "rgba(79,70,229, 0.2)"} stroke={isDarkMode ? "#22d3ee" : "#4f46e5"} strokeWidth="2" className="animate-ping" style={{ animationDelay: `${i*0.2}s`, animationDuration: '1.5s' }} />)}</g>}
              </svg>
              <div className="absolute -bottom-10 left-0 right-0 text-center pointer-events-none font-bold text-[10px] uppercase tracking-widest opacity-60">
-                {chipStatus === 'intact' ? 'Tap Fragment to Simulate Decay or Double Click for Cleaning' : 'Drag fragment to restore structural integrity'}
+                {chipStatus !== 'broken' ? 'Tap Fragment to Simulate Decay or Double Click for Cleaning' : 'Drag fragment to restore structural integrity'}
              </div>
           </div>
         )}
