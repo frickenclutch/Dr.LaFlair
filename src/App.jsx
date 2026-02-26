@@ -434,7 +434,7 @@ const handlePointerDown = (e) => {
           >
             {isDarkMode ? <Sun size={16} className="animate-spin-slow" /> : <Moon size={16} />}
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">
-              {isDarkMode ? 'DARK' : 'LIGHT'}
+              {isDarkMode ? 'DARK [LAB]' : 'LIGHT [APPLE]'}
             </span>
           </button>
             </div>
@@ -454,16 +454,18 @@ const handlePointerDown = (e) => {
 
       <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-28 md:mt-24 xl:mt-0">
         
-        {view === 'anatomy' && (
+       {view === 'anatomy' && (
           <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000 flex flex-col items-center">
             
+            {/* X-RAY BUTTON (Now properly closed!) */}
             <div className={`absolute top-0 right-0 z-20 flex items-center gap-3 p-2 pr-4 rounded-full ${currentTheme.glass} border ${currentTheme.border} cursor-pointer hover:scale-105 transition-all`} onClick={() => { setIsXrayMode(!isXrayMode); if(chipStatus==='broken') executeRepair(); }}>
                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isXrayMode ? currentTheme.accentBg : 'bg-stone-500/20'} ${isXrayMode ? 'text-white' : ''}`}>
                  <Search size={14} />
                </div>
                <span className={`text-[10px] font-black uppercase tracking-widest ${isXrayMode ? currentTheme.accentText : 'opacity-50'}`}>X-Ray Mode</span>
+            </div>
             
-              {/* --- NEW: Rotating Guidance Bubble --- */}
+            {/* --- ROTATING GUIDANCE BUBBLE (Now permanent and separated!) --- */}
             <div className={`absolute top-4 left-4 md:top-8 md:left-8 z-20 max-w-[220px] p-3 rounded-2xl ${currentTheme.glass} border ${currentTheme.border} shadow-lg transition-all duration-500 pointer-events-none`}>
                <div className="flex items-start gap-2">
                   <div className={`mt-0.5 w-2 h-2 rounded-full animate-pulse ${isDarkMode ? 'bg-cyan-400' : 'bg-blue-500'}`} />
@@ -472,6 +474,8 @@ const handlePointerDown = (e) => {
                   </p>
                </div>
             </div>
+
+             <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
             
 
              <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
