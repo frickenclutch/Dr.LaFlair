@@ -76,6 +76,7 @@ const App = () => {
   const [chipPos, setChipPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isXrayMode, setIsXrayMode] = useState(false);
+  const [plaqueLevel, setPlaqueLevel] = useState(100);
 
   const currentTheme = isDarkMode ? THEMES.LAB : THEMES.APPLE;
   const lastClickTime = useRef(0);
@@ -90,22 +91,34 @@ const App = () => {
     if (healthScore < 100) setHealthScore(prev => Math.min(prev + 5, 100));
   };
 
-  const handleEnamelClick = (e) => {
+ const handleEnamelClick = (e) => {
     e.stopPropagation();
-    const now = Date.now();
-    if (now - lastClickTime.current < 300) {
-      setIsSparkling(true);
-      setHealthScore(100);
-      setSelectedSection({ 
-        id: 'cleaning', title: "Clinical Cleaning", condition: "Prophylaxis Complete", 
-        description: "Enamel polished to a high-gloss finish. Zero plaque detected.", 
-        symptoms: ["Smooth Surface", "Healthy Tissue"], icon: <Sparkles className="w-6 h-6"/> 
+    setSelectedSection(TOOTH_SECTIONS.ENAMEL);
+  };
+
+  const executeCleaning = () => {
+    setIsSparkling(true);
+    setHealthScore(100);
+    setPlaqueLevel(0);
+    setSelectedSection({ 
+      id: 'cleaning', title: "Clinical Cleaning", condition: "Prophylaxis Complete", 
+      description: "Enamel polished to a high-gloss finish. Zero plaque detected.", 
+      symptoms: ["Smooth Surface", "Healthy Tissue"], icon: <Sparkles className="w-6 h-6"/> 
+    });
+    setTimeout(() => setIsSparkling(false), 2000);
+  };
+
+  const handleEnamelScrub = (e) => {
+    // e.buttons === 1 means the user is holding down the left click / dragging their finger
+    if (e.buttons === 1 && plaqueLevel > 0 && chipStatus !== 'broken' && !isXrayMode) {
+      setPlaqueLevel(prev => {
+        const newLevel = prev - 3; // The speed at which plaque is removed
+        if (newLevel <= 0 && prev > 0) {
+          executeCleaning(); // Trigger the sparkling success when clean!
+        }
+        return Math.max(0, newLevel);
       });
-      setTimeout(() => setIsSparkling(false), 2000);
-    } else {
-      setSelectedSection(TOOTH_SECTIONS.ENAMEL);
     }
-    lastClickTime.current = now;
   };
 
   const breakTooth = (e) => {
@@ -279,12 +292,20 @@ const App = () => {
                 <path d="M 50 360 Q 150 310, 200 330 Q 250 310, 350 360 L 350 500 L 50 500 Z" fill={selectedSection?.id === 'gums' ? TOOTH_SECTIONS.GUMS.color : (isDarkMode ? "#2d1a1c" : "#fecdd3")} className={`transition-all duration-700 ${isXrayMode ? 'opacity-10' : 'cursor-pointer hover:opacity-80'}`} onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.GUMS); } }} />
                 
                 <g>
-                    <path d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
-                      fill={isXrayMode ? "transparent" : (selectedSection?.id === 'enamel' ? (isDarkMode ? "#2a3d46" : "#ffffff") : (isDarkMode ? "#1c1c1e" : "#f5f5f4"))} 
-                      stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
-                      strokeWidth={isXrayMode ? "3" : "2"} 
-                      className={`transition-all duration-700 ${isXrayMode ? '' : 'cursor-pointer hover:brightness-110'}`} 
-                      onClick={!isXrayMode ? handleEnamelClick : undefined} />
+                   <path d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
+  fill={isXrayMode ? "transparent" : (selectedSection?.id === 'enamel' ? (isDarkMode ? "#2a3d46" : "#ffffff") : (isDarkMode ? "#1c1c1e" : "#f5f5f4"))} 
+  stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
+  strokeWidth={isXrayMode ? "3" : "2"} 
+  className={`transition-all duration-700 ${isXrayMode ? '' : 'cursor-pointer hover:brightness-110'}`} 
+  onClick={!isXrayMode ? handleEnamelClick : undefined}
+  onPointerMove={handleEnamelScrub} />
+
+{(!isXrayMode && plaqueLevel > 0 && chipStatus !== 'broken') && (
+  <path d="M 140 290 C 150 260, 200 260, 210 290 C 220 330, 200 360, 170 360 C 140 360, 130 320, 140 290 Z" 
+    fill="rgba(250, 204, 21, 0.4)" 
+    style={{ opacity: plaqueLevel / 100 }}
+    className="pointer-events-none blur-[6px] transition-opacity duration-75" />
+)}
                     
                     <path d="M 160 240 C 180 220, 220 220, 240 240 C 250 270, 250 300, 240 320 C 230 370, 230 400, 220 400 C 210 400, 210 370, 200 330 C 190 370, 190 400, 180 400 C 170 400, 170 370, 160 320 C 150 300, 150 270, 160 240 Z" 
                       fill={isXrayMode ? currentTheme.xrayLine : (selectedSection?.id === 'nerve' ? TOOTH_SECTIONS.NERVE.color : (isDarkMode ? "rgba(248, 113, 113, 0.15)" : "#fecaca"))} 
@@ -307,9 +328,9 @@ const App = () => {
                 {isSparkling && <g className="pointer-events-none">{[130, 280, 200].map((cx, i) => <circle key={i} cx={cx} cy={150+(i*50)} r={10+(i*5)} fill={isDarkMode ? "rgba(34,211,238, 0.2)" : "rgba(79,70,229, 0.2)"} stroke={isDarkMode ? "#22d3ee" : "#4f46e5"} strokeWidth="2" className="animate-ping" style={{ animationDelay: `${i*0.2}s`, animationDuration: '1.5s' }} />)}</g>}
              </svg>
              
-             <div className="absolute -bottom-10 left-0 right-0 text-center pointer-events-none font-bold text-[10px] uppercase tracking-widest opacity-60">
-                {isXrayMode ? 'Advanced Sub-surface Imaging Active' : (chipStatus !== 'broken' ? 'Tap Fragment to Break or Double Click for Cleaning' : 'Drag fragment to restore structural integrity')}
-             </div>
+            <div className="absolute -bottom-10 left-0 right-0 text-center pointer-events-none font-bold text-[10px] uppercase tracking-widest opacity-60">
+   {isXrayMode ? 'Advanced Sub-surface Imaging Active' : (chipStatus !== 'broken' ? (plaqueLevel > 0 ? 'Click and Drag Enamel to Scrub Plaque' : 'Enamel Clean. Tap Fragment to Break') : 'Drag fragment to restore structural integrity')}
+</div>
           </div>
         )}
 
