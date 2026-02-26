@@ -160,7 +160,23 @@ const App = () => {
 
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [deviceType, setDeviceType] = useState('desktop');
+  
+// --- NEW: Interactive Hint State & Timer ---
+  const [hintIndex, setHintIndex] = useState(0);
+  const interactiveHints = [
+    "Scrub the icky yellow plaque off the enamel to achieve optimal health!",
+    "Click and drag the fragment to fix the chipped tooth and restore full integrity.",
+    "Tap the cavity on the root structure to understand how decay works!",
+    "Toggle the Advanced Sub-surface Imaging (X-Ray) switch to reveal hidden structures."
+  ];
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHintIndex((prev) => (prev + 1) % interactiveHints.length);
+    }, 4500); // Rotates every 4.5 seconds
+    return () => clearInterval(interval);
+  }, []);
+  
   useEffect(() => {
     // 1. Detect if it is a touch screen (Mobile/Tablet)
     const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
@@ -408,9 +424,19 @@ const handlePointerDown = (e) => {
                 </div>
               </div>
 
-              <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-full border ${currentTheme.border} ${currentTheme.card} hover:scale-110 transition-transform shrink-0`}>
-                {isDarkMode ? <Sun size={14}/> : <Moon size={14}/>}
-              </button>
+             <button 
+            onClick={() => setIsDarkMode(!isDarkMode)} 
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-300 ${
+              isDarkMode 
+                ? 'border-cyan-500/50 bg-slate-800 text-cyan-400 hover:bg-slate-700 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]' 
+                : 'border-stone-300 bg-white text-stone-600 hover:bg-stone-50 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)]'
+            }`}
+          >
+            {isDarkMode ? <Sun size={16} className="animate-spin-slow" /> : <Moon size={16} />}
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">
+              {isDarkMode ? 'Apple Mode' : 'Lab Mode'}
+            </span>
+          </button>
             </div>
           </div>
 
@@ -436,7 +462,19 @@ const handlePointerDown = (e) => {
                  <Search size={14} />
                </div>
                <span className={`text-[10px] font-black uppercase tracking-widest ${isXrayMode ? currentTheme.accentText : 'opacity-50'}`}>X-Ray Mode</span>
-            </div>
+            
+              {/* --- NEW: Rotating Guidance Bubble --- */}
+            {chipStatus === 'broken' && (
+              <div className={`absolute top-4 left-4 md:top-8 md:left-8 z-20 max-w-[220px] p-3 rounded-2xl ${currentTheme.glass} border ${currentTheme.border} shadow-lg transition-all duration-500 pointer-events-none`}>
+                 <div className="flex items-start gap-2">
+                    <div className={`mt-0.5 w-2 h-2 rounded-full animate-pulse ${isDarkMode ? 'bg-cyan-400' : 'bg-blue-500'}`} />
+                    <p className={`text-xs font-bold leading-relaxed ${currentTheme.textSecondary}`} key={hintIndex} style={{ animation: 'fade-in 0.5s ease-in-out' }}>
+                       {interactiveHints[hintIndex]}
+                    </p>
+                 </div>
+              </div>
+            )}</div>
+            
 
              <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
                 
