@@ -454,7 +454,7 @@ const handlePointerDown = (e) => {
 
       <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-28 md:mt-24 xl:mt-0">
         
-       {view === 'anatomy' && (
+      {view === 'anatomy' && (
           <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000 flex flex-col items-center">
             
             {/* X-RAY BUTTON (Now properly closed!) */}
@@ -476,68 +476,6 @@ const handlePointerDown = (e) => {
             </div>
 
              <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
-            
-
-             <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
-                
-                {isXrayMode && (
-                  <rect x="50" y="100" width="300" height="400" fill={`url(#xray-grid-${isDarkMode ? 'dark' : 'light'})`} opacity="0.3" className="pointer-events-none" />
-                )}
-                
-                <defs>
-                  <pattern id="xray-grid-dark" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#22d3ee" strokeWidth="0.5" opacity="0.5"/>
-                  </pattern>
-                  <pattern id="xray-grid-light" width="20" height="20" patternUnits="userSpaceOnUse">
-                    {/* CHANGED: Black grid lines for light mode */}
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#171717" strokeWidth="0.5" opacity="0.15"/>
-                  </pattern>
-                </defs>
-
-                <path d="M 50 360 Q 150 310, 200 330 Q 250 310, 350 360 L 350 500 L 50 500 Z" fill={selectedSection?.id === 'gums' ? TOOTH_SECTIONS.GUMS.color : (isDarkMode ? "#2d1a1c" : "#fecdd3")} className={`transition-all duration-700 ${isXrayMode ? 'opacity-10' : 'cursor-pointer hover:opacity-80'}`} onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.GUMS); } }} />
-                
-                <g>
-                   <path d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
-  fill={isXrayMode ? "transparent" : (selectedSection?.id === 'enamel' ? (isDarkMode ? "#2a3d46" : "#ffffff") : (isDarkMode ? "#1c1c1e" : "#f5f5f4"))} 
-  stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
-  strokeWidth={isXrayMode ? "3" : "2"} 
-  className={`transition-all duration-700 ${isXrayMode ? '' : 'cursor-pointer hover:brightness-110'}`} 
-  onClick={!isXrayMode ? handleEnamelClick : undefined}
-  onPointerMove={handleEnamelScrub} />
-
-{(!isXrayMode && plaqueLevel > 0 && chipStatus !== 'broken') && (
-  <path d="M 140 290 C 150 260, 200 260, 210 290 C 220 330, 200 360, 170 360 C 140 360, 130 320, 140 290 Z" 
-    fill="rgba(250, 204, 21, 0.4)" 
-    style={{ opacity: plaqueLevel / 100 }}
-    className="pointer-events-none blur-[6px] transition-opacity duration-75" />
-)}
-                    
-                    <path d="M 160 240 C 180 220, 220 220, 240 240 C 250 270, 250 300, 240 320 C 230 370, 230 400, 220 400 C 210 400, 210 370, 200 330 C 190 370, 190 400, 180 400 C 170 400, 170 370, 160 320 C 150 300, 150 270, 160 240 Z" 
-                      fill={isXrayMode ? currentTheme.xrayLine : (selectedSection?.id === 'nerve' ? TOOTH_SECTIONS.NERVE.color : (isDarkMode ? "rgba(248, 113, 113, 0.15)" : "#fecaca"))} 
-                      className={`transition-all duration-700 ${isXrayMode ? 'opacity-80 animate-pulse' : 'cursor-pointer hover:opacity-100'}`} 
-                      onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.NERVE); } }} />
-                    
-                    {!isXrayMode && <circle cx="140" cy="220" r="14" fill={TOOTH_SECTIONS.CAVITY.color} className={`transition-all cursor-pointer ${selectedSection?.id === 'cavity' ? 'scale-150' : 'animate-pulse opacity-70 hover:opacity-100'}`} onClick={(e) => { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.CAVITY); }} />}
-                    {(!isXrayMode && chipStatus === 'broken') && <path d="M 220 160 L 250 230 L 280 240 L 250 200 Z" fill="#ef4444" className="animate-pulse opacity-60 pointer-events-none" />}
-                </g>
-                
-                <path d="M 220 160 C 240 120, 280 120, 280 180 C 285 200, 285 220, 280 240 L 250 230 L 220 160 Z" 
-                  fill={isXrayMode ? "transparent" : (isDarkMode ? "#1c1c1e" : "#f5f5f4")} 
-                  stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
-                  strokeWidth={isXrayMode ? "3" : "2"}
-                  style={{ transform: `translate(${chipPos.x}px, ${chipPos.y}px) scale(${isDragging ? 1.05 : 1})`, transformOrigin: '250px 180px' }}
-                  className={`transition-all ${isDragging ? 'duration-0' : 'duration-700'} ${isXrayMode ? 'pointer-events-none' : (chipStatus !== 'broken' ? 'cursor-pointer hover:brightness-125' : 'cursor-grab active:cursor-grabbing')}`}
-                  onClick={(!isXrayMode && chipStatus !== 'broken') ? breakTooth : undefined}
-                  onPointerDown={handlePointerDown} />
-                
-                {isSparkling && <g className="pointer-events-none">{[130, 280, 200].map((cx, i) => <circle key={i} cx={cx} cy={150+(i*50)} r={10+(i*5)} fill={isDarkMode ? "rgba(34,211,238, 0.2)" : "rgba(79,70,229, 0.2)"} stroke={isDarkMode ? "#22d3ee" : "#4f46e5"} strokeWidth="2" className="animate-ping" style={{ animationDelay: `${i*0.2}s`, animationDuration: '1.5s' }} />)}</g>}
-             </svg>
-             
-            <div className="absolute -bottom-10 left-0 right-0 text-center pointer-events-none font-bold text-[10px] uppercase tracking-widest opacity-60">
-   {isXrayMode ? 'Advanced Sub-surface Imaging Active' : (chipStatus !== 'broken' ? (plaqueLevel > 0 ? 'Click and Drag Enamel to Scrub Plaque' : 'Enamel Clean. Tap Fragment to Break') : 'Drag fragment to restore structural integrity')}
-</div>
-          </div>
-        )}
 
       {view === 'archive' && (
           <div className="w-full max-w-4xl animate-in slide-in-from-bottom duration-700 pb-12 pt-8">
