@@ -434,7 +434,7 @@ const handlePointerDown = (e) => {
           >
             {isDarkMode ? <Sun size={16} className="animate-spin-slow" /> : <Moon size={16} />}
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">
-              {isDarkMode ? 'Apple Mode' : 'Lab Mode'}
+              {isDarkMode ? 'DARK' : 'LIGHT'}
             </span>
           </button>
             </div>
@@ -464,16 +464,14 @@ const handlePointerDown = (e) => {
                <span className={`text-[10px] font-black uppercase tracking-widest ${isXrayMode ? currentTheme.accentText : 'opacity-50'}`}>X-Ray Mode</span>
             
               {/* --- NEW: Rotating Guidance Bubble --- */}
-            {chipStatus === 'broken' && (
-              <div className={`absolute top-4 left-4 md:top-8 md:left-8 z-20 max-w-[220px] p-3 rounded-2xl ${currentTheme.glass} border ${currentTheme.border} shadow-lg transition-all duration-500 pointer-events-none`}>
-                 <div className="flex items-start gap-2">
-                    <div className={`mt-0.5 w-2 h-2 rounded-full animate-pulse ${isDarkMode ? 'bg-cyan-400' : 'bg-blue-500'}`} />
-                    <p className={`text-xs font-bold leading-relaxed ${currentTheme.textSecondary}`} key={hintIndex} style={{ animation: 'fade-in 0.5s ease-in-out' }}>
-                       {interactiveHints[hintIndex]}
-                    </p>
-                 </div>
-              </div>
-            )}</div>
+            <div className={`absolute top-4 left-4 md:top-8 md:left-8 z-20 max-w-[220px] p-3 rounded-2xl ${currentTheme.glass} border ${currentTheme.border} shadow-lg transition-all duration-500 pointer-events-none`}>
+               <div className="flex items-start gap-2">
+                  <div className={`mt-0.5 w-2 h-2 rounded-full animate-pulse ${isDarkMode ? 'bg-cyan-400' : 'bg-blue-500'}`} />
+                  <p className={`text-xs font-bold leading-relaxed ${currentTheme.textSecondary}`} key={hintIndex} style={{ animation: 'fade-in 0.5s ease-in-out' }}>
+                     {interactiveHints[hintIndex]}
+                  </p>
+               </div>
+            </div>
             
 
              <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
