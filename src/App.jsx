@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ShieldCheck, AlertTriangle, Zap, Droplets, Sparkles, 
   MapPin, Phone, CreditCard, ArrowLeft, Activity, 
@@ -157,6 +157,27 @@ const App = () => {
   const [sliderPos, setSliderPos] = useState(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const sliderRef = useRef(null);
+
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [deviceType, setDeviceType] = useState('desktop');
+
+  useEffect(() => {
+    // 1. Detect if it is a touch screen (Mobile/Tablet)
+    const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    setIsTouchDevice(hasTouch);
+
+    // 2. Detect specific OS environments
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (/android/i.test(userAgent)) {
+        setDeviceType('android');
+    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        setDeviceType('ios');
+    } else if (/Mac/i.test(userAgent) && hasTouch) {
+        setDeviceType('ios');
+    } else {
+        setDeviceType('desktop');
+    }
+  }, []);
 
   const currentTheme = isDarkMode ? THEMES.LAB : THEMES.APPLE;
   const lastClickTime = useRef(0);
