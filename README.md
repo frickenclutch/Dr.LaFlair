@@ -11,10 +11,3 @@ Built with a focus on patient education, this application features a bespoke "In
 * **Deployment:** Vercel (Edge Network)
 
 ## 🚀 Local Development
-
-To run this project locally on your machine:
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
