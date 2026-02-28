@@ -375,29 +375,39 @@ const App = () => {
       `}</style>
 
       {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
-      <div 
-         onClick={() => setIsArkMode(false)}
-         className={`fixed inset-0 z-[40] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto cursor-pointer' : 'opacity-0 pointer-events-none'}`}
-      >
+      <div className={`fixed inset-0 z-[100] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.4) 2px, transparent 2px), linear-gradient(90deg, rgba(34, 211, 238, 0.4) 2px, transparent 2px)', backgroundSize: '50px 50px', transform: 'perspective(600px) rotateX(60deg) translateY(-100px) translateZ(-200px)', transformOrigin: 'top center' }} />
         
-        <div className="absolute inset-0 flex justify-between px-10 opacity-30">
+        <div className="absolute inset-0 flex justify-between px-10 opacity-30 pointer-events-none">
             <div className="w-8 h-full flex flex-col gap-4 py-20">{Array.from({length: 15}).map((_, i) => <div key={`l-${i}`} className="w-full h-4 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />)}</div>
             <div className="w-8 h-full flex flex-col gap-4 py-20">{Array.from({length: 15}).map((_, i) => <div key={`r-${i}`} className="w-full h-4 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-pulse" style={{ animationDelay: `${(15-i) * 0.15}s` }} />)}</div>
         </div>
 
-        <Database className="absolute text-cyan-500 opacity-5 w-[80vw] h-[80vw] animate-pulse" style={{ animationDuration: '3s' }} />
+        <Database className="absolute text-cyan-500 opacity-5 w-[80vw] h-[80vw] animate-pulse pointer-events-none" style={{ animationDuration: '3s' }} />
         
-        <div className={`relative z-50 text-cyan-400 font-mono text-center transition-all duration-700 delay-100 ${isArkMode ? 'translate-y-0 scale-100' : 'translate-y-10 scale-90'}`}>
+        {/* Interactive Terminal Interface */}
+        <div className={`relative z-50 text-cyan-400 font-mono text-center transition-all duration-700 delay-100 flex flex-col items-center ${isArkMode ? 'translate-y-0 scale-100' : 'translate-y-10 scale-90'}`}>
            <p className="text-xl md:text-3xl font-black tracking-[0.5em] mb-2 drop-shadow-[0_0_10px_#22d3ee]">ARK:IT INFRASTRUCTURE</p>
-           <p className="text-xs md:text-sm uppercase tracking-widest opacity-70">Overriding Mainframe... Systems Optimal</p>
+           <p className="text-xs md:text-sm uppercase tracking-widest opacity-70 mb-12">Mainframe Override... Systems Optimal</p>
            
-           {/* Mobile-Only Abort Text */}
-           {isTouchDevice && (
-              <p className="mt-8 text-[10px] font-bold text-cyan-400/60 tracking-[0.3em] animate-pulse">
-                 [ TAP ANYWHERE TO ABORT ]
-              </p>
-           )}
+           {/* The Actual Link! */}
+           <a 
+              href="https://www.c4computerconsulting.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => setIsArkMode(false)}
+              className="group relative px-6 md:px-10 py-4 bg-cyan-950/40 border border-cyan-400/50 hover:bg-cyan-400/20 hover:border-cyan-300 rounded-xl transition-all shadow-[0_0_20px_rgba(34,211,238,0.1)] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] flex items-center gap-4 mb-6 hover:-translate-y-1"
+           >
+              <Activity size={24} className="text-cyan-400 group-hover:animate-pulse" />
+              <span className="text-sm md:text-base font-black tracking-widest uppercase text-cyan-50">Establish Secure Connection</span>
+           </a>
+
+           <button 
+              onClick={() => setIsArkMode(false)}
+              className="px-6 py-2 text-[10px] md:text-xs font-bold text-cyan-400/40 hover:text-cyan-400 tracking-[0.3em] uppercase transition-colors"
+           >
+              > Abort_Override
+           </button>
         </div>
       </div>
 
@@ -653,31 +663,21 @@ const App = () => {
                 </div>
               </div>
 
-              {/* --- ARK IT DEVELOPER CREDIT WITH SERVER OVERLAY HOVER --- */}
+              {/* --- ARK IT DEVELOPER CREDIT WITH SERVER OVERLAY TRIGGER --- */}
               <div className="mt-12 flex justify-center w-full animate-in fade-in duration-1000 delay-500">
-                 <a 
-                    href="https://www.c4computerconsulting.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    onMouseEnter={() => !isTouchDevice && setIsArkMode(true)}
-                    onMouseLeave={() => !isTouchDevice && setIsArkMode(false)}
-                    onClick={handleArkClick}
+                 <button 
+                    onClick={(e) => { e.preventDefault(); setIsArkMode(true); }}
                     className={`group relative overflow-hidden px-8 py-3 rounded-full border ${currentTheme.border} ${currentTheme.glass} opacity-40 hover:opacity-100 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] hover:border-cyan-400 hover:-translate-y-1 cursor-pointer z-50`}
                  >
-                    {/* Glowing Data Sweep */}
                     <div className="absolute inset-0 w-[200%] bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent -translate-x-full group-hover:translate-x-0 transition-transform duration-1000" />
-                    
                     <div className="relative flex items-center gap-3">
                        <Activity size={16} className={`${currentTheme.textSecondary} group-hover:text-cyan-400 transition-colors duration-300`} />
                        <span className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${currentTheme.textSecondary} group-hover:text-cyan-50 transition-colors duration-300`}>
                          Developed & Maintained by <span className="text-cyan-400">ArkIT Technologies</span>
                        </span>
                     </div>
-                 </a>
+                 </button>
               </div>
-
-           </div>
-        )}
       </div>
 
       <div className={`w-full md:w-[450px] lg:w-[500px] ${currentTheme.card} border-l ${currentTheme.border} p-10 pt-32 overflow-y-auto z-20 shadow-2xl relative shrink-0`}>
