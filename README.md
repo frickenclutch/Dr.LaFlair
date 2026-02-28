@@ -1,18 +1,20 @@
-# 🦷 Christopher LaFlair DDS PC | Clinical Portal
+# Christopher LaFlair DDS PC - Clinical Portal 🦷
 
-A high-fidelity, interactive dental anatomy and patient education interface. This application serves as a digital "Anatomy Lab" to help patients visualize oral health and restorative procedures.
+A modern, highly interactive web portal designed for Dr. Chris LaFlair's dental practice in Ogdensburg, NY. 
 
-## 🚀 Live Demo
-[https://dr-la-flair.vercel.app/]
+Built with a focus on patient education, this application features a bespoke "Interactive Anatomy Lab" with SVG-driven diagnostics, a dynamic Before & After outcome slider, and a fully responsive "Apple-to-Lab" dark mode theme toggle.
 
-## 🛠️ Tech Stack
-- **Framework:** React.js (Vite)
-- **Styling:** Tailwind CSS (Custom Dark/Lab Themes)
-- **Icons:** Lucide React
-- **Animations:** Custom SVG Drag-and-Drop + CSS Keyframes
+## 🛠 Tech Stack
+* **Framework:** React 18 + Vite
+* **Styling:** Tailwind CSS (Utility-first, zero custom CSS files)
+* **Icons:** Lucide React
+* **Deployment:** Vercel (Edge Network)
 
-## ✨ Interactive Features
-- **Molar Dynamics:** Simulate structural compromise by tapping the molar.
-- **Precision Repair:** Drag-and-drop the tooth fragment to simulate clinical restoration.
-- **Hygiene Mode:** Double-tap for a high-gloss enamel cleaning simulation.
-- **Tech Showcase:** Visual breakdown of low-dose Digital Radiography and imaging.
+## 🚀 Local Development
+
+To run this project locally on your machine:
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
