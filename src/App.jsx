@@ -153,7 +153,7 @@ const App = () => {
   
   // --- Interactive Hint & Ark IT States ---
   const [hintIndex, setHintIndex] = useState(0);
-  const [isArkMode, setIsArkMode] = useState(false); // The Server Override Switch
+  const [isArkMode, setIsArkMode] = useState(false); 
   
   const interactiveHints = [
     "Scrub the icky yellow plaque off the enamel to achieve optimal health!",
@@ -319,15 +319,15 @@ const App = () => {
     setView(newView);
     if(newView !== 'anatomy') setSelectedSection(null);
   };
-const handleArkClick = (e) => {
-    // If they are on a phone AND the server room isn't visible yet...
+
+  // --- ARKIT MOBILE CLICK LOGIC ---
+  const handleArkClick = (e) => {
     if (isTouchDevice && !isArkMode) {
-      e.preventDefault(); // Stop the link from opening!
-      setIsArkMode(true); // Trigger the server room instead
+      e.preventDefault(); 
+      setIsArkMode(true); 
     }
-    // If the server room IS visible, this function does nothing and the link opens naturally!
   };
-  
+
   const renderTechBackground = (id) => {
     if (id === 'xray') return (
       <div className="absolute inset-0 bg-slate-900 opacity-0 group-hover:opacity-100 transition-all duration-500 z-0 overflow-hidden pointer-events-none">
@@ -655,7 +655,7 @@ const handleArkClick = (e) => {
 
               {/* --- ARK IT DEVELOPER CREDIT WITH SERVER OVERLAY HOVER --- */}
               <div className="mt-12 flex justify-center w-full animate-in fade-in duration-1000 delay-500">
-                <a 
+                 <a 
                     href="https://www.c4computerconsulting.com" 
                     target="_blank" 
                     rel="noopener noreferrer"
@@ -674,6 +674,7 @@ const handleArkClick = (e) => {
                        </span>
                     </div>
                  </a>
+              </div>
 
            </div>
         )}
