@@ -9,5 +9,3 @@ Built with a focus on patient education, this application features a bespoke "In
 * **Styling:** Tailwind CSS (Utility-first, zero custom CSS files)
 * **Icons:** Lucide React
 * **Deployment:** Vercel (Edge Network)
-
-## 🚀 Local Development
