@@ -64,7 +64,7 @@ const STAFF_CARDS = [
   { name: "Stephanie & Maria", role: "Dental Hygienists", bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible." }
 ];
 
-// --- NEW NATIVE SVG SMILE COMPONENT ---
+// --- NATIVE SVG SMILE COMPONENT ---
 const SmileSVG = ({ type }) => {
   const isBefore = type === 'before';
   
@@ -151,8 +151,10 @@ const App = () => {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [deviceType, setDeviceType] = useState('desktop');
   
-  // --- Interactive Hint State & Timer ---
+  // --- Interactive Hint & Ark IT States ---
   const [hintIndex, setHintIndex] = useState(0);
+  const [isArkMode, setIsArkMode] = useState(false); // The Server Override Switch
+  
   const interactiveHints = [
     "Scrub the icky yellow plaque off the enamel to achieve optimal health!",
     "Click and drag the fragment to fix the chipped tooth and restore full integrity.",
@@ -184,7 +186,6 @@ const App = () => {
   }, []);
 
   const currentTheme = isDarkMode ? THEMES.LAB : THEMES.APPLE;
-  const lastClickTime = useRef(0);
   const dragRef = useRef(false);
   const dragOffset = useRef({ startX: 0, startY: 0, chipX: 0, chipY: 0, currentX: 0, currentY: 0 });
 
@@ -365,6 +366,23 @@ const App = () => {
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
+      {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
+      <div className={`fixed inset-0 z-[40] pointer-events-none transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95' : 'opacity-0'}`}>
+        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.4) 2px, transparent 2px), linear-gradient(90deg, rgba(34, 211, 238, 0.4) 2px, transparent 2px)', backgroundSize: '50px 50px', transform: 'perspective(600px) rotateX(60deg) translateY(-100px) translateZ(-200px)', transformOrigin: 'top center' }} />
+        
+        <div className="absolute inset-0 flex justify-between px-10 opacity-30">
+            <div className="w-8 h-full flex flex-col gap-4 py-20">{Array.from({length: 15}).map((_, i) => <div key={`l-${i}`} className="w-full h-4 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />)}</div>
+            <div className="w-8 h-full flex flex-col gap-4 py-20">{Array.from({length: 15}).map((_, i) => <div key={`r-${i}`} className="w-full h-4 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-pulse" style={{ animationDelay: `${(15-i) * 0.15}s` }} />)}</div>
+        </div>
+
+        <Database className="absolute text-cyan-500 opacity-5 w-[80vw] h-[80vw] animate-pulse" style={{ animationDuration: '3s' }} />
+        
+        <div className={`relative z-50 text-cyan-400 font-mono text-center transition-all duration-700 delay-100 ${isArkMode ? 'translate-y-0 scale-100' : 'translate-y-10 scale-90'}`}>
+           <p className="text-xl md:text-3xl font-black tracking-[0.5em] mb-2 drop-shadow-[0_0_10px_#22d3ee]">ARK:IT INFRASTRUCTURE</p>
+           <p className="text-xs md:text-sm uppercase tracking-widest opacity-70">Overriding Mainframe... Systems Optimal</p>
+        </div>
+      </div>
+
       <button onClick={handleCall} className={`md:hidden fixed bottom-6 right-6 z-[100] w-14 h-14 rounded-full ${currentTheme.accentBg} text-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95 transition-all`}>
         <Phone size={24} className={isDarkMode ? "text-white" : "text-white"} />
       </button>
@@ -516,7 +534,6 @@ const App = () => {
                 <p className={`text-sm ${currentTheme.textSecondary}`}>Real stories and clinical results from our Ogdensburg community.</p>
              </div>
 
-             {/* --- BEFORE & AFTER SLIDER --- */}
              <div 
                 ref={sliderRef}
                 className={`relative w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border} touch-none`}
@@ -574,46 +591,72 @@ const App = () => {
         )}
 
         {view === 'connect' && (
-           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 animate-in zoom-in duration-700 pb-12 pt-8">
-              <div className={`p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border flex flex-col justify-between h-full shadow-lg`}>
-                <div>
-                  <h3 className="text-2xl font-black uppercase tracking-widest mb-8">Patient Services</h3>
-                  <div className="space-y-6">
-                    <a href={`https://maps.google.com/?q=${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
-                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><MapPin size={20}/></div>
-                      <div>
-                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Clinical Location</p>
-                        <p className="font-bold text-sm">1107 Linden St.</p>
-                        <p className={`text-sm ${currentTheme.textSecondary}`}>Ogdensburg, NY 13669</p>
-                      </div>
-                    </a>
-                    <a href={`tel:${PRACTICE_INFO.phone.replace(/-/g, '')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
-                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><Phone size={20}/></div>
-                      <div>
-                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Direct Line</p>
-                        <p className="font-bold text-lg">{PRACTICE_INFO.phone}</p>
-                      </div>
-                    </a>
-                    <div className="flex items-start gap-4 p-4 -ml-4">
-                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 shadow-sm`}><Clock size={20}/></div>
-                      <div>
-                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1`}>Operating Hours</p>
-                        <p className="font-bold text-sm">{PRACTICE_INFO.hours.split(':')[0]}: <span className="font-normal">{PRACTICE_INFO.hours.split(':').slice(1).join(':')}</span></p>
-                        <p className={`text-sm ${currentTheme.textSecondary}`}>{PRACTICE_INFO.closed}</p>
+           <div className="w-full max-w-4xl flex flex-col animate-in zoom-in duration-700 pb-12 pt-8">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                <div className={`p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border flex flex-col justify-between h-full shadow-lg`}>
+                  <div>
+                    <h3 className="text-2xl font-black uppercase tracking-widest mb-8">Patient Services</h3>
+                    <div className="space-y-6">
+                      <a href={`http://maps.google.com/?q=${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                        <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><MapPin size={20}/></div>
+                        <div>
+                          <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Clinical Location</p>
+                          <p className="font-bold text-sm">1107 Linden St.</p>
+                          <p className={`text-sm ${currentTheme.textSecondary}`}>Ogdensburg, NY 13669</p>
+                        </div>
+                      </a>
+                      <a href={`tel:${PRACTICE_INFO.phone.replace(/-/g, '')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                        <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><Phone size={20}/></div>
+                        <div>
+                          <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Direct Line</p>
+                          <p className="font-bold text-lg">{PRACTICE_INFO.phone}</p>
+                        </div>
+                      </a>
+                      <div className="flex items-start gap-4 p-4 -ml-4">
+                        <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 shadow-sm`}><Clock size={20}/></div>
+                        <div>
+                          <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1`}>Operating Hours</p>
+                          <p className="font-bold text-sm">{PRACTICE_INFO.hours.split(':')[0]}: <span className="font-normal">{PRACTICE_INFO.hours.split(':').slice(1).join(':')}</span></p>
+                          <p className={`text-sm ${currentTheme.textSecondary}`}>{PRACTICE_INFO.closed}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
+                <div className="relative h-full min-h-[400px] w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-indigo-900 to-black p-10 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform" onClick={handleBook}>
+                    <div className="flex justify-between items-start"><CreditCard className="w-10 h-10 text-cyan-400" /><div className="text-right font-mono text-[10px] opacity-60">CARECREDIT_PORTAL</div></div>
+                    <div>
+                      <p className="text-3xl font-black uppercase tracking-widest mb-4 leading-tight">Zero Interest<br/>Pathways</p>
+                      <p className="text-sm opacity-80 mb-8 max-w-[85%] leading-relaxed">Explore flexible financing options to ensure your preventative and restorative care is always stress-free.</p>
+                      <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-10 h-1 bg-white/20 rounded-full" />)}</div>
+                    </div>
+                </div>
               </div>
 
-              <div className="relative h-full min-h-[400px] w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-indigo-900 to-black p-10 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform" onClick={handleBook}>
-                  <div className="flex justify-between items-start"><CreditCard className="w-10 h-10 text-cyan-400" /><div className="text-right font-mono text-[10px] opacity-60">CARECREDIT_PORTAL</div></div>
-                  <div>
-                    <p className="text-3xl font-black uppercase tracking-widest mb-4 leading-tight">Zero Interest<br/>Pathways</p>
-                    <p className="text-sm opacity-80 mb-8 max-w-[85%] leading-relaxed">Explore flexible financing options to ensure your preventative and restorative care is always stress-free.</p>
-                    <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-10 h-1 bg-white/20 rounded-full" />)}</div>
-                  </div>
+              {/* --- ARK IT DEVELOPER CREDIT WITH SERVER OVERLAY HOVER --- */}
+              <div className="mt-12 flex justify-center w-full animate-in fade-in duration-1000 delay-500">
+                 <a 
+                    href="https://www.c4computerconsulting.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onMouseEnter={() => setIsArkMode(true)}
+                    onMouseLeave={() => setIsArkMode(false)}
+                    className={`group relative overflow-hidden px-8 py-3 rounded-full border ${currentTheme.border} ${currentTheme.glass} opacity-40 hover:opacity-100 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] hover:border-cyan-400 hover:-translate-y-1 cursor-pointer z-50`}
+                 >
+                    {/* Glowing Data Sweep */}
+                    <div className="absolute inset-0 w-[200%] bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent -translate-x-full group-hover:translate-x-0 transition-transform duration-1000" />
+                    
+                    <div className="relative flex items-center gap-3">
+                       <Activity size={16} className={`${currentTheme.textSecondary} group-hover:text-cyan-400 transition-colors duration-300`} />
+                       <span className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${currentTheme.textSecondary} group-hover:text-cyan-50 transition-colors duration-300`}>
+                         Developed & Maintained by <span className="text-cyan-400">ArkIT Technologies</span>
+                       </span>
+                    </div>
+                 </a>
               </div>
+
            </div>
         )}
       </div>
