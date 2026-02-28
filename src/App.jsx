@@ -319,7 +319,15 @@ const App = () => {
     setView(newView);
     if(newView !== 'anatomy') setSelectedSection(null);
   };
-
+const handleArkClick = (e) => {
+    // If they are on a phone AND the server room isn't visible yet...
+    if (isTouchDevice && !isArkMode) {
+      e.preventDefault(); // Stop the link from opening!
+      setIsArkMode(true); // Trigger the server room instead
+    }
+    // If the server room IS visible, this function does nothing and the link opens naturally!
+  };
+  
   const renderTechBackground = (id) => {
     if (id === 'xray') return (
       <div className="absolute inset-0 bg-slate-900 opacity-0 group-hover:opacity-100 transition-all duration-500 z-0 overflow-hidden pointer-events-none">
@@ -367,7 +375,10 @@ const App = () => {
       `}</style>
 
       {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
-      <div className={`fixed inset-0 z-[40] pointer-events-none transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95' : 'opacity-0'}`}>
+      <div 
+         onClick={() => setIsArkMode(false)}
+         className={`fixed inset-0 z-[40] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto cursor-pointer' : 'opacity-0 pointer-events-none'}`}
+      >
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.4) 2px, transparent 2px), linear-gradient(90deg, rgba(34, 211, 238, 0.4) 2px, transparent 2px)', backgroundSize: '50px 50px', transform: 'perspective(600px) rotateX(60deg) translateY(-100px) translateZ(-200px)', transformOrigin: 'top center' }} />
         
         <div className="absolute inset-0 flex justify-between px-10 opacity-30">
@@ -380,6 +391,13 @@ const App = () => {
         <div className={`relative z-50 text-cyan-400 font-mono text-center transition-all duration-700 delay-100 ${isArkMode ? 'translate-y-0 scale-100' : 'translate-y-10 scale-90'}`}>
            <p className="text-xl md:text-3xl font-black tracking-[0.5em] mb-2 drop-shadow-[0_0_10px_#22d3ee]">ARK:IT INFRASTRUCTURE</p>
            <p className="text-xs md:text-sm uppercase tracking-widest opacity-70">Overriding Mainframe... Systems Optimal</p>
+           
+           {/* Mobile-Only Abort Text */}
+           {isTouchDevice && (
+              <p className="mt-8 text-[10px] font-bold text-cyan-400/60 tracking-[0.3em] animate-pulse">
+                 [ TAP ANYWHERE TO ABORT ]
+              </p>
+           )}
         </div>
       </div>
 
@@ -637,12 +655,13 @@ const App = () => {
 
               {/* --- ARK IT DEVELOPER CREDIT WITH SERVER OVERLAY HOVER --- */}
               <div className="mt-12 flex justify-center w-full animate-in fade-in duration-1000 delay-500">
-                 <a 
+                <a 
                     href="https://www.c4computerconsulting.com" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    onMouseEnter={() => setIsArkMode(true)}
-                    onMouseLeave={() => setIsArkMode(false)}
+                    onMouseEnter={() => !isTouchDevice && setIsArkMode(true)}
+                    onMouseLeave={() => !isTouchDevice && setIsArkMode(false)}
+                    onClick={handleArkClick}
                     className={`group relative overflow-hidden px-8 py-3 rounded-full border ${currentTheme.border} ${currentTheme.glass} opacity-40 hover:opacity-100 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] hover:border-cyan-400 hover:-translate-y-1 cursor-pointer z-50`}
                  >
                     {/* Glowing Data Sweep */}
@@ -655,7 +674,6 @@ const App = () => {
                        </span>
                     </div>
                  </a>
-              </div>
 
            </div>
         )}
