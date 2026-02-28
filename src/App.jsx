@@ -320,14 +320,6 @@ const App = () => {
     if(newView !== 'anatomy') setSelectedSection(null);
   };
 
-  // --- ARKIT MOBILE CLICK LOGIC ---
-  const handleArkClick = (e) => {
-    if (isTouchDevice && !isArkMode) {
-      e.preventDefault(); 
-      setIsArkMode(true); 
-    }
-  };
-
   const renderTechBackground = (id) => {
     if (id === 'xray') return (
       <div className="absolute inset-0 bg-slate-900 opacity-0 group-hover:opacity-100 transition-all duration-500 z-0 overflow-hidden pointer-events-none">
@@ -374,7 +366,7 @@ const App = () => {
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
-      {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
+      {/* --- ARK IT GLOBAL SERVER OVERLAY (TERMINAL VERSION) --- */}
       <div className={`fixed inset-0 z-[100] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.4) 2px, transparent 2px), linear-gradient(90deg, rgba(34, 211, 238, 0.4) 2px, transparent 2px)', backgroundSize: '50px 50px', transform: 'perspective(600px) rotateX(60deg) translateY(-100px) translateZ(-200px)', transformOrigin: 'top center' }} />
         
@@ -678,6 +670,9 @@ const App = () => {
                     </div>
                  </button>
               </div>
+
+           </div>
+        )}
       </div>
 
       <div className={`w-full md:w-[450px] lg:w-[500px] ${currentTheme.card} border-l ${currentTheme.border} p-10 pt-32 overflow-y-auto z-20 shadow-2xl relative shrink-0`}>
