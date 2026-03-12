@@ -379,7 +379,7 @@ const App = () => {
         
         {/* Interactive Terminal Interface */}
         <div className={`relative z-50 text-cyan-400 font-mono text-center transition-all duration-700 delay-100 flex flex-col items-center ${isArkMode ? 'translate-y-0 scale-100' : 'translate-y-10 scale-90'}`}>
-           <p className="text-xl md:text-3xl font-black tracking-[0.5em] mb-2 drop-shadow-[0_0_10px_#22d3ee]">ARK:IT INFRASTRUCTURE</p>
+           <p className="text-xl md:text-3xl font-black tracking-[0.5em] mb-2 drop-shadow-[0_0_10px_#22d3ee]">C4 TECHNOLOGIES:IT INFRASTRUCTURE</p>
            <p className="text-xs md:text-sm uppercase tracking-widest opacity-70 mb-12">Mainframe Override... Systems Optimal</p>
            
            {/* The Actual Link! */}
