@@ -1,0 +1,13 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="95" fill="#F0F7FF" />
+  
+  <path d="M70,50 Q100,30 130,50 Q145,70 140,100 Q135,140 120,160 Q100,140 80,160 Q65,140 60,100 Q55,70 70,50" 
+        fill="#FFFFFF" stroke="#1A5F7A" stroke-width="4"/>
+  
+  <path d="M90,70 L90,130 L120,130" 
+        fill="none" stroke="#1A5F7A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+        
+  <text x="100" y="185" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1A5F7A" text-anchor="middle">
+    DR. LAFLAIR DDS
+  </text>
+</svg>
