@@ -665,7 +665,7 @@ const App = () => {
                     <div className="relative flex items-center gap-3">
                        <Activity size={16} className={`${currentTheme.textSecondary} group-hover:text-cyan-400 transition-colors duration-300`} />
                        <span className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${currentTheme.textSecondary} group-hover:text-cyan-50 transition-colors duration-300`}>
-                         Developed & Maintained by <span className="text-cyan-400">ArkIT Technologies</span>
+                         Developed & Maintained by <span className="text-cyan-400">C4:Technologies</span>
                        </span>
                     </div>
                  </button>
