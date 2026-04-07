@@ -59,9 +59,24 @@ const GEAR_LOADOUT = [
 ];
 
 const STAFF_CARDS = [
-  { name: "Dr. Chris LaFlair", role: "Lead Dentist", bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere.", image: "/drlaflairspecialist.jpg" },
-  { name: "Renee & Suellen", role: "Front Desk & Assistants", bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling.", image: "/SueellenRenee.jpg" },
-  { name: "Stephanie & Maria", role: "Dental Hygienists", bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.", image: "/oloivastephanie.jpg" }
+  { 
+    name: "Dr. Chris LaFlair", 
+    role: "Lead Dentist", 
+    bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere.", 
+    image: "/drlaflairspecialist.jpg" 
+  },
+  { 
+    name: "Suellen & Renee", // FLIPPED!
+    role: "Front Desk & Assistants", 
+    bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling.", 
+    image: "/SueellenRenee.jpg" 
+  },
+  { 
+    name: "Maria & Stephanie", // FLIPPED! (Change Maria to Olivia if needed)
+    role: "Dental Hygienists", 
+    bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.", 
+    image: "/oloivastephanie.jpg" 
+  }
 ];
 
 const SmileSVG = ({ type }) => {
