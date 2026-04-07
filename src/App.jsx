@@ -64,74 +64,6 @@ const STAFF_CARDS = [
   { name: "Stephanie & Maria", role: "Dental Hygienists", bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.", image: "/oloivastephanie.jpg" }
 ];
 
-// --- NATIVE SVG SMILE COMPONENT ---
-const SmileSVG = ({ type }) => {
-  const isBefore = type === 'before';
-  
-  return (
-    <svg viewBox="0 0 800 400" className="w-full h-full bg-stone-900" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id={`tooth-grad-${type}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={isBefore ? '#fef08a' : '#ffffff'} />
-          <stop offset="100%" stopColor={isBefore ? '#d97706' : '#e7e5e4'} />
-        </linearGradient>
-        <linearGradient id="lip-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fb7185" />
-          <stop offset="100%" stopColor="#be123c" />
-        </linearGradient>
-        <clipPath id={`mouth-clip-${type}`}>
-          <path d="M 100 200 C 250 140, 550 140, 700 200 C 550 280, 250 280, 100 200 Z" />
-        </clipPath>
-      </defs>
-
-      <rect width="800" height="400" fill={isBefore ? "#e7e5e4" : "#f5f5f4"} />
-      <path d="M 100 200 C 250 140, 550 140, 700 200 C 550 280, 250 280, 100 200 Z" fill="#1c1917" />
-
-      <g clipPath={`url(#mouth-clip-${type})`}>
-        <path d="M 0 0 L 800 0 L 800 170 C 550 155, 250 155, 0 170 Z" fill={isBefore ? '#f87171' : '#fda4af'} />
-        <path d="M 0 400 L 800 400 L 800 245 C 550 260, 250 260, 0 245 Z" fill={isBefore ? '#f87171' : '#fda4af'} />
-
-        <g stroke="#292524" strokeWidth="1.5" fill={`url(#tooth-grad-${type})`}>
-          <rect x="360" y="160" width="38" height="55" rx="6" />
-          <rect x="402" y="160" width="38" height="55" rx="6" />
-          <rect x="325" y="158" width="32" height="48" rx="5" />
-          <rect x="443" y="158" width="32" height="48" rx="5" />
-          <rect x="295" y="155" width="28" height="45" rx="4" />
-          <rect x="477" y="155" width="28" height="45" rx="4" />
-          <rect x="270" y="155" width="22" height="40" rx="3" />
-          <rect x="508" y="155" width="22" height="40" rx="3" />
-        </g>
-
-        <g stroke="#292524" strokeWidth="1.5" fill={`url(#tooth-grad-${type})`}>
-          <rect x="365" y="217" width="33" height="40" rx="5" />
-          <rect x="402" y="217" width="33" height="40" rx="5" />
-          <rect x="335" y="219" width="28" height="38" rx="4" />
-          <rect x="437" y="219" width="28" height="38" rx="4" />
-          <rect x="308" y="222" width="25" height="35" rx="4" />
-          <rect x="467" y="222" width="25" height="35" rx="4" />
-        </g>
-        
-        {isBefore && (
-          <g fill="#ca8a04" opacity="0.4" filter="blur(3px)">
-             <ellipse cx="380" cy="165" rx="20" ry="10" />
-             <ellipse cx="420" cy="165" rx="20" ry="10" />
-             <ellipse cx="340" cy="165" rx="15" ry="8" />
-             <ellipse cx="460" cy="165" rx="15" ry="8" />
-             <ellipse cx="380" cy="245" rx="15" ry="10" />
-             <ellipse cx="420" cy="245" rx="15" ry="10" />
-          </g>
-        )}
-      </g>
-
-      <path d="M 100 200 C 250 100, 550 100, 700 200 C 550 140, 250 140, 100 200 Z" fill="url(#lip-grad)" />
-      <path d="M 100 200 C 250 300, 550 300, 700 200 C 550 280, 250 280, 100 200 Z" fill="url(#lip-grad)" />
-      
-      <path d="M 300 128 Q 400 120 500 128" stroke="#fecdd3" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.6"/>
-      <path d="M 320 285 Q 400 295 480 285" stroke="#fecdd3" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.4"/>
-    </svg>
-  );
-};
-
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isAccessibilityOpen, setIsAccessibilityOpen] = useState(false);
@@ -358,7 +290,7 @@ const App = () => {
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
-      {/* --- ARK IT GLOBAL SERVER OVERLAY (TERMINAL VERSION) --- */}
+      {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
       <div className={`fixed inset-0 z-[100] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.4) 2px, transparent 2px), linear-gradient(90deg, rgba(34, 211, 238, 0.4) 2px, transparent 2px)', backgroundSize: '50px 50px', transform: 'perspective(600px) rotateX(60deg) translateY(-100px) translateZ(-200px)', transformOrigin: 'top center' }} />
         
@@ -369,12 +301,10 @@ const App = () => {
 
         <Database className="absolute text-cyan-500 opacity-5 w-[80vw] h-[80vw] animate-pulse pointer-events-none" style={{ animationDuration: '3s' }} />
         
-        {/* Interactive Terminal Interface */}
         <div className={`relative z-50 text-cyan-400 font-mono text-center transition-all duration-700 delay-100 flex flex-col items-center ${isArkMode ? 'translate-y-0 scale-100' : 'translate-y-10 scale-90'}`}>
            <p className="text-xl md:text-3xl font-black tracking-[0.5em] mb-2 drop-shadow-[0_0_10px_#22d3ee]">C4 TECHNOLOGIES:IT DATABASE</p>
            <p className="text-xs md:text-sm uppercase tracking-widest opacity-70 mb-12">Mainframe Override... Systems Optimal</p>
            
-           {/* The Actual Link! */}
            <a 
               href="https://patrick-lake.vercel.app" 
               target="_blank" 
@@ -413,7 +343,6 @@ const App = () => {
           
           <div className="flex items-center justify-between w-full xl:w-auto xl:justify-start gap-4 xl:gap-8">
             
-            {/* UPDATED LOGO SECTION */}
             <div className="flex items-center gap-3 cursor-pointer group shrink-0" onClick={() => changeView('anatomy')}>
               <div className={`w-14 h-14 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform overflow-hidden bg-white`}>
                 <img src="/emblem.jpg" alt="Dr. LaFlair Logo" className="w-full h-full object-contain p-1" />
@@ -426,7 +355,6 @@ const App = () => {
 
             <div className="flex items-center gap-4 relative">
               
-              {/* VITALITY BAR */}
               <div className="hidden md:flex items-center gap-3 w-32 border-l border-stone-500/20 pl-4">
                 <div className="flex-1">
                   <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
@@ -436,7 +364,6 @@ const App = () => {
                 </div>
               </div>
 
-              {/* NEW ACCESSIBILITY MENU TOGGLE */}
               <button 
                 onClick={() => setIsAccessibilityOpen(!isAccessibilityOpen)} 
                 className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-300 ${
@@ -447,12 +374,10 @@ const App = () => {
                 <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Accessibility</span>
               </button>
 
-              {/* ACCESSIBILITY DROPDOWN PANEL */}
               {isAccessibilityOpen && (
                 <div className={`absolute top-full mt-2 right-0 w-64 rounded-2xl p-4 shadow-2xl border ${currentTheme.border} ${currentTheme.card} z-[100] animate-in slide-in-from-top-2`}>
                    <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-3 border-b border-stone-500/20 pb-2">Visual Adjustments</h4>
                    
-                   {/* Theme Toggle */}
                    <div className="flex items-center justify-between mb-4">
                      <span className="text-sm font-bold">Theme</span>
                      <button onClick={() => setIsDarkMode(!isDarkMode)} className={`px-3 py-1 rounded-md text-xs font-bold ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}>
@@ -460,7 +385,6 @@ const App = () => {
                      </button>
                    </div>
 
-                   {/* Zoom Controls */}
                    <div className="flex items-center justify-between">
                      <span className="text-sm font-bold">Text Size</span>
                      <div className="flex gap-2">
@@ -572,7 +496,6 @@ const App = () => {
                 <p className={`text-sm ${currentTheme.textSecondary}`}>Real stories and clinical results from our Ogdensburg community.</p>
              </div>
 
-              {/* UPDATED OUTCOMES IMAGE */}
               <div className={`relative w-full rounded-3xl overflow-hidden mb-12 shadow-2xl border ${currentTheme.border} bg-white flex justify-center`}>
                  <img 
                     src="/avoidthishavethat.jpg" 
@@ -657,7 +580,6 @@ const App = () => {
                 </div>
               </div>
 
-              {/* --- ARK IT DEVELOPER CREDIT WITH SERVER OVERLAY TRIGGER --- */}
               <div className="mt-12 flex justify-center w-full animate-in fade-in duration-1000 delay-500">
                  <button 
                     onClick={(e) => { e.preventDefault(); setIsArkMode(true); }}
@@ -701,7 +623,7 @@ const App = () => {
                   {STAFF_CARDS.map((s, i) => (
                     <div key={i} className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm hover:shadow-md transition-shadow`}>
                        {s.image ? (
-                           <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 ${currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.replace(/ /g, '+') + '&background=random'; }} />
+                           <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 ${currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.split(' ').join('+') + '&background=random'; }} />
                        ) : (
                            <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center ${currentTheme.accentBgSoft} ${currentTheme.accentText} font-bold text-xl border-2 ${currentTheme.accentBorder}`}>
                                {s.name[0]}
