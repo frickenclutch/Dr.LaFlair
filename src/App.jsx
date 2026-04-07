@@ -59,9 +59,24 @@ const GEAR_LOADOUT = [
 ];
 
 const STAFF_CARDS = [
-  { name: "Dr. Chris LaFlair", role: "Lead Dentist", bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere." },
-  { name: "Renee & Suellen", role: "Front Desk & Assistants", bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling." },
-  { name: "Stephanie & Maria", role: "Dental Hygienists", bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible." }
+  { 
+    name: "Dr. Chris LaFlair", 
+    role: "Lead Dentist", 
+    bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere.",
+    image: "/drlaflairspecialist.jpg"
+  },
+  { 
+    name: "Renee & Suellen", 
+    role: "Front Desk & Assistants", 
+    bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling.",
+    image: "/SueellenRenee.jpg"
+  },
+  { 
+    name: "Olivia and Stephanie", 
+    role: "Dental Hygienists", 
+    bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.",
+    image: "/oloivastephanie.jpg"
+  }
 ];
 
 // --- NATIVE SVG SMILE COMPONENT ---
@@ -134,9 +149,12 @@ const SmileSVG = ({ type }) => {
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [view, setView] = useState('anatomy'); 
+  const [isAccessibilityOpen, setIsAccessibilityOpen] = useState(false); 
+  const [zoomLevel, setZoomLevel] = useState(100);                       
+
+  const [view, setView] = useState('anatomy');
   const [selectedSection, setSelectedSection] = useState(null);
-  const [healthScore, setHealthScore] = useState(85);
+  // ... rest stays the same
   
   const [isSparkling, setIsSparkling] = useState(false);
   const [chipStatus, setChipStatus] = useState('intact'); 
@@ -416,21 +434,22 @@ const App = () => {
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
 
-      <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
-        <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
-          
-          <div className="flex items-center justify-between w-full xl:w-auto xl:justify-start gap-4 xl:gap-8">
+      <div className="flex items-center justify-between w-full xl:w-auto xl:justify-start gap-4 xl:gap-8">
+            
+            {/* UPDATED LOGO SECTION */}
             <div className="flex items-center gap-3 cursor-pointer group shrink-0" onClick={() => changeView('anatomy')}>
-              <div className={`w-10 h-10 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform`}>
-                <Sparkles size={20} />
+              <div className={`w-14 h-14 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform overflow-hidden bg-white`}>
+                <img src="/emblem.jpg" alt="Dr. LaFlair Logo" className="w-full h-full object-contain p-1" />
               </div>
               <div className="flex flex-col">
                 <span className="font-black text-sm uppercase tracking-tighter leading-none">Dr. LaFlair <span className="opacity-50 hidden sm:inline">DDS</span></span>
-                <span className={`text-[9px] font-bold uppercase tracking-[0.2em] mt-1 ${currentTheme.accentText}`}>Smiles That Last</span>
+                <span className={`text-[9px] font-bold uppercase tracking-[0.2em] mt-1 ${currentTheme.accentText}`}>Family Dentistry</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 relative">
+              
+              {/* VITALITY BAR */}
               <div className="hidden md:flex items-center gap-3 w-32 border-l border-stone-500/20 pl-4">
                 <div className="flex-1">
                   <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
@@ -440,20 +459,43 @@ const App = () => {
                 </div>
               </div>
 
-             <button 
-                onClick={() => setIsDarkMode(!isDarkMode)} 
+              {/* NEW ACCESSIBILITY MENU TOGGLE */}
+              <button 
+                onClick={() => setIsAccessibilityOpen(!isAccessibilityOpen)} 
                 className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-300 ${
-                  isDarkMode 
-                    ? 'border-cyan-500/50 bg-slate-800 text-cyan-400 hover:bg-slate-700 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]' 
-                    : 'border-stone-300 bg-white text-stone-600 hover:bg-stone-50 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)]'
+                  isAccessibilityOpen ? 'border-indigo-500 bg-indigo-500 text-white' : (isDarkMode ? 'border-cyan-500/50 bg-slate-800 text-cyan-400' : 'border-stone-300 bg-white text-stone-600')
                 }`}
               >
-                {isDarkMode ? <Sun size={16} className="animate-spin-slow" /> : <Moon size={16} />}
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">
-                  {isDarkMode ? 'DARK [LAB]' : 'LIGHT [APPLE]'}
-                </span>
-             </button>
+                <AlertTriangle size={16} />
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Accessibility</span>
+              </button>
+
+              {/* ACCESSIBILITY DROPDOWN PANEL */}
+              {isAccessibilityOpen && (
+                <div className={`absolute top-full mt-2 right-0 w-64 rounded-2xl p-4 shadow-2xl border ${currentTheme.border} ${currentTheme.card} z-[100] animate-in slide-in-from-top-2`}>
+                   <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-3 border-b border-stone-500/20 pb-2">Visual Adjustments</h4>
+                   
+                   {/* Theme Toggle */}
+                   <div className="flex items-center justify-between mb-4">
+                     <span className="text-sm font-bold">Theme</span>
+                     <button onClick={() => setIsDarkMode(!isDarkMode)} className={`px-3 py-1 rounded-md text-xs font-bold ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}>
+                        {isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
+                     </button>
+                   </div>
+
+                   {/* Zoom Controls */}
+                   <div className="flex items-center justify-between">
+                     <span className="text-sm font-bold">Text Size</span>
+                     <div className="flex gap-2">
+                       <button onClick={() => setZoomLevel(Math.max(100, zoomLevel - 10))} className={`w-8 h-8 rounded-md flex items-center justify-center font-bold ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}>-</button>
+                       <div className="w-12 text-center text-xs font-mono py-2">{zoomLevel}%</div>
+                       <button onClick={() => setZoomLevel(Math.min(150, zoomLevel + 10))} className={`w-8 h-8 rounded-md flex items-center justify-center font-bold ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}>+</button>
+                     </div>
+                   </div>
+                </div>
+              )}
             </div>
+            
           </div>
 
           <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
