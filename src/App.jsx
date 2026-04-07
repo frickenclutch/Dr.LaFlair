@@ -401,7 +401,7 @@ const App = () => {
               <Activity size={24} className="text-cyan-400 group-hover:animate-pulse" />
               <span className="text-sm md:text-base font-black tracking-widest uppercase text-cyan-50">Establish Secure Connection</span>
            </a>
-           <button onClick={() => setIsArkMode(false)} className="px-6 py-2 text-[10px] md:text-xs font-bold text-cyan-400/40 hover:text-cyan-400 tracking-[0.3em] uppercase transition-colors">> Abort_Override</button>
+           <button onClick={() => setIsArkMode(false)} className="px-6 py-2 text-[10px] md:text-xs font-bold text-cyan-400/40 hover:text-cyan-400 tracking-[0.3em] uppercase transition-colors"> Abort_Override</button>
         </div>
       </div>
 
