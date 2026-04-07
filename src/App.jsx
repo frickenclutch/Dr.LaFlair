@@ -64,6 +64,73 @@ const STAFF_CARDS = [
   { name: "Stephanie & Maria", role: "Dental Hygienists", bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.", image: "/oloivastephanie.jpg" }
 ];
 
+const SmileSVG = ({ type }) => {
+  const isBefore = type === 'before';
+  
+  return (
+    <svg viewBox="0 0 800 400" className="w-full h-full bg-stone-900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id={`tooth-grad-${type}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={isBefore ? '#fef08a' : '#ffffff'} />
+          <stop offset="100%" stopColor={isBefore ? '#d97706' : '#e7e5e4'} />
+        </linearGradient>
+        <linearGradient id="lip-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fb7185" />
+          <stop offset="100%" stopColor="#be123c" />
+        </linearGradient>
+        <clipPath id={`mouth-clip-${type}`}>
+          <path d="M 100 200 C 250 140, 550 140, 700 200 C 550 280, 250 280, 100 200 Z" />
+        </clipPath>
+      </defs>
+
+      <rect width="800" height="400" fill={isBefore ? "#e7e5e4" : "#f5f5f4"} />
+      <path d="M 100 200 C 250 140, 550 140, 700 200 C 550 280, 250 280, 100 200 Z" fill="#1c1917" />
+
+      <g clipPath={`url(#mouth-clip-${type})`}>
+        <path d="M 0 0 L 800 0 L 800 170 C 550 155, 250 155, 0 170 Z" fill={isBefore ? '#f87171' : '#fda4af'} />
+        <path d="M 0 400 L 800 400 L 800 245 C 550 260, 250 260, 0 245 Z" fill={isBefore ? '#f87171' : '#fda4af'} />
+
+        <g stroke="#292524" strokeWidth="1.5" fill={`url(#tooth-grad-${type})`}>
+          <rect x="360" y="160" width="38" height="55" rx="6" />
+          <rect x="402" y="160" width="38" height="55" rx="6" />
+          <rect x="325" y="158" width="32" height="48" rx="5" />
+          <rect x="443" y="158" width="32" height="48" rx="5" />
+          <rect x="295" y="155" width="28" height="45" rx="4" />
+          <rect x="477" y="155" width="28" height="45" rx="4" />
+          <rect x="270" y="155" width="22" height="40" rx="3" />
+          <rect x="508" y="155" width="22" height="40" rx="3" />
+        </g>
+
+        <g stroke="#292524" strokeWidth="1.5" fill={`url(#tooth-grad-${type})`}>
+          <rect x="365" y="217" width="33" height="40" rx="5" />
+          <rect x="402" y="217" width="33" height="40" rx="5" />
+          <rect x="335" y="219" width="28" height="38" rx="4" />
+          <rect x="437" y="219" width="28" height="38" rx="4" />
+          <rect x="308" y="222" width="25" height="35" rx="4" />
+          <rect x="467" y="222" width="25" height="35" rx="4" />
+        </g>
+        
+        {isBefore && (
+          <g fill="#ca8a04" opacity="0.4" filter="blur(3px)">
+             <ellipse cx="380" cy="165" rx="20" ry="10" />
+             <ellipse cx="420" cy="165" rx="20" ry="10" />
+             <ellipse cx="340" cy="165" rx="15" ry="8" />
+             <ellipse cx="460" cy="165" rx="15" ry="8" />
+             <ellipse cx="380" cy="245" rx="15" ry="10" />
+             <ellipse cx="420" cy="245" rx="15" ry="10" />
+          </g>
+        )}
+      </g>
+
+      <path d="M 100 200 C 250 100, 550 100, 700 200 C 550 140, 250 140, 100 200 Z" fill="url(#lip-grad)" />
+      <path d="M 100 200 C 250 300, 550 300, 700 200 C 550 280, 250 280, 100 200 Z" fill="url(#lip-grad)" />
+      
+      <path d="M 300 128 Q 400 120 500 128" stroke="#fecdd3" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.6"/>
+      <path d="M 320 285 Q 400 295 480 285" stroke="#fecdd3" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.4"/>
+    </svg>
+  );
+};
+
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isAccessibilityOpen, setIsAccessibilityOpen] = useState(false);
@@ -104,12 +171,14 @@ const App = () => {
     const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     setIsTouchDevice(hasTouch);
 
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (/android/i.test(userAgent)) {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const ual = ua.toLowerCase();
+    
+    if (ual.includes('android')) {
         setDeviceType('android');
-    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+    } else if ((ua.includes('iPad') || ua.includes('iPhone') || ua.includes('iPod')) && !window.MSStream) {
         setDeviceType('ios');
-    } else if (/Mac/i.test(userAgent) && hasTouch) {
+    } else if (ual.includes('mac') && hasTouch) {
         setDeviceType('ios');
     } else {
         setDeviceType('desktop');
@@ -121,7 +190,7 @@ const App = () => {
   const dragOffset = useRef({ startX: 0, startY: 0, chipX: 0, chipY: 0, currentX: 0, currentY: 0 });
 
   const handleBook = () => window.location.href = `mailto:${PRACTICE_INFO.email}?subject=Appointment Request`;
-  const handleCall = () => window.location.href = `tel:${PRACTICE_INFO.phone.replace(/-/g, '')}`;
+  const handleCall = () => window.location.href = `tel:${PRACTICE_INFO.phone.split('-').join('')}`;
 
   const handleInteraction = (section) => {
     setSelectedSection(section);
@@ -543,7 +612,7 @@ const App = () => {
                   <div>
                     <h3 className="text-2xl font-black uppercase tracking-widest mb-8">Patient Services</h3>
                     <div className="space-y-6">
-                      <a href={`https://maps.google.com/?q=${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
                         <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><MapPin size={20}/></div>
                         <div>
                           <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Clinical Location</p>
@@ -551,7 +620,7 @@ const App = () => {
                           <p className={`text-sm ${currentTheme.textSecondary}`}>Ogdensburg, NY 13669</p>
                         </div>
                       </a>
-                      <a href={`tel:${PRACTICE_INFO.phone.replace(/-/g, '')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                      <a href={`tel:${PRACTICE_INFO.phone.split('-').join('')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
                         <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><Phone size={20}/></div>
                         <div>
                           <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Direct Line</p>
