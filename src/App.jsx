@@ -7,6 +7,9 @@ import {
   CheckCircle, MessageCircle, Clock, Search
 } from 'lucide-react';
 
+// --- CONFIGURATION ---
+const ASSETS = { HERO_VIDEO: "http://googleusercontent.com/generated_video_content/540743943313863772" };
+
 const PRACTICE_INFO = {
   name: "Christopher LaFlair DDS PC",
   doctor: "Clinical Director: Dr. Chris LaFlair",
@@ -129,10 +132,11 @@ const SmileSVG = ({ type }) => {
 };
 
 const App = () => {
-  const [hasEntered, setHasEntered] = useState(false); // NEW SPLASH SCREEN STATE
+  const [hasEntered, setHasEntered] = useState(false); 
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isAccessibilityOpen, setIsAccessibilityOpen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [hoveredStaff, setHoveredStaff] = useState(null); // NEW: State for staff hover takeover
 
   const [view, setView] = useState('anatomy'); 
   const [selectedSection, setSelectedSection] = useState(null);
@@ -356,59 +360,57 @@ const App = () => {
         @keyframes xray-scan { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* NEW SPLASH SCREEN 3D ANIMATIONS */
+        /* SPLASH SCREEN 3D ANIMATIONS */
         @keyframes float-cloud {
           0%, 100% { transform: translateY(0px) translateX(0px); }
           50% { transform: translateY(-20px) translateX(10px); }
         }
         @keyframes spin-flip {
           0% { transform: rotateY(0deg); }
-          30% { transform: rotateY(0deg); } /* Pause on front */
-          50% { transform: rotateY(180deg); } /* Spin */
-          80% { transform: rotateY(180deg); } /* Pause on back */
-          100% { transform: rotateY(360deg); } /* Spin back */
+          30% { transform: rotateY(0deg); } 
+          50% { transform: rotateY(180deg); } 
+          80% { transform: rotateY(180deg); } 
+          100% { transform: rotateY(360deg); } 
         }
         .preserve-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
       `}</style>
 
-      {/* --- NEW SPLASH SCREEN OVERLAY --- */}
+      {/* --- SPLASH SCREEN OVERLAY --- */}
       <div className={`fixed inset-0 z-[200] bg-stone-950 flex flex-col items-center justify-center transition-all duration-1000 ${hasEntered ? 'opacity-0 pointer-events-none scale-105 blur-md' : 'opacity-100 scale-100 blur-0'}`}>
-         {/* Background ambient lighting */}
          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15)_0%,transparent_70%)] pointer-events-none" />
          
-         {/* The Floating Container */}
          <div 
            className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group" 
            style={{ animation: 'float-cloud 6s ease-in-out infinite', perspective: '1000px' }} 
            onClick={() => setHasEntered(true)}
          >
-            {/* The 3D Flipping Element */}
             <div className="w-full h-full relative preserve-3d transition-transform group-hover:scale-105" style={{ animation: 'spin-flip 8s cubic-bezier(0.4, 0.0, 0.2, 1) infinite' }}>
-               
-               {/* Front Side: Emblem Face */}
                <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center bg-white/5 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.1)] p-8">
                   <img src="/emblem.jpg" alt="Dr. LaFlair Logo" className="w-full h-full object-contain drop-shadow-2xl" />
                </div>
-
-               {/* Back Side: Click to Enter */}
                <div className="absolute inset-0 backface-hidden rotate-y-180 flex items-center justify-center bg-gradient-to-br from-indigo-900 to-black border border-indigo-500/50 rounded-full shadow-[0_0_60px_rgba(99,102,241,0.4)] p-8">
                   <div className="text-center">
                      <Sparkles className="w-10 h-10 text-indigo-400 mx-auto mb-3 animate-pulse" />
                      <p className="text-indigo-50 font-black uppercase tracking-[0.3em] text-lg md:text-xl drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]">Click To Enter</p>
                   </div>
                </div>
-
             </div>
          </div>
 
-         {/* Bottom hint text */}
-         <div className="absolute bottom-12 left-0 right-0 text-center animate-pulse opacity-50 pointer-events-none">
-            <span className="text-stone-300 text-xs font-black uppercase tracking-[0.5em]">Portal Secured</span>
+         {/* --- UPDATED PORTAL SECURED TEXT & LINK --- */}
+         <div className="absolute bottom-12 left-0 right-0 text-center z-50">
+            <a 
+              href="https://c4technologies.pages.dev" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-stone-400 hover:text-cyan-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.4em] transition-colors duration-300 opacity-60 hover:opacity-100 inline-block hover:scale-105"
+            >
+                PORTAL SECURED BY C4:TECHNOLOGIES
+            </a>
          </div>
       </div>
-
 
       {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
       <div className={`fixed inset-0 z-[100] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
@@ -449,7 +451,6 @@ const App = () => {
         <Phone size={24} className={isDarkMode ? "text-white" : "text-white"} />
       </button>
 
-      {/* --- UPDATED MAIN BACKGROUND (No more video placeholder) --- */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black">
         {isDarkMode ? (
           <div className="w-full h-full bg-stone-950 flex items-center justify-center">
@@ -531,8 +532,22 @@ const App = () => {
         </div>
       </div>
 
-      <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-28 md:mt-24 xl:mt-0">
+      <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-6 md:p-12 mt-28 md:mt-24 xl:mt-0 overflow-hidden">
         
+        {/* --- NEW: STAFF HOVER OVERLAYS (Pre-rendered for buttery smooth fades) --- */}
+        {STAFF_CARDS.map((s, i) => (
+          <div key={`overlay-${i}`} className={`absolute inset-0 z-[60] transition-all duration-700 bg-stone-950 flex flex-col items-center justify-end p-8 md:p-16 text-center overflow-hidden ${hoveredStaff?.name === s.name ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+             <img src={s.image} alt={s.name} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[10000ms] ease-out ${hoveredStaff?.name === s.name ? 'scale-110' : 'scale-100'}`} />
+             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+             <div className={`relative z-10 transition-all duration-700 delay-100 ${hoveredStaff?.name === s.name ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+                <p className={`text-xs md:text-sm font-black ${currentTheme.accentText} uppercase tracking-[0.4em] mb-4 drop-shadow-md`}>{s.role}</p>
+                <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6 drop-shadow-lg">{s.name}</h2>
+                <p className="max-w-2xl text-lg md:text-xl text-stone-200 leading-relaxed font-medium drop-shadow-md">&quot;{s.bio}&quot;</p>
+             </div>
+          </div>
+        ))}
+
+
       {view === 'anatomy' && (
           <div className="w-full max-w-lg aspect-square relative animate-in zoom-in duration-1000 flex flex-col items-center">
             
@@ -722,17 +737,23 @@ const App = () => {
              <section>
                 <div className="flex items-center gap-2 mb-6 opacity-30 font-black text-[10px] uppercase tracking-widest"><Users size={14}/> Clinical Team</div>
                 <div className="flex flex-col gap-4">
+                  {/* --- UPDATED: Staff Cards with Hover Takeover --- */}
                   {STAFF_CARDS.map((s, i) => (
-                    <div key={i} className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm hover:shadow-md transition-shadow`}>
+                    <div 
+                      key={i} 
+                      onMouseEnter={() => setHoveredStaff(s)}
+                      onMouseLeave={() => setHoveredStaff(null)}
+                      className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm transition-all duration-300 cursor-pointer ${hoveredStaff?.name === s.name ? 'scale-[1.02] shadow-xl border-cyan-500/30' : 'hover:shadow-md'}`}
+                    >
                        {s.image ? (
-                           <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 ${currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.split(' ').join('+') + '&background=random'; }} />
+                           <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 transition-all duration-300 ${hoveredStaff?.name === s.name ? 'border-cyan-400' : currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.split(' ').join('+') + '&background=random'; }} />
                        ) : (
                            <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center ${currentTheme.accentBgSoft} ${currentTheme.accentText} font-bold text-xl border-2 ${currentTheme.accentBorder}`}>
                                {s.name[0]}
                            </div>
                        )}
                        <div>
-                          <p className={`text-[10px] font-black ${currentTheme.accentText} uppercase mb-1`}>{s.role}</p>
+                          <p className={`text-[10px] font-black ${currentTheme.accentText} uppercase mb-1 transition-colors ${hoveredStaff?.name === s.name ? 'text-cyan-500' : ''}`}>{s.role}</p>
                           <h4 className="text-lg font-bold leading-tight mb-1">{s.name}</h4>
                           <p className={`text-xs ${currentTheme.textSecondary} leading-relaxed line-clamp-3`}>{s.bio}</p>
                        </div>
