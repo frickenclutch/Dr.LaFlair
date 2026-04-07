@@ -72,7 +72,7 @@ const STAFF_CARDS = [
     image: "/SueellenRenee.jpg" 
   },
   { 
-    name: "Maria & Stephanie", // FLIPPED! (Change Maria to Olivia if needed)
+    name: "Olivia & Stephanie", // FLIPPED! (Change Maria to Olivia if needed)
     role: "Dental Hygienists", 
     bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.", 
     image: "/oloivastephanie.jpg" 
