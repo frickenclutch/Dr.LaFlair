@@ -5,8 +5,15 @@ import {
   Heart, Moon, Sun, Users, Monitor, Crosshair, 
   Database, Shield, ArrowRight, Loader2, Lock, 
   CheckCircle, MessageCircle, Clock, Search,
-  Accessibility, X, Type, Eye, ZapOff, ScanFace
+  X, Type, Eye, VideoOff, BookOpen
 } from 'lucide-react';
+
+// --- CUSTOM A11Y ICON (Bulletproof Build) ---
+const AccessibilityIcon = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="4" r="2"/><path d="m18 10-6-4-6 4"/><path d="m14 20-2-6-2 6"/><path d="m12 14v-4"/><path d="m6 10 2 2"/><path d="m18 10-2 2"/>
+  </svg>
+);
 
 const PRACTICE_INFO = {
   name: "Christopher LaFlair DDS P.C.",
@@ -71,8 +78,9 @@ const NAV_ITEMS = [
 ];
 
 const App = () => {
-  // START ON SPLASH SCREEN
+  // --- CORE STATE ---
   const [view, setView] = useState('splash'); 
+  const [splashCountdown, setSplashCountdown] = useState(10);
   
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [selectedSection, setSelectedSection] = useState(null);
@@ -87,10 +95,10 @@ const App = () => {
 
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [deviceType, setDeviceType] = useState('desktop');
-  
   const [hintIndex, setHintIndex] = useState(0);
   const [isArkMode, setIsArkMode] = useState(false); 
   
+  // --- ACCESSIBILITY STATE ---
   const [isA11yOpen, setIsA11yOpen] = useState(false);
   const [a11y, setA11y] = useState({
     largeText: false,
@@ -106,6 +114,18 @@ const App = () => {
     "Toggle the Advanced Sub-surface Imaging (X-Ray) switch to reveal hidden structures."
   ];
 
+  // --- SPLASH SCREEN COUNTDOWN EFFECT ---
+  useEffect(() => {
+    if (view === 'splash') {
+      if (splashCountdown > 0) {
+        const timer = setTimeout(() => setSplashCountdown(prev => prev - 1), 1000);
+        return () => clearTimeout(timer);
+      } else {
+        setView('anatomy'); // Auto-enter site when timer hits 0
+      }
+    }
+  }, [view, splashCountdown]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setHintIndex((prev) => (prev + 1) % interactiveHints.length);
@@ -116,17 +136,6 @@ const App = () => {
   useEffect(() => {
     const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     setIsTouchDevice(hasTouch);
-
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (/android/i.test(userAgent)) {
-        setDeviceType('android');
-    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-        setDeviceType('ios');
-    } else if (/Mac/i.test(userAgent) && hasTouch) {
-        setDeviceType('ios');
-    } else {
-        setDeviceType('desktop');
-    }
   }, []);
 
   const currentTheme = isDarkMode ? THEMES.LAB : THEMES.APPLE;
@@ -186,54 +195,32 @@ const App = () => {
     if (chipStatus !== 'broken' || isXrayMode) return;
     e.preventDefault();
     e.stopPropagation();
-    
-    if (!isTouchDevice && e.target && e.target.setPointerCapture) {
-        e.target.setPointerCapture(e.pointerId);
-    }
-    
+    if (!isTouchDevice && e.target && e.target.setPointerCapture) e.target.setPointerCapture(e.pointerId);
     dragRef.current = true;
     setIsDragging(true);
-    dragOffset.current = { 
-      startX: e.clientX, startY: e.clientY, 
-      chipX: chipPos.x, chipY: chipPos.y,
-      currentX: chipPos.x, currentY: chipPos.y
-    };
+    dragOffset.current = { startX: e.clientX, startY: e.clientY, chipX: chipPos.x, chipY: chipPos.y, currentX: chipPos.x, currentY: chipPos.y };
   };
 
   const handlePointerMove = (e) => {
     if (dragRef.current) {
       e.preventDefault();
-      const dx = e.clientX - dragOffset.current.startX;
-      const dy = e.clientY - dragOffset.current.startY;
-      const newX = dragOffset.current.chipX + dx;
-      const newY = dragOffset.current.chipY + dy;
-      
+      const newX = dragOffset.current.chipX + (e.clientX - dragOffset.current.startX);
+      const newY = dragOffset.current.chipY + (e.clientY - dragOffset.current.startY);
       dragOffset.current.currentX = newX;
       dragOffset.current.currentY = newY;
-      
       setChipPos({ x: newX, y: newY });
     }
   };
 
   const handlePointerUp = (e) => {
     if (!dragRef.current) return; 
-    
-    if (!isTouchDevice && e && e.target && e.target.releasePointerCapture) {
-        try { e.target.releasePointerCapture(e.pointerId); } catch(err) {}
-    }
-    
+    if (!isTouchDevice && e && e.target && e.target.releasePointerCapture) { try { e.target.releasePointerCapture(e.pointerId); } catch(err) {} }
     dragRef.current = false;
     setIsDragging(false);
-
     const finalX = dragOffset.current.currentX;
     const finalY = dragOffset.current.currentY;
-    
     const distToTarget = Math.sqrt(finalX * finalX + finalY * finalY);
-    const dragDistance = Math.sqrt(
-      Math.pow(finalX - dragOffset.current.chipX, 2) + Math.pow(finalY - dragOffset.current.chipY, 2)
-    );
-
-    if (distToTarget < 150 || dragDistance < 5) {
+    if (distToTarget < 150) {
         executeRepair();
     } else {
         setChipPos({ x: 40, y: 120 });
@@ -244,11 +231,7 @@ const App = () => {
     setChipStatus('repaired');
     setChipPos({ x: 0, y: 0 });
     setHealthScore(100);
-    setSelectedSection({ 
-        title: "Simulated Repair", condition: "Integrity Restored", 
-        description: "Fragment repositioned. Physical assessment required for permanent bonding.", 
-        symptoms: ["Restored Surface", "Bite Integrity"], icon: <ShieldCheck className="w-6 h-6"/> 
-    });
+    setSelectedSection({ title: "Simulated Repair", condition: "Integrity Restored", description: "Fragment repositioned. Physical assessment required for permanent bonding.", symptoms: ["Restored Surface", "Bite Integrity"], icon: <ShieldCheck className="w-6 h-6"/> });
   };
 
   const changeView = (newView) => {
@@ -272,17 +255,12 @@ const App = () => {
     );
     if (id === 'cloud') return (
       <div className="absolute inset-0 bg-slate-900 opacity-0 group-hover:opacity-100 transition-all duration-500 z-0 p-4 flex flex-wrap gap-3 justify-center content-start pointer-events-none">
-        {Array.from({length: 15}).map((_, i) => (
-          <div key={i} className="w-[18%] aspect-square rounded bg-cyan-900/40 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]" style={{ animation: `pulse-grid 2s infinite ${(i%5)*0.2}s` }}/>
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none"/>
+        {Array.from({length: 15}).map((_, i) => <div key={i} className="w-[18%] aspect-square rounded bg-cyan-900/40 border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]" style={{ animation: `pulse-grid 2s infinite ${(i%5)*0.2}s` }}/>)}
       </div>
     );
     if (id === 'shield') return (
       <div className="absolute inset-0 bg-gradient-to-t from-orange-600/95 via-red-500/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 z-0 overflow-hidden pointer-events-none">
-        {Array.from({length: 12}).map((_, i) => (
-          <div key={i} className="absolute w-3 h-3 bg-lime-400 rounded-full blur-[1px]" style={{ left: `${(i*8.5)+5}%`, bottom: '-10%', animation: `float-melt ${1.5+(i%2)}s ease-in infinite ${(i%3)*0.5}s` }}/>
-        ))}
+        {Array.from({length: 12}).map((_, i) => <div key={i} className="absolute w-3 h-3 bg-lime-400 rounded-full blur-[1px]" style={{ left: `${(i*8.5)+5}%`, bottom: '-10%', animation: `float-melt ${1.5+(i%2)}s ease-in infinite ${(i%3)*0.5}s` }}/>)}
       </div>
     );
     return null;
@@ -303,79 +281,49 @@ const App = () => {
         @keyframes scanline { 0% { transform: translateY(-50px); } 100% { transform: translateY(400px); } }
         @keyframes float-melt { 0% { transform: translateY(0) scale(1); opacity: 0.9; background-color: #a3e635; } 50% { background-color: #f97316; } 100% { transform: translateY(-150px) scale(0); opacity: 0; background-color: #ef4444; } }
         @keyframes pulse-grid { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.7; background-color: rgba(34,211,238,0.3); } }
-        @keyframes xray-scan { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* NEW: Splash Screen 3D Float & Sway Animation */
-        @keyframes sway-float { 
-           0%, 100% { transform: perspective(1000px) translateY(0px) rotateY(-20deg); } 
-           50% { transform: perspective(1000px) translateY(-30px) rotateY(20deg); } 
+        /* 3D Sway & Flip for the Splash Screen Logo */
+        @keyframes sway-float-flip { 
+           0% { transform: perspective(1000px) translateY(0px) rotateY(-25deg); } 
+           50% { transform: perspective(1000px) translateY(-25px) rotateY(25deg); } 
+           100% { transform: perspective(1000px) translateY(0px) rotateY(-25deg); } 
         }
 
-        /* A11Y OVERRIDES */
+        /* ACCESSIBILITY SAFE OVERRIDES */
         .a11y-large-text { font-size: 110% !important; line-height: 1.7 !important; }
-        .a11y-large-text h2, .a11y-large-text h3, .a11y-large-text h4 { font-size: 130% !important; }
-        .a11y-large-text p, .a11y-large-text span { font-size: 105% !important; }
-        .a11y-high-contrast { filter: contrast(135%) saturate(125%) !important; }
+        .a11y-large-text h2, .a11y-large-text h3, .a11y-large-text h4 { font-size: 125% !important; }
+        
+        /* Contrast boost that protects the background images */
+        .a11y-high-contrast { font-weight: 700 !important; }
+        .a11y-high-contrast .backdrop-blur-xl { background-color: ${isDarkMode ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.95)'} !important; backdrop-filter: blur(20px) contrast(120%) !important; }
+        
         .a11y-reduce-motion * { animation: none !important; transition: none !important; transform: none !important; }
         .a11y-dyslexic * { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important; letter-spacing: 0.05em !important; word-spacing: 0.1em !important; }
       `}</style>
 
-      {/* --- NEW: CINEMATIC SPLASH SCREEN --- */}
-      {view === 'splash' && (
-         <div 
-            className="fixed inset-0 z-[200] flex flex-col items-center justify-center cursor-pointer overflow-hidden bg-black animate-in fade-in duration-1000"
-            onClick={() => setView('anatomy')}
-         >
-            <img 
-               src="/laflairfrontapproach.jpg" 
-               className="absolute inset-0 w-full h-full object-cover opacity-50 scale-105" 
-               alt="Clinic Exterior" 
-               onError={(e) => { e.target.style.display = 'none'; }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-            
-            <div className="relative z-10 flex flex-col items-center animate-in zoom-in duration-1000 delay-300">
-               <div 
-                  className="w-64 h-64 md:w-80 md:h-80 rounded-[3rem] p-6 bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.15)] mb-12" 
-                  style={{ animation: 'sway-float 6s ease-in-out infinite' }}
-               >
-                  <img src="/emblem.jpg" alt="Dr. LaFlair Emblem" className="w-full h-full object-contain rounded-3xl drop-shadow-2xl" onError={(e) => { e.target.style.display = 'none'; }} />
-               </div>
-               
-               <div className="flex flex-col items-center group text-center px-4">
-                  <p className="text-white font-black text-2xl md:text-4xl uppercase tracking-[0.3em] mb-4 group-hover:text-cyan-400 transition-colors duration-500 drop-shadow-lg">
-                     Click to Enter the Lab
-                  </p>
-                  <p className="text-white/60 text-xs md:text-sm uppercase tracking-widest animate-pulse drop-shadow-md">
-                     System Initialized • Awaiting Input
-                  </p>
-               </div>
-            </div>
-         </div>
-      )}
-
       {/* --- GLOBAL FLOATING A11Y BUTTON --- */}
       <button 
          onClick={() => setIsA11yOpen(true)} 
-         className={`fixed bottom-6 left-6 z-[150] w-14 h-14 rounded-full border-2 shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center justify-center transition-all hover:scale-110 active:scale-95 ${
+         className={`fixed bottom-6 left-6 z-[400] w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-3 rounded-full border-2 shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 ${
             isDarkMode ? 'border-cyan-500/50 bg-slate-900 text-cyan-400 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]' : 'border-indigo-300 bg-white text-indigo-700 hover:shadow-[0_0_15px_rgba(79,70,229,0.2)]'
          }`}
          title="Accessibility Options"
       >
-         <Accessibility size={24} className={a11y.highContrast || a11y.largeText || a11y.reduceMotion || a11y.dyslexic ? 'animate-pulse' : ''} />
+         <AccessibilityIcon size={22} className={a11y.highContrast || a11y.largeText || a11y.reduceMotion || a11y.dyslexic ? 'animate-pulse' : ''} />
+         <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Accessibility</span>
       </button>
 
-      {/* --- A11Y MODAL OVERLAY --- */}
+      {/* --- A11Y MODAL MENU --- */}
       {isA11yOpen && (
-         <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+         <div className="fixed inset-0 z-[500] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
             <div className={`w-full max-w-md p-8 rounded-3xl ${currentTheme.card} ${currentTheme.border} border shadow-2xl relative`}>
                <button onClick={() => setIsA11yOpen(false)} className={`absolute top-6 right-6 ${currentTheme.textSecondary} hover:${currentTheme.textPrimary} transition-colors`}>
                   <X size={24} />
                </button>
                
                <div className="flex items-center gap-3 mb-2">
-                  <Accessibility className={currentTheme.accentText} size={28} />
+                  <AccessibilityIcon className={currentTheme.accentText} size={28} />
                   <h2 className="text-2xl font-black uppercase tracking-widest">Accessibility</h2>
                </div>
                <p className={`text-sm mb-8 ${currentTheme.textSecondary}`}>Customize your visual experience.</p>
@@ -384,61 +332,62 @@ const App = () => {
                   <button onClick={() => setA11y({...a11y, largeText: !a11y.largeText})} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${a11y.largeText ? `${currentTheme.accentBorder} ${currentTheme.accentBgSoft}` : `${currentTheme.border} hover:bg-black/5 dark:hover:bg-white/5`}`}>
                      <div className="flex items-center gap-4">
                         <Type size={20} className={a11y.largeText ? currentTheme.accentText : currentTheme.textSecondary} />
-                        <div className="text-left">
-                           <p className="font-bold text-sm uppercase tracking-widest">Visually Impaired</p>
-                           <p className={`text-xs ${currentTheme.textSecondary}`}>Increase text scaling and spacing</p>
-                        </div>
+                        <div className="text-left"><p className="font-bold text-sm uppercase tracking-widest">Visually Impaired</p><p className={`text-xs ${currentTheme.textSecondary}`}>Increase text scaling and spacing</p></div>
                      </div>
-                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.largeText ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}>
-                        <div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.largeText ? 'translate-x-6' : 'translate-x-0'}`} />
-                     </div>
+                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.largeText ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.largeText ? 'translate-x-6' : 'translate-x-0'}`} /></div>
                   </button>
 
                   <button onClick={() => setA11y({...a11y, highContrast: !a11y.highContrast})} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${a11y.highContrast ? `${currentTheme.accentBorder} ${currentTheme.accentBgSoft}` : `${currentTheme.border} hover:bg-black/5 dark:hover:bg-white/5`}`}>
                      <div className="flex items-center gap-4">
                         <Eye size={20} className={a11y.highContrast ? currentTheme.accentText : currentTheme.textSecondary} />
-                        <div className="text-left">
-                           <p className="font-bold text-sm uppercase tracking-widest">Color Blindness</p>
-                           <p className={`text-xs ${currentTheme.textSecondary}`}>Enhance visual contrast globally</p>
-                        </div>
+                        <div className="text-left"><p className="font-bold text-sm uppercase tracking-widest">Color Blindness</p><p className={`text-xs ${currentTheme.textSecondary}`}>Enhance visual contrast globally</p></div>
                      </div>
-                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.highContrast ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}>
-                        <div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.highContrast ? 'translate-x-6' : 'translate-x-0'}`} />
-                     </div>
+                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.highContrast ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.highContrast ? 'translate-x-6' : 'translate-x-0'}`} /></div>
                   </button>
 
                   <button onClick={() => setA11y({...a11y, reduceMotion: !a11y.reduceMotion})} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${a11y.reduceMotion ? `${currentTheme.accentBorder} ${currentTheme.accentBgSoft}` : `${currentTheme.border} hover:bg-black/5 dark:hover:bg-white/5`}`}>
                      <div className="flex items-center gap-4">
-                        <ZapOff size={20} className={a11y.reduceMotion ? currentTheme.accentText : currentTheme.textSecondary} />
-                        <div className="text-left">
-                           <p className="font-bold text-sm uppercase tracking-widest">Seizure Safe</p>
-                           <p className={`text-xs ${currentTheme.textSecondary}`}>Disable UI animations and flashes</p>
-                        </div>
+                        <VideoOff size={20} className={a11y.reduceMotion ? currentTheme.accentText : currentTheme.textSecondary} />
+                        <div className="text-left"><p className="font-bold text-sm uppercase tracking-widest">Seizure Safe</p><p className={`text-xs ${currentTheme.textSecondary}`}>Disable UI animations and flashes</p></div>
                      </div>
-                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.reduceMotion ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}>
-                        <div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.reduceMotion ? 'translate-x-6' : 'translate-x-0'}`} />
-                     </div>
+                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.reduceMotion ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.reduceMotion ? 'translate-x-6' : 'translate-x-0'}`} /></div>
                   </button>
 
                   <button onClick={() => setA11y({...a11y, dyslexic: !a11y.dyslexic})} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${a11y.dyslexic ? `${currentTheme.accentBorder} ${currentTheme.accentBgSoft}` : `${currentTheme.border} hover:bg-black/5 dark:hover:bg-white/5`}`}>
                      <div className="flex items-center gap-4">
-                        <ScanFace size={20} className={a11y.dyslexic ? currentTheme.accentText : currentTheme.textSecondary} />
-                        <div className="text-left">
-                           <p className="font-bold text-sm uppercase tracking-widest">Cognitive / Dyslexia</p>
-                           <p className={`text-xs ${currentTheme.textSecondary}`}>Enhance legibility and spacing</p>
-                        </div>
+                        <BookOpen size={20} className={a11y.dyslexic ? currentTheme.accentText : currentTheme.textSecondary} />
+                        <div className="text-left"><p className="font-bold text-sm uppercase tracking-widest">Cognitive / Dyslexia</p><p className={`text-xs ${currentTheme.textSecondary}`}>Enhance legibility and spacing</p></div>
                      </div>
-                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.dyslexic ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}>
-                        <div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.dyslexic ? 'translate-x-6' : 'translate-x-0'}`} />
-                     </div>
+                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.dyslexic ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.dyslexic ? 'translate-x-6' : 'translate-x-0'}`} /></div>
                   </button>
                </div>
             </div>
          </div>
       )}
 
+      {/* --- NEW: CINEMATIC SPLASH SCREEN --- */}
+      {view === 'splash' && (
+         <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black overflow-hidden">
+            <img src="/laflairfrontapproach.jpg" className="absolute inset-0 w-full h-full object-cover opacity-30" alt="Clinic Exterior" onError={(e) => { e.target.style.display = 'none'; }} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+            
+            <div className="relative z-10 flex flex-col items-center">
+               <button 
+                  onClick={() => setView('anatomy')}
+                  className="w-64 h-64 md:w-80 md:h-80 mb-12 cursor-pointer group"
+                  style={{ animation: 'sway-float-flip 8s ease-in-out infinite' }}
+               >
+                  <img src="/emblem.jpg" alt="Dr. LaFlair Emblem" className="w-full h-full object-contain rounded-3xl drop-shadow-[0_0_50px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.style.display = 'none'; }} />
+               </button>
+               
+               <p className="text-white font-black text-2xl md:text-3xl uppercase tracking-[0.4em] mb-4 drop-shadow-xl text-center">Click to Enter</p>
+               <p className="text-white/50 font-mono text-sm uppercase tracking-widest bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">Auto-Initializing in {splashCountdown}s</p>
+            </div>
+         </div>
+      )}
+
       {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
-      <div className={`fixed inset-0 z-[100] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`fixed inset-0 z-[300] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.4) 2px, transparent 2px), linear-gradient(90deg, rgba(34, 211, 238, 0.4) 2px, transparent 2px)', backgroundSize: '50px 50px', transform: 'perspective(600px) rotateX(60deg) translateY(-100px) translateZ(-200px)', transformOrigin: 'top center' }} />
         <div className="absolute inset-0 flex justify-between px-10 opacity-30 pointer-events-none">
             <div className="w-8 h-full flex flex-col gap-4 py-20">{Array.from({length: 15}).map((_, i) => <div key={`l-${i}`} className="w-full h-4 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />)}</div>
@@ -452,14 +401,13 @@ const App = () => {
               <Activity size={24} className="text-cyan-400 group-hover:animate-pulse" />
               <span className="text-sm md:text-base font-black tracking-widest uppercase text-cyan-50">Establish Secure Connection</span>
            </a>
-           <button onClick={() => setIsArkMode(false)} className="px-6 py-2 text-[10px] md:text-xs font-bold text-cyan-400/40 hover:text-cyan-400 tracking-[0.3em] uppercase transition-colors">
-              > Abort_Override
-           </button>
+           <button onClick={() => setIsArkMode(false)} className="px-6 py-2 text-[10px] md:text-xs font-bold text-cyan-400/40 hover:text-cyan-400 tracking-[0.3em] uppercase transition-colors">> Abort_Override</button>
         </div>
       </div>
 
-      <button onClick={handleCall} className={`md:hidden fixed bottom-6 right-6 z-[100] w-14 h-14 rounded-full ${currentTheme.accentBg} text-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95 transition-all`}>
-        <Phone size={24} className={isDarkMode ? "text-white" : "text-white"} />
+      {/* --- MOBILE PHONE BUTTON --- */}
+      <button onClick={handleCall} className={`md:hidden fixed bottom-24 right-6 z-[100] w-14 h-14 rounded-full ${currentTheme.accentBg} text-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95 transition-all`}>
+        <Phone size={24} className="text-white" />
       </button>
 
       {/* --- MAIN APP UI (HIDDEN DURING SPLASH) --- */}
