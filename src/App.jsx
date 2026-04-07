@@ -379,7 +379,12 @@ const App = () => {
 
       {/* --- SPLASH SCREEN OVERLAY --- */}
       <div className={`fixed inset-0 z-[200] bg-stone-950 flex flex-col items-center justify-center transition-all duration-1000 ${hasEntered ? 'opacity-0 pointer-events-none scale-105 blur-md' : 'opacity-100 scale-100 blur-0'}`}>
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15)_0%,transparent_70%)] pointer-events-none" />
+         
+         {/* NEW: FRONT APPROACH BACKGROUND IMAGE */}
+         <div className="absolute inset-0 pointer-events-none">
+            <img src="/laflairfrontapproach.jpg" alt="Dr. LaFlair Practice" className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-indigo-950/20 to-stone-950/80" />
+         </div>
          
          <div 
            className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group" 
