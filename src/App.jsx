@@ -7,9 +7,6 @@ import {
   CheckCircle, MessageCircle, Clock, Search
 } from 'lucide-react';
 
-// --- CONFIGURATION ---
-const ASSETS = { HERO_VIDEO: "http://googleusercontent.com/generated_video_content/540743943313863772" };
-
 const PRACTICE_INFO = {
   name: "Christopher LaFlair DDS PC",
   doctor: "Clinical Director: Dr. Chris LaFlair",
@@ -132,6 +129,7 @@ const SmileSVG = ({ type }) => {
 };
 
 const App = () => {
+  const [hasEntered, setHasEntered] = useState(false); // NEW SPLASH SCREEN STATE
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isAccessibilityOpen, setIsAccessibilityOpen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
@@ -357,7 +355,60 @@ const App = () => {
         @keyframes pulse-grid { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.7; background-color: rgba(34,211,238,0.3); } }
         @keyframes xray-scan { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* NEW SPLASH SCREEN 3D ANIMATIONS */
+        @keyframes float-cloud {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          50% { transform: translateY(-20px) translateX(10px); }
+        }
+        @keyframes spin-flip {
+          0% { transform: rotateY(0deg); }
+          30% { transform: rotateY(0deg); } /* Pause on front */
+          50% { transform: rotateY(180deg); } /* Spin */
+          80% { transform: rotateY(180deg); } /* Pause on back */
+          100% { transform: rotateY(360deg); } /* Spin back */
+        }
+        .preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
       `}</style>
+
+      {/* --- NEW SPLASH SCREEN OVERLAY --- */}
+      <div className={`fixed inset-0 z-[200] bg-stone-950 flex flex-col items-center justify-center transition-all duration-1000 ${hasEntered ? 'opacity-0 pointer-events-none scale-105 blur-md' : 'opacity-100 scale-100 blur-0'}`}>
+         {/* Background ambient lighting */}
+         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15)_0%,transparent_70%)] pointer-events-none" />
+         
+         {/* The Floating Container */}
+         <div 
+           className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group" 
+           style={{ animation: 'float-cloud 6s ease-in-out infinite', perspective: '1000px' }} 
+           onClick={() => setHasEntered(true)}
+         >
+            {/* The 3D Flipping Element */}
+            <div className="w-full h-full relative preserve-3d transition-transform group-hover:scale-105" style={{ animation: 'spin-flip 8s cubic-bezier(0.4, 0.0, 0.2, 1) infinite' }}>
+               
+               {/* Front Side: Emblem Face */}
+               <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center bg-white/5 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.1)] p-8">
+                  <img src="/emblem.jpg" alt="Dr. LaFlair Logo" className="w-full h-full object-contain drop-shadow-2xl" />
+               </div>
+
+               {/* Back Side: Click to Enter */}
+               <div className="absolute inset-0 backface-hidden rotate-y-180 flex items-center justify-center bg-gradient-to-br from-indigo-900 to-black border border-indigo-500/50 rounded-full shadow-[0_0_60px_rgba(99,102,241,0.4)] p-8">
+                  <div className="text-center">
+                     <Sparkles className="w-10 h-10 text-indigo-400 mx-auto mb-3 animate-pulse" />
+                     <p className="text-indigo-50 font-black uppercase tracking-[0.3em] text-lg md:text-xl drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]">Click To Enter</p>
+                  </div>
+               </div>
+
+            </div>
+         </div>
+
+         {/* Bottom hint text */}
+         <div className="absolute bottom-12 left-0 right-0 text-center animate-pulse opacity-50 pointer-events-none">
+            <span className="text-stone-300 text-xs font-black uppercase tracking-[0.5em]">Portal Secured</span>
+         </div>
+      </div>
+
 
       {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
       <div className={`fixed inset-0 z-[100] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
@@ -398,11 +449,12 @@ const App = () => {
         <Phone size={24} className={isDarkMode ? "text-white" : "text-white"} />
       </button>
 
+      {/* --- UPDATED MAIN BACKGROUND (No more video placeholder) --- */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black">
         {isDarkMode ? (
-          <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-100 scale-105 transition-opacity duration-1000">
-            <source src={ASSETS.HERO_VIDEO} type="video/mp4" />
-          </video>
+          <div className="w-full h-full bg-stone-950 flex items-center justify-center">
+             <img src="/emblem.jpg" alt="" className="w-[120%] h-[120%] object-cover opacity-20 blur-[80px] saturate-200" />
+          </div>
         ) : <div className="absolute inset-0 bg-gradient-to-br from-stone-50 to-stone-200" />}
         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
       </div>
@@ -605,65 +657,46 @@ const App = () => {
         )}
 
         {view === 'connect' && (
-           <div className="w-full max-w-4xl flex flex-col animate-in zoom-in duration-700 pb-12 pt-8">
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-                <div className={`p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border flex flex-col justify-between h-full shadow-lg`}>
-                  <div>
-                    <h3 className="text-2xl font-black uppercase tracking-widest mb-8">Patient Services</h3>
-                    <div className="space-y-6">
-                      <a href={`http://googleusercontent.com/maps.google.com/${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
-                        <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><MapPin size={20}/></div>
-                        <div>
-                          <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Clinical Location</p>
-                          <p className="font-bold text-sm">1107 Linden St.</p>
-                          <p className={`text-sm ${currentTheme.textSecondary}`}>Ogdensburg, NY 13669</p>
-                        </div>
-                      </a>
-                      <a href={`tel:${PRACTICE_INFO.phone.split('-').join('')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
-                        <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><Phone size={20}/></div>
-                        <div>
-                          <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Direct Line</p>
-                          <p className="font-bold text-lg">{PRACTICE_INFO.phone}</p>
-                        </div>
-                      </a>
-                      <div className="flex items-start gap-4 p-4 -ml-4">
-                        <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 shadow-sm`}><Clock size={20}/></div>
-                        <div>
-                          <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1`}>Operating Hours</p>
-                          <p className="font-bold text-sm">{PRACTICE_INFO.hours.split(':')[0]}: <span className="font-normal">{PRACTICE_INFO.hours.split(':').slice(1).join(':')}</span></p>
-                          <p className={`text-sm ${currentTheme.textSecondary}`}>{PRACTICE_INFO.closed}</p>
-                        </div>
+           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 animate-in zoom-in duration-700 pb-12 pt-8">
+              <div className={`p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border flex flex-col justify-between h-full shadow-lg`}>
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-widest mb-8">Patient Services</h3>
+                  <div className="space-y-6">
+                    <a href={`http://googleusercontent.com/maps.google.com/${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><MapPin size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Clinical Location</p>
+                        <p className="font-bold text-sm">1107 Linden St.</p>
+                        <p className={`text-sm ${currentTheme.textSecondary}`}>Ogdensburg, NY 13669</p>
+                      </div>
+                    </a>
+                    <a href={`tel:${PRACTICE_INFO.phone.split('-').join('')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><Phone size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Direct Line</p>
+                        <p className="font-bold text-lg">{PRACTICE_INFO.phone}</p>
+                      </div>
+                    </a>
+                    <div className="flex items-start gap-4 p-4 -ml-4">
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 shadow-sm`}><Clock size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1`}>Operating Hours</p>
+                        <p className="font-bold text-sm">{PRACTICE_INFO.hours.split(':')[0]}: <span className="font-normal">{PRACTICE_INFO.hours.split(':').slice(1).join(':')}</span></p>
+                        <p className={`text-sm ${currentTheme.textSecondary}`}>{PRACTICE_INFO.closed}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <div className="relative h-full min-h-[400px] w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-indigo-900 to-black p-10 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform" onClick={handleBook}>
-                    <div className="flex justify-between items-start"><CreditCard className="w-10 h-10 text-cyan-400" /><div className="text-right font-mono text-[10px] opacity-60">CARECREDIT_PORTAL</div></div>
-                    <div>
-                      <p className="text-3xl font-black uppercase tracking-widest mb-4 leading-tight">Zero Interest<br/>Pathways</p>
-                      <p className="text-sm opacity-80 mb-8 max-w-[85%] leading-relaxed">Explore flexible financing options to ensure your preventative and restorative care is always stress-free.</p>
-                      <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-10 h-1 bg-white/20 rounded-full" />)}</div>
-                    </div>
-                </div>
               </div>
 
-              <div className="mt-12 flex justify-center w-full animate-in fade-in duration-1000 delay-500">
-                 <button 
-                    onClick={(e) => { e.preventDefault(); setIsArkMode(true); }}
-                    className={`group relative overflow-hidden px-8 py-3 rounded-full border ${currentTheme.border} ${currentTheme.glass} opacity-40 hover:opacity-100 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] hover:border-cyan-400 hover:-translate-y-1 cursor-pointer z-50`}
-                 >
-                    <div className="absolute inset-0 w-[200%] bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent -translate-x-full group-hover:translate-x-0 transition-transform duration-1000" />
-                    <div className="relative flex items-center gap-3">
-                       <Activity size={16} className={`${currentTheme.textSecondary} group-hover:text-cyan-400 transition-colors duration-300`} />
-                       <span className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${currentTheme.textSecondary} group-hover:text-cyan-50 transition-colors duration-300`}>
-                          Developed & Maintained by <span className="text-cyan-400">C4:Technologies</span>
-                       </span>
-                    </div>
-                 </button>
+              <div className="relative h-full min-h-[400px] w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-indigo-900 to-black p-10 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform" onClick={handleBook}>
+                  <div className="flex justify-between items-start"><CreditCard className="w-10 h-10 text-cyan-400" /><div className="text-right font-mono text-[10px] opacity-60">CARECREDIT_PORTAL</div></div>
+                  <div>
+                    <p className="text-3xl font-black uppercase tracking-widest mb-4 leading-tight">Zero Interest<br/>Pathways</p>
+                    <p className="text-sm opacity-80 mb-8 max-w-[85%] leading-relaxed">Explore flexible financing options to ensure your preventative and restorative care is always stress-free.</p>
+                    <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-10 h-1 bg-white/20 rounded-full" />)}</div>
+                  </div>
               </div>
-
            </div>
         )}
       </div>
