@@ -4,7 +4,8 @@ import {
   MapPin, Phone, CreditCard, ArrowLeft, Activity, 
   Heart, Moon, Sun, Users, Monitor, Crosshair, 
   Database, Shield, ArrowRight, Loader2, Lock, 
-  CheckCircle, MessageCircle, Clock, Search
+  CheckCircle, MessageCircle, Clock, Search,
+  Accessibility, X, Type, Eye, ZapOff, ScanFace // NEW A11Y ICONS
 } from 'lucide-react';
 
 const PRACTICE_INFO = {
@@ -55,7 +56,6 @@ const GEAR_LOADOUT = [
   { id: 'shield', name: "Advanced Sterilization", icon: <Shield className="w-6 h-6"/>, spec: "Infection Control", detail: "Hospital-grade protocols exceeding industry standards for absolute safety." }
 ];
 
-// --- UPDATED STAFF ARRAY WITH REAL IMAGES ---
 const STAFF_CARDS = [
   { name: "Dr. Chris LaFlair", role: "Lead Dentist", image: "/drlaflairspecialist.jpg", bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere." },
   { name: "Renee & Suellen", role: "Front Desk & Assistants", image: "/SueellenRenee.jpg", bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling." },
@@ -89,6 +89,15 @@ const App = () => {
   const [hintIndex, setHintIndex] = useState(0);
   const [isArkMode, setIsArkMode] = useState(false); 
   
+  // --- NEW: ACCESSIBILITY STATE ---
+  const [isA11yOpen, setIsA11yOpen] = useState(false);
+  const [a11y, setA11y] = useState({
+    largeText: false,
+    highContrast: false,
+    reduceMotion: false,
+    dyslexic: false
+  });
+
   const interactiveHints = [
     "Scrub the icky yellow plaque off the enamel to achieve optimal health!",
     "Click and drag the fragment to fix the chipped tooth and restore full integrity.",
@@ -279,18 +288,120 @@ const App = () => {
   };
 
   return (
-    <div className={`min-h-screen ${currentTheme.bg} ${currentTheme.textPrimary} transition-colors duration-700 flex flex-col md:flex-row overflow-hidden font-sans select-none`}
-          onPointerUp={handlePointerUp} onPointerMove={handlePointerMove} onPointerLeave={handlePointerUp}>
+    // --- ACCESSIBILITY WRAPPER CLASSES APPLIED HERE ---
+    <div className={`min-h-screen ${currentTheme.bg} ${currentTheme.textPrimary} transition-colors duration-700 flex flex-col md:flex-row overflow-hidden select-none 
+      ${a11y.largeText ? 'a11y-large-text' : ''} 
+      ${a11y.highContrast ? 'a11y-high-contrast' : ''} 
+      ${a11y.reduceMotion ? 'a11y-reduce-motion' : ''} 
+      ${a11y.dyslexic ? 'a11y-dyslexic' : 'font-sans'}`}
+      onPointerUp={handlePointerUp} onPointerMove={handlePointerMove} onPointerLeave={handlePointerUp}>
       
+      {/* --- ACCESSIBILITY CSS OVERRIDES --- */}
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Standard Animations */
         @keyframes scanline { 0% { transform: translateY(-50px); } 100% { transform: translateY(400px); } }
         @keyframes float-melt { 0% { transform: translateY(0) scale(1); opacity: 0.9; background-color: #a3e635; } 50% { background-color: #f97316; } 100% { transform: translateY(-150px) scale(0); opacity: 0; background-color: #ef4444; } }
         @keyframes pulse-grid { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.7; background-color: rgba(34,211,238,0.3); } }
         @keyframes xray-scan { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* A11Y OVERRIDES */
+        .a11y-large-text { font-size: 110% !important; line-height: 1.7 !important; }
+        .a11y-large-text h2, .a11y-large-text h3, .a11y-large-text h4 { font-size: 130% !important; }
+        .a11y-large-text p, .a11y-large-text span { font-size: 105% !important; }
+        
+        .a11y-high-contrast { filter: contrast(135%) saturate(125%) !important; }
+        
+        .a11y-reduce-motion * { 
+           animation: none !important; 
+           transition: none !important; 
+           transform: none !important; 
+        }
+        
+        .a11y-dyslexic * { 
+           font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important; 
+           letter-spacing: 0.05em !important; 
+           word-spacing: 0.1em !important; 
+        }
       `}</style>
+
+      {/* --- A11Y MODAL OVERLAY --- */}
+      {isA11yOpen && (
+         <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+            <div className={`w-full max-w-md p-8 rounded-3xl ${currentTheme.card} ${currentTheme.border} border shadow-2xl relative`}>
+               <button onClick={() => setIsA11yOpen(false)} className={`absolute top-6 right-6 ${currentTheme.textSecondary} hover:${currentTheme.textPrimary} transition-colors`}>
+                  <X size={24} />
+               </button>
+               
+               <div className="flex items-center gap-3 mb-2">
+                  <Accessibility className={currentTheme.accentText} size={28} />
+                  <h2 className="text-2xl font-black uppercase tracking-widest">Accessibility</h2>
+               </div>
+               <p className={`text-sm mb-8 ${currentTheme.textSecondary}`}>Customize your visual experience.</p>
+               
+               <div className="space-y-4">
+                  {/* Toggle 1: Large Text */}
+                  <button onClick={() => setA11y({...a11y, largeText: !a11y.largeText})} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${a11y.largeText ? `${currentTheme.accentBorder} ${currentTheme.accentBgSoft}` : `${currentTheme.border} hover:bg-black/5 dark:hover:bg-white/5`}`}>
+                     <div className="flex items-center gap-4">
+                        <Type size={20} className={a11y.largeText ? currentTheme.accentText : currentTheme.textSecondary} />
+                        <div className="text-left">
+                           <p className="font-bold text-sm uppercase tracking-widest">Visually Impaired</p>
+                           <p className={`text-xs ${currentTheme.textSecondary}`}>Increase text scaling and spacing</p>
+                        </div>
+                     </div>
+                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.largeText ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}>
+                        <div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.largeText ? 'translate-x-6' : 'translate-x-0'}`} />
+                     </div>
+                  </button>
+
+                  {/* Toggle 2: High Contrast */}
+                  <button onClick={() => setA11y({...a11y, highContrast: !a11y.highContrast})} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${a11y.highContrast ? `${currentTheme.accentBorder} ${currentTheme.accentBgSoft}` : `${currentTheme.border} hover:bg-black/5 dark:hover:bg-white/5`}`}>
+                     <div className="flex items-center gap-4">
+                        <Eye size={20} className={a11y.highContrast ? currentTheme.accentText : currentTheme.textSecondary} />
+                        <div className="text-left">
+                           <p className="font-bold text-sm uppercase tracking-widest">Color Blindness</p>
+                           <p className={`text-xs ${currentTheme.textSecondary}`}>Enhance visual contrast globally</p>
+                        </div>
+                     </div>
+                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.highContrast ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}>
+                        <div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.highContrast ? 'translate-x-6' : 'translate-x-0'}`} />
+                     </div>
+                  </button>
+
+                  {/* Toggle 3: Reduce Motion */}
+                  <button onClick={() => setA11y({...a11y, reduceMotion: !a11y.reduceMotion})} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${a11y.reduceMotion ? `${currentTheme.accentBorder} ${currentTheme.accentBgSoft}` : `${currentTheme.border} hover:bg-black/5 dark:hover:bg-white/5`}`}>
+                     <div className="flex items-center gap-4">
+                        <ZapOff size={20} className={a11y.reduceMotion ? currentTheme.accentText : currentTheme.textSecondary} />
+                        <div className="text-left">
+                           <p className="font-bold text-sm uppercase tracking-widest">Seizure Safe</p>
+                           <p className={`text-xs ${currentTheme.textSecondary}`}>Disable UI animations and flashes</p>
+                        </div>
+                     </div>
+                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.reduceMotion ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}>
+                        <div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.reduceMotion ? 'translate-x-6' : 'translate-x-0'}`} />
+                     </div>
+                  </button>
+
+                  {/* Toggle 4: Dyslexia Friendly */}
+                  <button onClick={() => setA11y({...a11y, dyslexic: !a11y.dyslexic})} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${a11y.dyslexic ? `${currentTheme.accentBorder} ${currentTheme.accentBgSoft}` : `${currentTheme.border} hover:bg-black/5 dark:hover:bg-white/5`}`}>
+                     <div className="flex items-center gap-4">
+                        <ScanFace size={20} className={a11y.dyslexic ? currentTheme.accentText : currentTheme.textSecondary} />
+                        <div className="text-left">
+                           <p className="font-bold text-sm uppercase tracking-widest">Cognitive / Dyslexia</p>
+                           <p className={`text-xs ${currentTheme.textSecondary}`}>Enhance legibility and spacing</p>
+                        </div>
+                     </div>
+                     <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${a11y.dyslexic ? currentTheme.accentBg : 'bg-stone-300 dark:bg-stone-700'}`}>
+                        <div className={`w-4 h-4 rounded-full bg-white transition-transform ${a11y.dyslexic ? 'translate-x-6' : 'translate-x-0'}`} />
+                     </div>
+                  </button>
+               </div>
+            </div>
+         </div>
+      )}
 
       {/* --- ARK IT GLOBAL SERVER OVERLAY (TERMINAL VERSION) --- */}
       <div className={`fixed inset-0 z-[100] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
@@ -308,7 +419,7 @@ const App = () => {
            <p className="text-xs md:text-sm uppercase tracking-widest opacity-70 mb-12">Mainframe Override... Systems Optimal</p>
            
            <a 
-              href="https:/c4technologies.pages.dev"
+              href="https://www.c4computerconsulting.com" 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={() => setIsArkMode(false)}
@@ -348,7 +459,6 @@ const App = () => {
           <div className="flex items-center justify-between w-full xl:w-auto xl:justify-start gap-4 xl:gap-8">
             <div className="flex items-center gap-3 cursor-pointer group shrink-0" onClick={() => changeView('anatomy')}>
               
-              {/* --- NEW TOP LEFT LOGO --- */}
               <div className={`w-10 h-10 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform p-1`}>
                 <img src="/emblem.jpg" alt="Clinic Logo" className="w-full h-full object-contain rounded-lg" onError={(e) => { e.target.style.display = 'none'; }} />
               </div>
@@ -359,7 +469,8 @@ const App = () => {
 
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* --- HEADER CONTROLS (VITALITY, THEME, AND NEW A11Y TOGGLE) --- */}
+            <div className="flex items-center gap-2 md:gap-4">
               <div className="hidden md:flex items-center gap-3 w-32 border-l border-stone-500/20 pl-4">
                 <div className="flex-1">
                   <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
@@ -377,9 +488,24 @@ const App = () => {
                     : 'border-stone-300 bg-white text-stone-600 hover:bg-stone-50 hover:shadow-[0_0_15px_rgba(0,0,0,0.1)]'
                 }`}
               >
-                {isDarkMode ? <Sun size={16} className="animate-spin-slow" /> : <Moon size={16} />}
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">
+                {isDarkMode ? <Sun size={14} className="animate-spin-slow" /> : <Moon size={14} />}
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest hidden sm:inline">
                   {isDarkMode ? 'DARK [LAB]' : 'LIGHT [APPLE]'}
+                </span>
+             </button>
+
+             {/* --- NEW ACCESSIBILITY BUTTON --- */}
+             <button 
+                onClick={() => setIsA11yOpen(true)} 
+                className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-300 ${
+                  isDarkMode 
+                    ? 'border-cyan-500/50 bg-slate-900 text-cyan-400 hover:bg-cyan-900/40 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]' 
+                    : 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:shadow-[0_0_15px_rgba(79,70,229,0.2)]'
+                }`}
+              >
+                <Accessibility size={14} className={a11y.highContrast || a11y.largeText || a11y.reduceMotion || a11y.dyslexic ? 'animate-pulse' : ''} />
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+                  Accessibility
                 </span>
              </button>
             </div>
@@ -638,7 +764,6 @@ const App = () => {
                  <p className={`text-lg leading-relaxed ${currentTheme.textSecondary}`}>Led by Dr. Chris LaFlair, our practice delivers restorative precision and pain-free preventative care to the Ogdensburg community.</p>
              </section>
              
-             {/* UPDATED RIGHT PANEL (Since Team cards moved to their own page) */}
              <section>
                  <div className="flex items-center gap-2 mb-6 opacity-30 font-black text-[10px] uppercase tracking-widest"><Users size={14}/> Clinical Experts</div>
                  <div className={`p-8 rounded-3xl border ${currentTheme.border} ${currentTheme.glass} text-center shadow-lg`}>
