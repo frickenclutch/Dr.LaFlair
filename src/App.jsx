@@ -248,7 +248,7 @@ const App = () => {
       setChipPos({ x: 40, y: 120 }); 
       setHealthScore(25);
       setSelectedSection({
-        title: "Structural Compromise", condition: "Fractured Fragment",
+        title: "Structural Compromise", condition: "Fractured Fragment / Chipped Tooth",
         description: "Molar has sheared off. Immediate clinical restoration required. Drag or tap the fragment to simulate repair.",
         symptoms: ["Sharp edges", "Sensitivity", "Pain when chewing"], icon: <AlertTriangle className="w-6 h-6"/>
       });
@@ -413,7 +413,7 @@ const App = () => {
          
          {/* NEW: FRONT APPROACH BACKGROUND IMAGE */}
          <div className="absolute inset-0 pointer-events-none">
-            <img src="/laflairfrontapproach.jpg" alt="Dr. LaFlair Practice" className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
+            <img src="/laflairfrontapproach.jpg" alt="Dr. LaFlair Dentistry LLC" className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-indigo-950/20 to-stone-950/80" />
          </div>
          
@@ -443,7 +443,7 @@ const App = () => {
               rel="noopener noreferrer" 
               className="text-stone-400 hover:text-cyan-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.4em] transition-colors duration-300 opacity-60 hover:opacity-100 inline-block hover:scale-105"
             >
-                PORTAL SECURED BY C4:TECHNOLOGIES
+                "THIS DIGITAL ASSET IS SECURED BY: C4.TECHNOLOGIES"
             </a>
          </div>
       </div>
@@ -464,7 +464,7 @@ const App = () => {
            <p className="text-xs md:text-sm uppercase tracking-widest opacity-70 mb-12">Mainframe Override... Systems Optimal</p>
            
            <a 
-              href="https://patrick-lake.vercel.app" 
+              href="https://c4technologies.pages.dev" 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={() => setIsArkMode(false)}
