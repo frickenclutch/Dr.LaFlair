@@ -375,6 +375,22 @@ const App = () => {
         @keyframes xray-scan { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
+/* --- CUSTOM TOOTH CURSORS --- */
+        /* Standard Cursor (Clean Tooth) */
+        body, html, * {
+          cursor: url('/cursor1.png') 16 16, auto !important;
+        }
+        
+        /* Clickable Cursor (Broken Tooth) */
+        button, a, .cursor-pointer, .cursor-grab, .cursor-ew-resize, input[type="checkbox"] {
+          cursor: url('/cursor2.png') 16 16, pointer !important;
+        }
+
+        /* Prevent cursor override when actually grabbing the 3D tooth piece */
+        .active\:cursor-grabbing:active {
+           cursor: url('/cursor2.png') 16 16, grabbing !important;
+        }
+
         /* SPLASH SCREEN 3D ANIMATIONS */
         @keyframes float-cloud {
           0%, 100% { transform: translateY(0px) translateX(0px); }
