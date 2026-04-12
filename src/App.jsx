@@ -426,12 +426,32 @@ const App = () => {
                <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center bg-white/5 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.1)] p-8">
                   <img src="/emblem.jpg" alt="Dr. LaFlair Logo" className="w-full h-full object-contain drop-shadow-2xl" />
                </div>
-               <div className="absolute inset-0 backface-hidden rotate-y-180 flex items-center justify-center bg-gradient-to-br from-indigo-900 to-black border border-indigo-500/50 rounded-full shadow-[0_0_60px_rgba(99,102,241,0.4)] p-8">
-                  <div className="text-center">
-                     <Sparkles className="w-10 h-10 text-indigo-400 mx-auto mb-3 animate-pulse" />
-                     <p className="text-indigo-50 font-black uppercase tracking-[0.3em] text-lg md:text-xl drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]">Click To Enter</p>
-                  </div>
-               </div>
+              
+               {/* Back Side: Click to Enter (Now a Tooth Shape!) */}
+          <div className="absolute inset-0 backface-hidden rotate-y-180 flex items-center justify-center">
+             
+             {/* The SVG Anatomy Tooth */}
+             <svg viewBox="90 100 220 340" className="absolute inset-0 w-[110%] h-[110%] -ml-[5%] -mt-[5%] drop-shadow-[0_0_40px_rgba(99,102,241,0.6)]">
+                <defs>
+                   <linearGradient id="splash-tooth-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#312e81" />
+                      <stop offset="100%" stopColor="#000000" />
+                   </linearGradient>
+                </defs>
+                <path 
+                   d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
+                   fill="url(#splash-tooth-grad)" 
+                   stroke="rgba(99,102,241,0.4)" 
+                   strokeWidth="2" 
+                />
+             </svg>
+
+             {/* The Text Centered Inside the Tooth */}
+             <div className="relative z-10 text-center mt-6">
+                <Sparkles className="w-8 h-8 text-indigo-400 mx-auto mb-2 animate-pulse" />
+                <p className="text-indigo-50 font-black uppercase tracking-[0.2em] text-sm drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]">Click To<br/>Enter</p>
+             </div>
+          </div>
             </div>
          </div>
 
