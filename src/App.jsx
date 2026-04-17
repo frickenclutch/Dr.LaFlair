@@ -841,9 +841,10 @@ const App = () => {
     });
   };
 
-  const changeView = (newView) => {
+ const changeView = (newView) => {
     setView(newView);
     if(newView !== 'anatomy') setSelectedSection(null);
+    setHoveredStaff(null); // 
   };
 
   const renderTechBackground = (id) => {
