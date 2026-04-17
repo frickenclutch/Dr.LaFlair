@@ -655,7 +655,6 @@ const App = () => {
   const [zoomLevel, setZoomLevel] = useState(100);
   const [hoveredStaff, setHoveredStaff] = useState(null); 
 
-  // --- NEW: Game Launch State ---
   const [isGameOpen, setIsGameOpen] = useState(false);
 
   const [view, setView] = useState('anatomy'); 
@@ -889,4 +888,499 @@ const App = () => {
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes scanline { 0% { transform: translateY(-50px); } 100% { transform: translateY(400px); } }
         @keyframes float-melt { 0% { transform: translateY(0) scale(1); opacity: 0.9; background-color: #a3e635; } 50% { background-color: #f97316; } 100% { transform: translateY(-150px) scale(0); opacity: 0; background-color: #ef4444; } }
-        @keyframes pulse-grid { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.7; background-color: rgba(34,211,238,0
+        @keyframes pulse-grid { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.7; background-color: rgba(34,211,238,0.3); } }
+        @keyframes xray-scan { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* CUSTOM TOOTH CURSORS */
+        body, html, * { cursor: url('/cursor1.png') 16 16, auto !important; }
+        button, a, .cursor-pointer, .cursor-grab, .cursor-ew-resize, input[type="checkbox"] { cursor: url('/cursor2.png') 16 16, pointer !important; }
+        .active\\:cursor-grabbing:active { cursor: url('/cursor2.png') 16 16, grabbing !important; }
+
+        /* SPLASH SCREEN 3D ANIMATIONS */
+        @keyframes float-cloud {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          50% { transform: translateY(-20px) translateX(10px); }
+        }
+        @keyframes spin-flip {
+          0% { transform: rotateY(0deg); }
+          30% { transform: rotateY(0deg); } 
+          50% { transform: rotateY(180deg); } 
+          80% { transform: rotateY(180deg); } 
+          100% { transform: rotateY(360deg); } 
+        }
+        .preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+      `}</style>
+
+      {/* --- SPLASH SCREEN OVERLAY --- */}
+      <div className={`fixed inset-0 z-[200] bg-stone-950 flex flex-col items-center justify-center transition-all duration-1000 ${hasEntered ? 'opacity-0 pointer-events-none scale-105 blur-md' : 'opacity-100 scale-100 blur-0'}`}>
+         
+         <div className="absolute inset-0 pointer-events-none">
+            <img src="/laflairfrontapproach.jpg" alt="Dr. LaFlair Practice" className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-indigo-950/20 to-stone-950/80" />
+         </div>
+         
+         <div 
+           className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group" 
+           style={{ animation: 'float-cloud 6s ease-in-out infinite', perspective: '1000px' }} 
+           onClick={() => setHasEntered(true)}
+         >
+            <div className="w-full h-full relative preserve-3d transition-transform group-hover:scale-105" style={{ animation: 'spin-flip 8s cubic-bezier(0.4, 0.0, 0.2, 1) infinite' }}>
+               
+               {/* Front Side */}
+               <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center bg-white/5 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.1)] p-8">
+                  <img src="/emblem.jpg" alt="Dr. LaFlair Logo" className="w-full h-full object-contain drop-shadow-2xl" />
+               </div>
+
+               {/* Back Side (Tooth Shape) */}
+               <div className="absolute inset-0 backface-hidden rotate-y-180 flex items-center justify-center">
+                  <svg viewBox="90 100 220 340" className="absolute inset-0 w-[110%] h-[110%] -ml-[5%] -mt-[5%] drop-shadow-[0_0_40px_rgba(99,102,241,0.6)]">
+                     <defs>
+                        <linearGradient id="splash-tooth-grad" x1="0" y1="0" x2="0" y2="1">
+                           <stop offset="0%" stopColor="#312e81" />
+                           <stop offset="100%" stopColor="#000000" />
+                        </linearGradient>
+                     </defs>
+                     <path 
+                        d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
+                        fill="url(#splash-tooth-grad)" 
+                        stroke="rgba(99,102,241,0.4)" 
+                        strokeWidth="2" 
+                     />
+                  </svg>
+                  <div className="relative z-10 text-center mt-6">
+                     <Sparkles className="w-8 h-8 text-indigo-400 mx-auto mb-2 animate-pulse" />
+                     <p className="text-indigo-50 font-black uppercase tracking-[0.2em] text-sm drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]">Click To<br/>Enter</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div className="absolute bottom-12 left-0 right-0 text-center z-50">
+            <a 
+              href="https://c4technologies.pages.dev" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-stone-400 hover:text-cyan-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.4em] transition-colors duration-300 opacity-60 hover:opacity-100 inline-block hover:scale-105"
+            >
+                PORTAL SECURED BY C4:TECHNOLOGIES
+            </a>
+         </div>
+      </div>
+
+      {/* --- ARK IT GLOBAL SERVER OVERLAY --- */}
+      <div className={`fixed inset-0 z-[100] transition-all duration-500 flex flex-col items-center justify-center overflow-hidden ${isArkMode ? 'opacity-100 backdrop-blur-md bg-slate-900/95 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.4) 2px, transparent 2px), linear-gradient(90deg, rgba(34, 211, 238, 0.4) 2px, transparent 2px)', backgroundSize: '50px 50px', transform: 'perspective(600px) rotateX(60deg) translateY(-100px) translateZ(-200px)', transformOrigin: 'top center' }} />
+        
+        <div className="absolute inset-0 flex justify-between px-10 opacity-30 pointer-events-none">
+            <div className="w-8 h-full flex flex-col gap-4 py-20">{Array.from({length: 15}).map((_, i) => <div key={`l-${i}`} className="w-full h-4 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />)}</div>
+            <div className="w-8 h-full flex flex-col gap-4 py-20">{Array.from({length: 15}).map((_, i) => <div key={`r-${i}`} className="w-full h-4 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-pulse" style={{ animationDelay: `${(15-i) * 0.15}s` }} />)}</div>
+        </div>
+
+        <Database className="absolute text-cyan-500 opacity-5 w-[80vw] h-[80vw] animate-pulse pointer-events-none" style={{ animationDuration: '3s' }} />
+        
+        <div className={`relative z-50 text-cyan-400 font-mono text-center transition-all duration-700 delay-100 flex flex-col items-center ${isArkMode ? 'translate-y-0 scale-100' : 'translate-y-10 scale-90'}`}>
+           <p className="text-xl md:text-3xl font-black tracking-[0.5em] mb-2 drop-shadow-[0_0_10px_#22d3ee]">C4 TECHNOLOGIES:IT DATABASE</p>
+           <p className="text-xs md:text-sm uppercase tracking-widest opacity-70 mb-12">Mainframe Override... Systems Optimal</p>
+           
+           <a 
+              href="https://patrick-lake.vercel.app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => setIsArkMode(false)}
+              className="group relative px-6 md:px-10 py-4 bg-cyan-950/40 border border-cyan-400/50 hover:bg-cyan-400/20 hover:border-cyan-300 rounded-xl transition-all shadow-[0_0_20px_rgba(34,211,238,0.1)] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] flex items-center gap-4 mb-6 hover:-translate-y-1"
+           >
+              <Activity size={24} className="text-cyan-400 group-hover:animate-pulse" />
+              <span className="text-sm md:text-base font-black tracking-widest uppercase text-cyan-50">Establish Secure Connection</span>
+           </a>
+
+           <button 
+              onClick={() => setIsArkMode(false)}
+              className="px-6 py-2 text-[10px] md:text-xs font-bold text-cyan-400/40 hover:text-cyan-400 tracking-[0.3em] uppercase transition-colors"
+           >
+              &gt; Abort_Override
+           </button>
+        </div>
+      </div>
+
+      <button onClick={handleCall} className={`md:hidden fixed bottom-6 right-6 z-[100] w-14 h-14 rounded-full ${currentTheme.accentBg} text-white flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95 transition-all`}>
+        <Phone size={24} className={isDarkMode ? "text-white" : "text-white"} />
+      </button>
+
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black">
+        {isDarkMode ? (
+          <div className="w-full h-full bg-stone-950 flex items-center justify-center">
+             <img src="/emblem.jpg" alt="" className="w-[120%] h-[120%] object-cover opacity-20 blur-[80px] saturate-200" />
+          </div>
+        ) : <div className="absolute inset-0 bg-gradient-to-br from-stone-50 to-stone-200" />}
+        <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDarkMode ? 'black/40' : 'white/40'} to-${isDarkMode ? 'black' : 'white'} pointer-events-none`} />
+      </div>
+
+      <div className={`fixed top-0 left-0 right-0 z-50 py-3 px-4 md:px-8 ${currentTheme.glass}`}>
+        <div className="w-full mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-4 xl:gap-8">
+          
+          <div className="flex items-center justify-between w-full xl:w-auto xl:justify-start gap-4 xl:gap-8">
+            
+            <div className="flex items-center gap-3 cursor-pointer group shrink-0" onClick={() => changeView('anatomy')}>
+              <div className={`w-14 h-14 rounded-xl ${currentTheme.accentBg} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform overflow-hidden bg-white`}>
+                <img src="/emblem.jpg" alt="Dr. LaFlair Logo" className="w-full h-full object-contain p-1" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-black text-sm uppercase tracking-tighter leading-none">Dr. LaFlair <span className="opacity-50 hidden sm:inline">DDS</span></span>
+                <span className={`text-[9px] font-bold uppercase tracking-[0.2em] mt-1 ${currentTheme.accentText}`}>Family Dentistry</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 relative">
+              
+              <div className="hidden md:flex items-center gap-3 w-32 border-l border-stone-500/20 pl-4">
+                <div className="flex-1">
+                  <div className="flex justify-between mb-1"><span className="text-[8px] font-black uppercase tracking-widest opacity-50">Vitality</span><span className="text-[8px] font-bold">{healthScore}%</span></div>
+                  <div className="h-1 w-full bg-stone-500/20 rounded-full overflow-hidden">
+                    <div className={`h-full transition-all duration-1000 bg-gradient-to-r ${healthScore > 50 ? currentTheme.healthBar : 'from-red-600 to-red-400'}`} style={{ width: `${healthScore}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setIsAccessibilityOpen(!isAccessibilityOpen)} 
+                className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-300 ${
+                  isAccessibilityOpen ? 'border-indigo-500 bg-indigo-500 text-white' : (isDarkMode ? 'border-cyan-500/50 bg-slate-800 text-cyan-400' : 'border-stone-300 bg-white text-stone-600')
+                }`}
+              >
+                <AlertTriangle size={16} />
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Accessibility</span>
+              </button>
+
+              {isAccessibilityOpen && (
+                <div className={`absolute top-full mt-2 right-0 w-64 rounded-2xl p-4 shadow-2xl border ${currentTheme.border} ${currentTheme.card} z-[100] animate-in slide-in-from-top-2`}>
+                   <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-3 border-b border-stone-500/20 pb-2">Visual Adjustments</h4>
+                   
+                   <div className="flex items-center justify-between mb-4">
+                     <span className="text-sm font-bold">Theme</span>
+                     <button onClick={() => setIsDarkMode(!isDarkMode)} className={`px-3 py-1 rounded-md text-xs font-bold ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}>
+                        {isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
+                     </button>
+                   </div>
+
+                   <div className="flex items-center justify-between">
+                     <span className="text-sm font-bold">Text Size</span>
+                     <div className="flex gap-2">
+                       <button onClick={() => setZoomLevel(Math.max(100, zoomLevel - 10))} className={`w-8 h-8 rounded-md flex items-center justify-center font-bold ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}>-</button>
+                       <div className="w-12 text-center text-xs font-mono py-2">{zoomLevel}%</div>
+                       <button onClick={() => setZoomLevel(Math.min(150, zoomLevel + 10))} className={`w-8 h-8 rounded-md flex items-center justify-center font-bold ${currentTheme.accentBgSoft} ${currentTheme.accentText}`}>+</button>
+                     </div>
+                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
+            {['anatomy', 'archive', 'tech', 'connect', 'game'].map(v => (
+              <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>
+                {v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v === 'game' ? 'Play' : v}
+              </button>
+            ))}
+          </div>
+
+          <div className="hidden lg:flex items-center gap-4 shrink-0">
+            <button onClick={handleBook} className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform`}>Request Consultation</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative flex-1 flex flex-col items-center justify-center z-10 p-4 md:p-12 mt-28 md:mt-24 xl:mt-0 overflow-hidden">
+        
+        {/* --- STAFF HOVER OVERLAYS --- */}
+        {STAFF_CARDS.map((s, i) => (
+          <div key={`overlay-${i}`} className={`absolute inset-0 z-[60] transition-all duration-700 bg-stone-950 flex flex-col items-center justify-end p-8 md:p-16 text-center overflow-hidden ${hoveredStaff?.name === s.name ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+             
+             <button 
+                onClick={(e) => { e.stopPropagation(); setHoveredStaff(null); }}
+                className={`absolute top-6 right-6 w-12 h-12 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all ${hoveredStaff?.name === s.name ? 'opacity-100 scale-100' : 'opacity-0 scale-50 delay-0'} md:hidden`}
+             >
+                <X size={24} />
+             </button>
+
+             <img src={s.image} alt={s.name} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[10000ms] ease-out ${hoveredStaff?.name === s.name ? 'scale-110' : 'scale-100'}`} />
+             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+             <div className={`relative z-10 transition-all duration-700 delay-100 w-full ${hoveredStaff?.name === s.name ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+                <p className={`text-xs md:text-sm font-black ${currentTheme.accentText} uppercase tracking-[0.4em] mb-4 drop-shadow-md`}>{s.role}</p>
+                <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6 drop-shadow-lg leading-tight">{s.name}</h2>
+                <p className="max-w-2xl mx-auto text-lg md:text-xl text-stone-200 leading-relaxed font-medium drop-shadow-md pb-8 md:pb-0">&quot;{s.bio}&quot;</p>
+             </div>
+          </div>
+        ))}
+
+      {view === 'game' && (
+          <div className="w-full max-w-4xl flex flex-col items-center justify-center animate-in zoom-in duration-700 pb-12 pt-8 text-center h-full">
+            <h2 className="text-5xl font-black uppercase tracking-widest mb-6 leading-none">Tooth Defender</h2>
+            <p className={`text-lg md:text-xl mb-12 max-w-2xl leading-relaxed ${currentTheme.textSecondary}`}>
+              Protect the teeth from plaque and decay! Use your arrow keys or touch screen to move the toothbrush and shoot foam at the falling germs. Survive for 15 seconds to win a special clinical discount!
+            </p>
+            <button 
+              onClick={() => setIsGameOpen(true)}
+              className={`px-10 py-5 rounded-full ${currentTheme.accentBg} text-white font-black text-xl uppercase tracking-widest shadow-[0_0_40px_rgba(99,102,241,0.6)] hover:scale-110 active:scale-95 transition-all`}
+            >
+              Launch Mini-Game
+            </button>
+          </div>
+      )}
+
+      {view === 'anatomy' && (
+          <div className="w-full max-w-xs md:max-w-lg aspect-square relative animate-in zoom-in duration-1000 flex flex-col items-center mt-8 md:mt-0">
+            
+            <div className={`absolute -top-8 md:top-0 right-0 z-20 flex items-center gap-3 p-2 pr-4 rounded-full ${currentTheme.glass} border ${currentTheme.border} cursor-pointer hover:scale-105 transition-all shadow-md`} onClick={() => { setIsXrayMode(!isXrayMode); if(chipStatus==='broken') executeRepair(); }}>
+               <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isXrayMode ? currentTheme.accentBg : 'bg-stone-500/20'} ${isXrayMode ? 'text-white' : ''}`}>
+                 <Search size={14} />
+               </div>
+               <span className={`text-[10px] font-black uppercase tracking-widest ${isXrayMode ? currentTheme.accentText : 'opacity-50'}`}>X-Ray</span>
+            </div>
+            
+            <div className={`absolute top-8 left-0 md:top-8 md:left-8 z-20 max-w-[200px] md:max-w-[220px] p-3 rounded-2xl ${currentTheme.glass} border ${currentTheme.border} shadow-lg transition-all duration-500 pointer-events-none`}>
+               <div className="flex items-start gap-2">
+                  <div className={`mt-0.5 w-2 h-2 rounded-full animate-pulse shrink-0 ${isDarkMode ? 'bg-cyan-400' : 'bg-blue-500'}`} />
+                  <p className={`text-[10px] md:text-xs font-bold leading-relaxed ${currentTheme.textSecondary}`} key={hintIndex} style={{ animation: 'fade-in 0.5s ease-in-out' }}>
+                     {interactiveHints[hintIndex]}
+                  </p>
+               </div>
+            </div>
+
+             <svg viewBox="0 0 400 500" className={`w-full h-full transition-all duration-700 ${isSparkling ? `scale-105 drop-shadow-[0_0_40px_${isDarkMode ? '#22d3ee' : '#6366f1'}]` : (isXrayMode ? currentTheme.xrayGlow : `drop-shadow-[0_0_60px_${isDarkMode ? 'rgba(34,211,238,0.2)' : 'rgba(0,0,0,0.05)'}]`)}`} style={{ touchAction: 'none' }}>
+                {isXrayMode && (
+                  <rect x="50" y="100" width="300" height="400" fill={`url(#xray-grid-${isDarkMode ? 'dark' : 'light'})`} opacity="0.3" className="pointer-events-none" />
+                )}
+                
+                <defs>
+                  <pattern id="xray-grid-dark" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#22d3ee" strokeWidth="0.5" opacity="0.5"/>
+                  </pattern>
+                  <pattern id="xray-grid-light" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#171717" strokeWidth="0.5" opacity="0.15"/>
+                  </pattern>
+                </defs>
+
+                <path d="M 50 360 Q 150 310, 200 330 Q 250 310, 350 360 L 350 500 L 50 500 Z" fill={selectedSection?.id === 'gums' ? TOOTH_SECTIONS.GUMS.color : (isDarkMode ? "#2d1a1c" : "#fecdd3")} className={`transition-all duration-700 ${isXrayMode ? 'opacity-10' : 'cursor-pointer hover:opacity-80'}`} onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.GUMS); } }} />
+                
+                <g>
+                   <path d="M 120 180 C 120 120, 160 120, 180 160 C 190 180, 210 180, 220 160 L 250 230 L 280 240 C 290 260, 280 300, 280 300 C 280 380, 260 420, 240 420 C 220 420, 220 380, 210 320 C 200 300, 190 300, 180 320 C 170 380, 170 420, 150 420 C 130 420, 120 380, 120 300 C 110 260, 110 220, 120 180 Z" 
+                      fill={isXrayMode ? "transparent" : (selectedSection?.id === 'enamel' ? (isDarkMode ? "#2a3d46" : "#ffffff") : (isDarkMode ? "#1c1c1e" : "#f5f5f4"))} 
+                      stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
+                      strokeWidth={isXrayMode ? "3" : "2"} 
+                      className={`transition-all duration-700 ${isXrayMode ? '' : 'cursor-pointer hover:brightness-110'}`} 
+                      onClick={!isXrayMode ? handleEnamelClick : undefined}
+                      onPointerMove={handleEnamelScrub} />
+
+                    {(!isXrayMode && plaqueLevel > 0 && chipStatus !== 'broken') && (
+                      <path d="M 140 290 C 150 260, 200 260, 210 290 C 220 330, 200 360, 170 360 C 140 360, 130 320, 140 290 Z" 
+                        fill="rgba(250, 204, 21, 0.4)" 
+                        style={{ opacity: plaqueLevel / 100 }}
+                        className="pointer-events-none blur-[6px] transition-opacity duration-75" />
+                    )}
+                    
+                    <path d="M 160 240 C 180 220, 220 220, 240 240 C 250 270, 250 300, 240 320 C 230 370, 230 400, 220 400 C 210 400, 210 370, 200 330 C 190 370, 190 400, 180 400 C 170 400, 170 370, 160 320 C 150 300, 150 270, 160 240 Z" 
+                      fill={isXrayMode ? currentTheme.xrayLine : (selectedSection?.id === 'nerve' ? TOOTH_SECTIONS.NERVE.color : (isDarkMode ? "rgba(248, 113, 113, 0.15)" : "#fecaca"))} 
+                      className={`transition-all duration-700 ${isXrayMode ? 'opacity-80 animate-pulse' : 'cursor-pointer hover:opacity-100'}`} 
+                      onClick={(e) => { if(!isXrayMode) { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.NERVE); } }} />
+                    
+                    {!isXrayMode && <circle cx="140" cy="220" r="14" fill={TOOTH_SECTIONS.CAVITY.color} className={`transition-all cursor-pointer ${selectedSection?.id === 'cavity' ? 'scale-150' : 'animate-pulse opacity-70 hover:opacity-100'}`} onClick={(e) => { e.stopPropagation(); handleInteraction(TOOTH_SECTIONS.CAVITY); }} />}
+                    {(!isXrayMode && chipStatus === 'broken') && <path d="M 220 160 L 250 230 L 280 240 L 250 200 Z" fill="#ef4444" className="animate-pulse opacity-60 pointer-events-none" />}
+                </g>
+                
+                <path d="M 220 160 C 240 120, 280 120, 280 180 C 285 200, 285 220, 280 240 L 250 230 L 220 160 Z" 
+                  fill={isXrayMode ? "transparent" : (isDarkMode ? "#1c1c1e" : "#f5f5f4")} 
+                  stroke={isXrayMode ? currentTheme.xrayLine : (isDarkMode ? "rgba(34,211,238,0.3)" : "#e5e5e0")} 
+                  strokeWidth={isXrayMode ? "3" : "2"}
+                  style={{ transform: `translate(${chipPos.x}px, ${chipPos.y}px) scale(${isDragging ? 1.05 : 1})`, transformOrigin: '250px 180px' }}
+                  className={`transition-all ${isDragging ? 'duration-0' : 'duration-700'} ${isXrayMode ? 'pointer-events-none' : (chipStatus !== 'broken' ? 'cursor-pointer hover:brightness-125' : 'cursor-grab active:cursor-grabbing')}`}
+                  onClick={(!isXrayMode && chipStatus !== 'broken') ? breakTooth : undefined}
+                  onPointerDown={handlePointerDown} />
+                
+                {isSparkling && <g className="pointer-events-none">{[130, 280, 200].map((cx, i) => <circle key={i} cx={cx} cy={150+(i*50)} r={10+(i*5)} fill={isDarkMode ? "rgba(34,211,238, 0.2)" : "rgba(79,70,229, 0.2)"} stroke={isDarkMode ? "#22d3ee" : "#4f46e5"} strokeWidth="2" className="animate-ping" style={{ animationDelay: `${i*0.2}s`, animationDuration: '1.5s' }} />)}</g>}
+             </svg>
+             <div className="absolute -bottom-10 left-0 right-0 text-center pointer-events-none font-bold text-[10px] uppercase tracking-widest opacity-60">
+                {isXrayMode ? 'Advanced Sub-surface Imaging Active' : (chipStatus !== 'broken' ? (plaqueLevel > 0 ? 'Drag Enamel to Scrub Plaque' : 'Enamel Clean. Tap Fragment to Break') : 'Drag fragment to restore structural integrity')}
+             </div>
+
+             <div className="md:hidden absolute -bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center opacity-40 animate-bounce pointer-events-none">
+                <span className="text-[8px] font-black uppercase tracking-[0.2em] mb-1">Scroll For Details</span>
+                <ChevronDown size={14} />
+             </div>
+
+          </div>
+        )}
+
+      {view === 'archive' && (
+          <div className="w-full max-w-4xl animate-in slide-in-from-bottom duration-700 pb-12 pt-8">
+             <div className="mb-10 text-center md:text-left pl-2">
+                <h2 className="text-3xl font-black uppercase tracking-widest mb-2">Patient Outcomes</h2>
+                <p className={`text-sm ${currentTheme.textSecondary}`}>Real stories and clinical results from our Ogdensburg community.</p>
+             </div>
+
+             <div 
+                ref={sliderRef}
+                className={`relative w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border} touch-none`}
+                onPointerDown={(e) => { 
+                   if (!isTouchDevice) e.preventDefault(); 
+                   setIsDraggingSlider(true); 
+                }}
+             >
+                <div className="absolute inset-0 bg-stone-900 pointer-events-none">
+                   <SmileSVG type="after" />
+                   <div className="absolute bottom-4 right-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">After</div>
+                </div>
+
+                <div 
+                  className="absolute inset-0 bg-stone-900 pointer-events-none" 
+                  style={{ clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)` }}
+                >
+                   <SmileSVG type="before" />
+                   <div className="absolute bottom-4 left-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">Before</div>
+                </div>
+
+                <div className="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_10px_rgba(0,0,0,0.5)] pointer-events-none" style={{ left: `${sliderPos}%`, transform: 'translateX(-50%)' }}>
+                   <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-xl transition-transform duration-300 ${isDraggingSlider ? 'scale-125' : 'group-hover:scale-110'}`}>
+                      <div className="flex gap-1.5">
+                         <div className="w-0.5 h-4 bg-stone-400 rounded-full" />
+                         <div className="w-0.5 h-4 bg-stone-400 rounded-full" />
+                      </div>
+                   </div>
+                </div>
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {TESTIMONIALS.map((t, i) => (
+                   <div key={i} className={`p-6 rounded-3xl ${currentTheme.glass} border ${currentTheme.border} hover:-translate-y-1 transition-transform duration-300`}>
+                      <MessageCircle className={`w-8 h-8 opacity-10 mb-4 ${currentTheme.accentText}`} />
+                      <p className={`text-sm italic mb-6 ${currentTheme.textSecondary} leading-relaxed`}>&quot;{t.text}&quot;</p>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center font-bold text-xs`}>{t.name[0]}</div>
+                        <div className="text-xs font-bold">{t.name} <span className="block opacity-40 font-normal mt-0.5">{t.type}</span></div>
+                      </div>
+                   </div>
+                ))}
+             </div>
+          </div>
+        )}
+
+        {view === 'tech' && (
+           <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-8 animate-in zoom-in duration-700">
+              {GEAR_LOADOUT.map(g => (
+                 <div key={g.id} className={`group relative p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border hover:border-transparent transition-all overflow-hidden`}>
+                    {renderTechBackground(g.id)}
+                    <div className="relative z-10 transition-colors duration-500 group-hover:text-white">
+                        <div className={`w-14 h-14 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-white/20 group-hover:text-white transition-all shadow-sm`}>{g.icon}</div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:text-white/80`}>SPEC: {g.spec}</p>
+                        <h3 className="text-2xl font-bold mb-3 group-hover:text-white">{g.name}</h3>
+                        <p className={`text-sm mt-3 ${currentTheme.textSecondary} group-hover:text-white/90 leading-relaxed`}>{g.detail}</p>
+                    </div>
+                 </div>
+              ))}
+           </div>
+        )}
+
+        {view === 'connect' && (
+           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 animate-in zoom-in duration-700 pb-12 pt-8">
+              <div className={`p-8 rounded-3xl ${currentTheme.glass} ${currentTheme.border} border flex flex-col justify-between h-full shadow-lg`}>
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-widest mb-8">Patient Services</h3>
+                  <div className="space-y-6">
+                    <a href={`http://googleusercontent.com/maps.google.com/${encodeURIComponent(PRACTICE_INFO.address)}`} target="_blank" rel="noopener noreferrer" className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><MapPin size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Clinical Location</p>
+                        <p className="font-bold text-sm">1107 Linden St.</p>
+                        <p className={`text-sm ${currentTheme.textSecondary}`}>Ogdensburg, NY 13669</p>
+                      </div>
+                    </a>
+                    <a href={`tel:${PRACTICE_INFO.phone.split('-').join('')}`} className={`group flex items-start gap-4 cursor-pointer hover:bg-${isDarkMode ? 'white/5' : 'black/5'} p-4 -ml-4 rounded-2xl transition-all`}>
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:${currentTheme.accentBg} group-hover:text-white transition-all shadow-sm`}><Phone size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1 group-hover:${currentTheme.accentText} transition-colors`}>Direct Line</p>
+                        <p className="font-bold text-lg">{PRACTICE_INFO.phone}</p>
+                      </div>
+                    </a>
+                    <div className="flex items-start gap-4 p-4 -ml-4">
+                      <div className={`w-12 h-12 rounded-2xl ${currentTheme.accentBgSoft} ${currentTheme.accentText} flex items-center justify-center shrink-0 shadow-sm`}><Clock size={20}/></div>
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest opacity-50 mb-1`}>Operating Hours</p>
+                        <p className="font-bold text-sm">{PRACTICE_INFO.hours.split(':')[0]}: <span className="font-normal">{PRACTICE_INFO.hours.split(':').slice(1).join(':')}</span></p>
+                        <p className={`text-sm ${currentTheme.textSecondary}`}>{PRACTICE_INFO.closed}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative h-full min-h-[400px] w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-indigo-900 to-black p-10 text-white flex flex-col justify-between cursor-pointer group hover:scale-[1.02] transition-transform" onClick={handleBook}>
+                  <div className="flex justify-between items-start"><CreditCard className="w-10 h-10 text-cyan-400" /><div className="text-right font-mono text-[10px] opacity-60">CARECREDIT_PORTAL</div></div>
+                  <div>
+                    <p className="text-3xl font-black uppercase tracking-widest mb-4 leading-tight">Zero Interest<br/>Pathways</p>
+                    <p className="text-sm opacity-80 mb-8 max-w-[85%] leading-relaxed">Explore flexible financing options to ensure your preventative and restorative care is always stress-free.</p>
+                    <div className="flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-10 h-1 bg-white/20 rounded-full" />)}</div>
+                  </div>
+              </div>
+           </div>
+        )}
+      </div>
+
+      <div className={`w-full md:w-[450px] lg:w-[500px] ${currentTheme.card} border-l ${currentTheme.border} p-10 pt-32 overflow-y-auto z-20 shadow-2xl relative shrink-0`}>
+        {selectedSection ? (
+          <div className="animate-in slide-in-from-right duration-500 space-y-8">
+             <button onClick={() => setSelectedSection(null)} className="flex items-center gap-2 text-xs font-bold opacity-40 uppercase tracking-widest"><ArrowLeft size={14}/> Back</button>
+             <h3 className="text-4xl font-black uppercase tracking-tighter leading-none">{selectedSection.title}</h3>
+             <p className={`text-lg leading-relaxed ${currentTheme.textSecondary}`}>{selectedSection.description}</p>
+             <div className={`p-6 rounded-3xl border ${currentTheme.border} bg-stone-500/5`}>
+                <h4 className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-4">Clinical Indicators</h4>
+                <ul className="space-y-4">{selectedSection.symptoms.map(s => <li key={s} className="flex gap-3 text-sm font-medium items-center"><Heart size={14} className={`${currentTheme.accentText}`}/> {s}</li>)}</ul>
+             </div>
+             <button onClick={handleBook} className={`w-full py-5 rounded-2xl ${currentTheme.accentBg} text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:scale-[1.02] transition-transform`}>Request Consultation</button>
+          </div>
+        ) : (
+          <div className="space-y-12 animate-in fade-in duration-500">
+             <section>
+                 <h2 className="text-5xl font-black uppercase tracking-tighter leading-none mb-4">Clinical Portal</h2>
+                 <p className={`text-lg leading-relaxed ${currentTheme.textSecondary}`}>Led by Dr. Chris LaFlair, our practice delivers restorative precision and pain-free preventative care to the Ogdensburg community.</p>
+             </section>
+             <section>
+                <div className="flex items-center gap-2 mb-6 opacity-30 font-black text-[10px] uppercase tracking-widest"><Users size={14}/> Clinical Team</div>
+                <div className="flex flex-col gap-4 pb-20 md:pb-0">
+                  {STAFF_CARDS.map((s, i) => (
+                    <div 
+                      key={i} 
+                      onClick={() => setHoveredStaff(s)}
+                      onMouseEnter={() => !isTouchDevice && setHoveredStaff(s)}
+                      onMouseLeave={() => !isTouchDevice && setHoveredStaff(null)}
+                      className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm transition-all duration-300 cursor-pointer ${hoveredStaff?.name === s.name ? 'scale-[1.02] shadow-xl border-cyan-500/30' : 'hover:shadow-md'}`}
+                    >
+                       {s.image ? (
+                           <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 transition-all duration-300 ${hoveredStaff?.name === s.name ? 'border-cyan-400' : currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.split(' ').join('+') + '&background=random'; }} />
+                       ) : (
+                           <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center ${currentTheme.accentBgSoft} ${currentTheme.accentText} font-bold text-xl border-2 ${currentTheme.accentBorder}`}>
+                               {s.name[0]}
+                           </div>
+                       )}
+                       <div>
+                          <p className={`text-[10px] font-black ${currentTheme.accentText} uppercase mb-1 transition-colors ${hoveredStaff?.name === s.name ? 'text-cyan-500' : ''}`}>{s.role}</p>
+                          <h4 className="text-lg font-bold leading-tight mb-1">{s.name}</h4>
+                          <p className={`text-xs ${currentTheme.textSecondary} leading-relaxed line-clamp-3`}>{s.bio}</p>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+             </section>
+          </div>
+        )}
+      </div>
+
+      {/* --- NEW: GAME MODAL RENDER --- */}
+      {isGameOpen && <GameModal onClose={() => setIsGameOpen(false)} />}
+      
+    </div>
+  );
+};
+
+export default App;
