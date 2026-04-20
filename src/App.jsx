@@ -137,12 +137,12 @@ const GameModal = ({ onClose }) => {
       const playerY = ty - 30; // Player hovers above the teeth
 
       // Auto Shooting (easier for casual play/mobile)
-      if (frames % 10 === 0) {
+      if (frames % 7 === 0) {
          state.projectiles.push({ x: state.playerX, y: playerY - 35, active: true });
       }
 
-      // Spawn Enemies (Adjusted math for 30 seconds)
-      const spawnRate = Math.max(20, Math.floor(55 - (30 - state.timeRemaining) * 1.5));
+      // Spawn Enemies (Balanced for 30 seconds)
+      const spawnRate = Math.max(35, Math.floor(65 - (30 - state.timeRemaining) * 1));
       if (frames % spawnRate === 0) {
         const threats = ['🦠', '🍬', '🍩', '☕', '🍔', '🍭', '🥤'];
         const randomThreat = threats[Math.floor(Math.random() * threats.length)];
@@ -152,7 +152,8 @@ const GameModal = ({ onClose }) => {
           y: -30,
           active: true,
           emoji: randomThreat,
-          speed: 2.2 + Math.random() * 2.2 + (30 - state.timeRemaining)*0.1 
+          // Slower base speed, and slower ramp up over 30 seconds
+          speed: 1.5 + Math.random() * 2.0 + (30 - state.timeRemaining) * 0.06 
         });
       }
 
@@ -221,7 +222,7 @@ const GameModal = ({ onClose }) => {
         // Check Collision with Teeth Row (Maxillary Arch)
         if (g.x > tx && g.x < tx + tw && g.y > ty + th * 0.2) {
            g.active = false;
-           state.toothHealth -= 15; // Take damage
+           state.toothHealth -= 10; // Take damage
            if (state.toothHealth <= 0) {
                state.toothHealth = 0;
                setGameState('lost');
