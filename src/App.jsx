@@ -1221,7 +1221,7 @@ const App = () => {
                 <p className={`text-sm ${currentTheme.textSecondary}`}>Real stories and clinical results from our Ogdensburg community.</p>
              </div>
 
-             <div 
+            <div 
                 ref={sliderRef}
                 className={`relative w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border} touch-none`}
                 onPointerDown={(e) => { 
@@ -1229,19 +1229,22 @@ const App = () => {
                    setIsDraggingSlider(true); 
                 }}
              >
+                {/* Background Image (Right Side - Clean / After) */}
                 <div className="absolute inset-0 bg-stone-900 pointer-events-none">
-                   <SmileSVG type="after" />
-                   <div className="absolute bottom-4 right-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">After</div>
+                   <img src="/clean.png" alt="Healthy Teeth" className="w-full h-full object-cover" />
+                   <div className="absolute bottom-4 right-4 px-4 py-1.5 rounded-full bg-cyan-500/80 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">With Care</div>
                 </div>
 
+                {/* Foreground Image with Clip Path (Left Side - Dirty / Before) */}
                 <div 
                   className="absolute inset-0 bg-stone-900 pointer-events-none" 
                   style={{ clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)` }}
                 >
-                   <SmileSVG type="before" />
-                   <div className="absolute bottom-4 left-4 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">Before</div>
+                   <img src="/dirty.png" alt="Decayed Teeth" className="w-full h-full object-cover" />
+                   <div className="absolute bottom-4 left-4 px-4 py-1.5 rounded-full bg-red-500/80 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">Without Care</div>
                 </div>
 
+                {/* Slider Handle */}
                 <div className="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_10px_rgba(0,0,0,0.5)] pointer-events-none" style={{ left: `${sliderPos}%`, transform: 'translateX(-50%)' }}>
                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-xl transition-transform duration-300 ${isDraggingSlider ? 'scale-125' : 'group-hover:scale-110'}`}>
                       <div className="flex gap-1.5">
