@@ -17,16 +17,18 @@ const GameModal = ({ onClose }) => {
   const [gameState, setGameState] = useState('playing'); // playing, won, lost
   const [couponCode, setCouponCode] = useState('');
   
-  // Game state vars (kept in ref to avoid react state batching in animation loop)
+ // Game state vars (kept in ref to avoid react state batching in animation loop)
   const gameRef = useRef({
-    timeRemaining: 15, // 15 seconds to win
+    timeRemaining: 30, // INCREASED TO 30 SECONDS
     toothHealth: 100,  // starts at 100%
     lastTime: Date.now(),
     playerX: typeof window !== 'undefined' ? window.innerWidth / 2 : 500,
     projectiles: [],
     germs: [],
+    powerups: [], // <-- NEW: Tracks Dr. LaFlair lifesavers
     keys: { ArrowLeft: false, ArrowRight: false, Space: false },
-    isDragging: false
+    isDragging: false,
+    levelUpImg: null // <-- NEW: Holds the image
   });
 
   useEffect(() => {
@@ -34,6 +36,11 @@ const GameModal = ({ onClose }) => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
+
+    // PRELOAD DR. LAFLAIR IMAGE
+    const img = new Image();
+    img.src = '/levelup.png';
+    gameRef.current.levelUpImg = img;
 
     // Resize handler
     const resize = () => {
@@ -134,8 +141,8 @@ const GameModal = ({ onClose }) => {
          state.projectiles.push({ x: state.playerX, y: playerY - 35, active: true });
       }
 
-      // Spawn Enemies (5% Harder)
-      const spawnRate = Math.max(25, Math.floor(55 - (15 - state.timeRemaining) * 2.5));
+      // Spawn Enemies (Adjusted math for 30 seconds)
+      const spawnRate = Math.max(20, Math.floor(55 - (30 - state.timeRemaining) * 1.5));
       if (frames % spawnRate === 0) {
         const threats = ['🦠', '🍬', '🍩', '☕', '🍔', '🍭', '🥤'];
         const randomThreat = threats[Math.floor(Math.random() * threats.length)];
@@ -145,8 +152,18 @@ const GameModal = ({ onClose }) => {
           y: -30,
           active: true,
           emoji: randomThreat,
-          speed: 2.2 + Math.random() * 2.2 + (15 - state.timeRemaining)*0.15 // slightly faster
+          speed: 2.2 + Math.random() * 2.2 + (30 - state.timeRemaining)*0.1 
         });
+      }
+
+      // Spawn Lifesaver (Dr. LaFlair)
+      if (frames > 0 && frames % 180 === 0) { // Drops in every few seconds
+         state.powerups.push({
+            x: Math.random() * (canvas.width - 60) + 30,
+            y: -40,
+            active: true,
+            hits: 0 // Starts with 0 foam hits
+         });
       }
 
       // Update & Draw Projectiles (Foam blobs)
@@ -214,9 +231,54 @@ const GameModal = ({ onClose }) => {
         }
       });
 
+     // Update & Draw Lifesavers (Dr. LaFlair)
+      state.powerups.forEach(pu => {
+        if (!pu.active) return;
+        pu.y += 1.5; // Floats down slower than germs
+
+        // Draw Dr. LaFlair Image
+        if (state.levelUpImg && state.levelUpImg.complete) {
+           ctx.drawImage(state.levelUpImg, pu.x - 20, pu.y - 20, 40, 40);
+        } else {
+           ctx.fillText('👨‍⚕️', pu.x, pu.y); // Fallback emoji just in case
+        }
+
+        // Check if Foam hits Dr. LaFlair
+        state.projectiles.forEach(p => {
+           if (!p.active) return;
+           const dist = Math.hypot(p.x - pu.x, p.y - pu.y);
+           if (dist < 25) {
+              p.active = false;
+              pu.hits += 1;
+              
+              // Draw a fun blue splash every time he is hit
+              ctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
+              ctx.beginPath();
+              ctx.arc(pu.x, pu.y, 15 + pu.hits * 2, 0, Math.PI*2);
+              ctx.fill();
+
+              // If he absorbs 5 hits of foam, trigger the Heal!
+              if (pu.hits >= 5) {
+                 pu.active = false;
+                 state.toothHealth = Math.min(100, state.toothHealth + 25); // Heals 25%
+                 
+                 // Giant Green Healing Flash
+                 ctx.fillStyle = 'rgba(74, 222, 128, 0.8)';
+                 ctx.beginPath();
+                 ctx.arc(pu.x, pu.y, 60, 0, Math.PI*2);
+                 ctx.fill();
+              }
+           }
+        });
+
+        // If he falls off the bottom, just deactivate (no harm, no foul)
+        if (pu.y > canvas.height + 30) pu.active = false; 
+      });
+
       // Clean up arrays
       state.projectiles = state.projectiles.filter(p => p.active);
       state.germs = state.germs.filter(g => g.active);
+      state.powerups = state.powerups.filter(pu => pu.active);
 
       // --- DRAWING LOGIC: Anatomical Row of Teeth ---
       const teethDef = [
@@ -487,10 +549,11 @@ const GameModal = ({ onClose }) => {
             <div className="space-y-4">
               <button 
                 onClick={() => {
-                  gameRef.current = {
-                    timeRemaining: 15, toothHealth: 100, lastTime: Date.now(),
-                    playerX: window.innerWidth / 2, projectiles: [], germs: [],
-                    keys: { ArrowLeft: false, ArrowRight: false, Space: false }, isDragging: false
+                 gameRef.current = {
+                    timeRemaining: 30, toothHealth: 100, lastTime: Date.now(),
+                    playerX: window.innerWidth / 2, projectiles: [], germs: [], powerups: [],
+                    keys: { ArrowLeft: false, ArrowRight: false, Space: false }, isDragging: false,
+                    levelUpImg: gameRef.current.levelUpImg
                   };
                   setGameState('playing');
                 }}
