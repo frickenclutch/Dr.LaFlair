@@ -137,7 +137,7 @@ const GameModal = ({ onClose }) => {
       const playerY = ty - 30; // Player hovers above the teeth
 
       // Auto Shooting (easier for casual play/mobile)
-      if (frames %  === 0) {
+      if (frames % 7 === 0) {
          state.projectiles.push({ x: state.playerX, y: playerY - 35, active: true });
       }
 
