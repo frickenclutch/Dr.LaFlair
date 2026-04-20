@@ -134,14 +134,18 @@ const GameModal = ({ onClose }) => {
          state.projectiles.push({ x: state.playerX, y: playerY - 35, active: true });
       }
 
-      // Spawn Germs
-      const spawnRate = Math.max(30, Math.floor(60 - (15 - state.timeRemaining) * 2));
+      // Spawn Enemies (5% Harder)
+      const spawnRate = Math.max(25, Math.floor(55 - (15 - state.timeRemaining) * 2.5));
       if (frames % spawnRate === 0) {
+        const threats = ['🦠', '🍬', '🍩', '☕', '🍔', '🍭', '🥤'];
+        const randomThreat = threats[Math.floor(Math.random() * threats.length)];
+        
         state.germs.push({
           x: Math.random() * (canvas.width - 40) + 20,
           y: -30,
           active: true,
-          speed: 2 + Math.random() * 2 + (15 - state.timeRemaining)*0.1 // faster as time goes
+          emoji: randomThreat,
+          speed: 2.2 + Math.random() * 2.2 + (15 - state.timeRemaining)*0.15 // slightly faster
         });
       }
 
@@ -179,8 +183,8 @@ const GameModal = ({ onClose }) => {
         if (!g.active) return;
         g.y += g.speed;
         
-        // Draw Germ (🦠)
-        ctx.fillText('🦠', g.x, g.y);
+        // Draw Threat
+        ctx.fillText(g.emoji || '🦠', g.x, g.y);
 
         // Check Collision with projectiles
         state.projectiles.forEach(p => {
