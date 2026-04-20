@@ -153,7 +153,7 @@ const GameModal = ({ onClose }) => {
           active: true,
           emoji: randomThreat,
           // Slower base speed, and slower ramp up over 30 seconds
-          speed: 1.5 + Math.random() * 2.0 + (30 - state.timeRemaining) * 0.06 
+          speed: 1.75 + Math.random() * 2.0 + (30 - state.timeRemaining) * 0.06 
         });
       }
 
