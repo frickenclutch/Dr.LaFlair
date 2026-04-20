@@ -137,7 +137,7 @@ const GameModal = ({ onClose }) => {
       const playerY = ty - 30; // Player hovers above the teeth
 
       // Auto Shooting (easier for casual play/mobile)
-      if (frames % 7 === 0) {
+      if (frames % 10 === 0) {
          state.projectiles.push({ x: state.playerX, y: playerY - 35, active: true });
       }
 
@@ -222,7 +222,7 @@ const GameModal = ({ onClose }) => {
         // Check Collision with Teeth Row (Maxillary Arch)
         if (g.x > tx && g.x < tx + tw && g.y > ty + th * 0.2) {
            g.active = false;
-           state.toothHealth -= 10; // Take damage
+           state.toothHealth -= 13; // Take damage
            if (state.toothHealth <= 0) {
                state.toothHealth = 0;
                setGameState('lost');
