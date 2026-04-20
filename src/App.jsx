@@ -137,7 +137,7 @@ const GameModal = ({ onClose }) => {
       const playerY = ty - 30; // Player hovers above the teeth
 
       // Auto Shooting (easier for casual play/mobile)
-      if (frames % 10 === 0) {
+      if (frames %  === 0) {
          state.projectiles.push({ x: state.playerX, y: playerY - 35, active: true });
       }
 
@@ -153,12 +153,12 @@ const GameModal = ({ onClose }) => {
           active: true,
           emoji: randomThreat,
           // Slower base speed, and slower ramp up over 30 seconds
-          speed: 1.75 + Math.random() * 2.0 + (30 - state.timeRemaining) * 0.06 
+          speed: 1.5 + Math.random() * 2.0 + (30 - state.timeRemaining) * 0.06 
         });
       }
 
       // Spawn Lifesaver (Dr. LaFlair)
-      if (frames > 0 && frames % 180 === 0) { // Drops in every few seconds
+      if (frames > 0 && frames % 360 === 0) { // Drops in every few seconds
          state.powerups.push({
             x: Math.random() * (canvas.width - 60) + 30,
             y: -40,
