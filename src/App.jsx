@@ -1320,7 +1320,7 @@ const App = () => {
 
             <div 
                 ref={sliderRef}
-                className={`relative w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border} touch-none`}
+                className={`relative w-full h-[450px] md:h-[700px] rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border} touch-none`}
                 onPointerDown={(e) => { 
                    if (!isTouchDevice) e.preventDefault(); 
                    setIsDraggingSlider(true); 
