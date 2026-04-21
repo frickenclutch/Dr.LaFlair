@@ -756,11 +756,6 @@ const App = () => {
   ];
 
 
-  const interactiveHints = [
-    // ... your hints ...
-    "Toggle the Advanced Sub-surface Imaging (X-Ray) switch to reveal hidden structures."
-  ];
-
   // ---> PASTE STEP 2 RIGHT HERE! <---
   useEffect(() => {
     const handleMove = (e) => {
