@@ -780,9 +780,6 @@ const App = () => {
     };
   }, [isDraggingFull]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-// ... rest of your code ...
 
   useEffect(() => {
     const interval = setInterval(() => {
