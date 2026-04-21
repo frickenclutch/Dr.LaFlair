@@ -1368,7 +1368,7 @@ const App = () => {
              >
                 {/* Background Image (Right Side - Clean / After) */}
                 <div className="absolute inset-0 bg-stone-900 pointer-events-none">
-                   <img src="/cleanfull.jpg" alt="Healthy Full Arch" className="w-full h-full object-cover" />
+                   <img src="/cleanfull.png" alt="Healthy Full Arch" className="w-full h-full object-cover" />
                    <div className="absolute bottom-4 right-4 px-4 py-1.5 rounded-full bg-cyan-500/80 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">With Care</div>
                 </div>
 
@@ -1377,7 +1377,7 @@ const App = () => {
                   className="absolute inset-0 bg-stone-900 pointer-events-none" 
                   style={{ clipPath: `polygon(0 0, ${fullSliderPos}% 0, ${fullSliderPos}% 100%, 0 100%)` }}
                 >
-                   <img src="/dirtyfull.jpg" alt="Decayed Full Arch" className="w-full h-full object-cover" />
+                   <img src="/dirtyfull.png" alt="Decayed Full Arch" className="w-full h-full object-cover" />
                    <div className="absolute bottom-4 left-4 px-4 py-1.5 rounded-full bg-red-500/80 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">Without Care</div>
                 </div>
 
