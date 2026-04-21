@@ -738,6 +738,9 @@ const App = () => {
   const [sliderPos, setSliderPos] = useState(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const sliderRef = useRef(null);
+  const [fullSliderPos, setFullSliderPos] = useState(50);
+  const [isDraggingFull, setIsDraggingFull] = useState(false);
+  const fullSliderRef = useRef(null);
 
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [deviceType, setDeviceType] = useState('desktop');
@@ -751,6 +754,40 @@ const App = () => {
     "Tap the cavity on the root structure to understand how decay works!",
     "Toggle the Advanced Sub-surface Imaging (X-Ray) switch to reveal hidden structures."
   ];
+
+
+  const interactiveHints = [
+    // ... your hints ...
+    "Toggle the Advanced Sub-surface Imaging (X-Ray) switch to reveal hidden structures."
+  ];
+
+  // ---> PASTE STEP 2 RIGHT HERE! <---
+  useEffect(() => {
+    const handleMove = (e) => {
+      if (!isDraggingFull || !fullSliderRef.current) return;
+      const rect = fullSliderRef.current.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+      setFullSliderPos((x / rect.width) * 100);
+    };
+    const handleUp = () => setIsDraggingFull(false);
+    
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleUp);
+    window.addEventListener('touchmove', handleMove, { passive: false });
+    window.addEventListener('touchend', handleUp);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleUp);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleUp);
+    };
+  }, [isDraggingFull]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+// ... rest of your code ...
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -1315,6 +1352,46 @@ const App = () => {
                 {/* Slider Handle */}
                 <div className="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_10px_rgba(0,0,0,0.5)] pointer-events-none" style={{ left: `${sliderPos}%`, transform: 'translateX(-50%)' }}>
                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-xl transition-transform duration-300 ${isDraggingSlider ? 'scale-125' : 'group-hover:scale-110'}`}>
+                      <div className="flex gap-1.5">
+                         <div className="w-0.5 h-4 bg-stone-400 rounded-full" />
+                         <div className="w-0.5 h-4 bg-stone-400 rounded-full" />
+                      </div>
+                   </div>
+                </div>
+             </div>
+
+             {/* --- SECOND SLIDER: FULL ARCH COMPARISON --- */}
+             <div className="mb-10 text-center md:text-left pl-2 mt-16">
+                <h2 className="text-3xl font-black uppercase tracking-widest mb-2">Full Arch Restoration</h2>
+                <p className={`text-sm ${currentTheme.textSecondary}`}>Comprehensive restorative transformation and preventative care.</p>
+             </div>
+
+             <div 
+                ref={fullSliderRef}
+                className={`relative w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl cursor-ew-resize group select-none border ${currentTheme.border} touch-none`}
+                onPointerDown={(e) => { 
+                   if (!isTouchDevice) e.preventDefault(); 
+                   setIsDraggingFull(true); 
+                }}
+             >
+                {/* Background Image (Right Side - Clean / After) */}
+                <div className="absolute inset-0 bg-stone-900 pointer-events-none">
+                   <img src="/cleanfull.jpg" alt="Healthy Full Arch" className="w-full h-full object-cover" />
+                   <div className="absolute bottom-4 right-4 px-4 py-1.5 rounded-full bg-cyan-500/80 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">With Care</div>
+                </div>
+
+                {/* Foreground Image with Clip Path (Left Side - Dirty / Before) */}
+                <div 
+                  className="absolute inset-0 bg-stone-900 pointer-events-none" 
+                  style={{ clipPath: `polygon(0 0, ${fullSliderPos}% 0, ${fullSliderPos}% 100%, 0 100%)` }}
+                >
+                   <img src="/dirtyfull.jpg" alt="Decayed Full Arch" className="w-full h-full object-cover" />
+                   <div className="absolute bottom-4 left-4 px-4 py-1.5 rounded-full bg-red-500/80 backdrop-blur-md text-white text-[10px] font-black tracking-widest uppercase shadow-lg">Without Care</div>
+                </div>
+
+                {/* Slider Handle */}
+                <div className="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_10px_rgba(0,0,0,0.5)] pointer-events-none" style={{ left: `${fullSliderPos}%`, transform: 'translateX(-50%)' }}>
+                   <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-xl transition-transform duration-300 ${isDraggingFull ? 'scale-125' : 'group-hover:scale-110'}`}>
                       <div className="flex gap-1.5">
                          <div className="w-0.5 h-4 bg-stone-400 rounded-full" />
                          <div className="w-0.5 h-4 bg-stone-400 rounded-full" />
