@@ -19,7 +19,7 @@ const GameModal = ({ onClose }) => {
   
  // Game state vars (kept in ref to avoid react state batching in animation loop)
   const gameRef = useRef({
-    timeRemaining: 30, // INCREASED TO 30 SECONDS
+    timeRemaining: 20, // INCREASED TO 30 SECONDS
     toothHealth: 100,  // starts at 100%
     lastTime: Date.now(),
     playerX: typeof window !== 'undefined' ? window.innerWidth / 2 : 500,
@@ -644,7 +644,7 @@ const STAFF_CARDS = [
   { 
     name: "Maria & Stephanie", 
     role: "Dental Hygienists", 
-    bio: "Board-certified hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.", 
+    bio: "Registered Dental Hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.", 
     image: "/oloivastephanie.jpg" 
   }
 ];
