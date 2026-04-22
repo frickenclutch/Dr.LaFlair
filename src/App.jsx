@@ -14,21 +14,32 @@ import {
 
 const GameModal = ({ onClose }) => {
   const canvasRef = useRef(null);
-  const [gameState, setGameState] = useState('playing'); // playing, won, lost
-  const [couponCode, setCouponCode] = useState('');
   
- // Game state vars (kept in ref to avoid react state batching in animation loop)
+  // --- NEW: Scoreboard States ---
+  const [gameState, setGameState] = useState('playing'); 
+  const [playerName, setPlayerName] = useState('');
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
+  const [resetClicks, setResetClicks] = useState(0); // For the secret reset button
+  const [leaderboard, setLeaderboard] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('laflair_leaderboard');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  
+  // Game state vars (kept in ref to avoid react state batching in animation loop)
   const gameRef = useRef({
-    timeRemaining: 20, // INCREASED TO 30 SECONDS
+    timeRemaining: 30, // 30 SECONDS
     toothHealth: 100,  // starts at 100%
     lastTime: Date.now(),
     playerX: typeof window !== 'undefined' ? window.innerWidth / 2 : 500,
     projectiles: [],
     germs: [],
-    powerups: [], // <-- NEW: Tracks Dr. LaFlair lifesavers
+    powerups: [], // Tracks Dr. LaFlair lifesavers
     keys: { ArrowLeft: false, ArrowRight: false, Space: false },
     isDragging: false,
-    levelUpImg: null // <-- NEW: Holds the image
+    levelUpImg: null // Holds the image
   });
 
   useEffect(() => {
@@ -104,8 +115,6 @@ const GameModal = ({ onClose }) => {
         if (state.timeRemaining <= 0) {
           // WIN CONDITION
           setGameState('won');
-          const code = 'LAFLAIR-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-          setCouponCode(code);
           return;
         }
       }
@@ -136,13 +145,14 @@ const GameModal = ({ onClose }) => {
       const tx = canvas.width * 0.03; // Centered
       const playerY = ty - 30; // Player hovers above the teeth
 
-      // Auto Shooting (easier for casual play/mobile)
-      if (frames % 7 === 0) {
+      // --- NEW: TWEAKED DIFFICULTY ---
+      // Auto Shooting (Slightly slower fire rate to require better aiming)
+      if (frames % 8 === 0) { 
          state.projectiles.push({ x: state.playerX, y: playerY - 35, active: true });
       }
 
-      // Spawn Enemies (Balanced for 30 seconds)
-      const spawnRate = Math.max(35, Math.floor(65 - (30 - state.timeRemaining) * 1));
+      // Spawn Enemies (Faster ramp-up for Doctor's requested difficulty)
+      const spawnRate = Math.max(25, Math.floor(60 - (30 - state.timeRemaining) * 1.5)); 
       if (frames % spawnRate === 0) {
         const threats = ['🦠', '🍬', '🍩', '☕', '🍔', '🍭', '🥤'];
         const randomThreat = threats[Math.floor(Math.random() * threats.length)];
@@ -152,8 +162,8 @@ const GameModal = ({ onClose }) => {
           y: -30,
           active: true,
           emoji: randomThreat,
-          // Slower base speed, and slower ramp up over 30 seconds
-          speed: 1.5 + Math.random() * 2.0 + (30 - state.timeRemaining) * 0.06 
+          // Faster base speed and steeper ramp up
+          speed: 1.8 + Math.random() * 2.5 + (30 - state.timeRemaining) * 0.1 
         });
       }
 
@@ -222,7 +232,7 @@ const GameModal = ({ onClose }) => {
         // Check Collision with Teeth Row (Maxillary Arch)
         if (g.x > tx && g.x < tx + tw && g.y > ty + th * 0.2) {
            g.active = false;
-           state.toothHealth -= 13; // Take damage
+           state.toothHealth -= 13; // Increased damage
            if (state.toothHealth <= 0) {
                state.toothHealth = 0;
                setGameState('lost');
@@ -501,6 +511,50 @@ const GameModal = ({ onClose }) => {
     };
   }, [gameState]);
 
+  // --- NEW: Handle Score Submission & Reset ---
+  const handleSubmitScore = () => {
+    if (!playerName.trim()) return;
+    
+    // The "Naughty List" (Profanity Filter)
+    const badWords = ['fuck', 'shit', 'bitch', 'ass', 'dick', 'cunt', 'pussy', 'cock', 'slut', 'whore', 'crap'];
+    const lowerName = playerName.toLowerCase();
+    const isProfane = badWords.some(word => lowerName.includes(word));
+    
+    // If they swear, automatically name them 'Tooth Fairy'
+    const finalName = isProfane ? 'Tooth Fairy' : playerName.trim().substring(0, 12);
+
+    const newScore = { 
+      name: finalName, 
+      health: gameRef.current.toothHealth, 
+      date: new Date().toLocaleDateString() 
+    };
+    
+    // Add score, sort highest health to top, keep top 5
+    const newLeaderboard = [...leaderboard, newScore]
+      .sort((a, b) => b.health - a.health)
+      .slice(0, 5); 
+    
+    setLeaderboard(newLeaderboard);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('laflair_leaderboard', JSON.stringify(newLeaderboard));
+    }
+    setScoreSubmitted(true);
+  };
+
+  const handleSecretReset = () => {
+     setResetClicks(prev => {
+        const next = prev + 1;
+        if (next >= 3) { // 3 Clicks to reset
+           setLeaderboard([]);
+           if (typeof window !== 'undefined') {
+              localStorage.removeItem('laflair_leaderboard');
+           }
+           return 0;
+        }
+        return next;
+     });
+  };
+
   return (
     <div className="fixed inset-0 z-[300] bg-slate-900 flex flex-col items-center justify-center overflow-hidden touch-none">
       <canvas 
@@ -515,27 +569,71 @@ const GameModal = ({ onClose }) => {
         Skip to Website &rarr;
       </button>
 
+      {/* --- NEW: WIN STATE & LEADERBOARD --- */}
       {gameState === 'won' && (
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-40 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border-4 border-blue-500 animate-in zoom-in duration-300">
-            <h2 className="text-3xl font-black text-blue-600 mb-2">**YOU SAVED THE TEETH!**</h2>
-            <p className="text-slate-600 mb-6 font-semibold">Perfect cleaning achieved. Here is your reward:</p>
+        <div className="absolute inset-0 bg-blue-900/90 flex flex-col items-center justify-center backdrop-blur-md z-40 p-4">
+          <div className="bg-slate-900 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border-2 border-cyan-400 animate-in zoom-in duration-500">
+            <div 
+              className="text-6xl mb-4 cursor-pointer select-none"
+              onClick={handleSecretReset}
+              title="Staff Only: Click 3 times to reset scores"
+            >✨🦷✨</div>
+            <h2 className="text-3xl font-black text-white mb-2">TEETH SAVED!</h2>
+            <p className="text-cyan-200 mb-6 font-semibold">You survived with {gameRef.current.toothHealth}% enamel intact!</p>
             
-            <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-xl p-6 mb-6">
-              <h3 className="text-2xl font-bold text-slate-800">$10.00 DISCOUNT</h3>
-              <p className="text-sm text-slate-500 uppercase tracking-widest mb-4">On your next cleaning</p>
-              <div className="bg-white border border-slate-200 py-3 px-4 rounded shadow-inner text-xl font-mono font-bold tracking-widest text-slate-700 select-all">
-                {couponCode}
+            {!scoreSubmitted ? (
+              <div className="space-y-4 mb-6">
+                <input 
+                  type="text" 
+                  maxLength={12}
+                  placeholder="Enter your name..." 
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  className="w-full bg-slate-800 text-white font-bold px-4 py-3 rounded-xl border border-slate-600 focus:border-cyan-400 focus:outline-none text-center uppercase"
+                />
+                <button 
+                  onClick={handleSubmitScore}
+                  className="w-full bg-cyan-500 text-white font-black py-3 rounded-xl hover:bg-cyan-400 transition-colors"
+                >
+                  SAVE SCORE
+                </button>
               </div>
-              <p className="text-xs text-slate-400 mt-2">Show this code at the reception desk.</p>
-            </div>
+            ) : (
+              <div className="bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700">
+                <h3 className="text-cyan-400 font-black mb-3 uppercase tracking-widest text-sm">Top Defenders</h3>
+                <div className="space-y-2">
+                  {leaderboard.length === 0 && <p className="text-slate-400 text-xs italic">No scores yet. Be the first!</p>}
+                  {leaderboard.map((score, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-sm font-bold text-white bg-slate-900/50 px-3 py-2 rounded-lg border border-slate-700/50">
+                      <span>{idx + 1}. {score.name}</span>
+                      <span className="text-emerald-400">{score.health}% Health</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            <button 
-              onClick={onClose}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors"
-            >
-              Return to Website
-            </button>
+            <div className="space-y-3">
+               <button
+                 onClick={() => {
+                   gameRef.current = {
+                     timeRemaining: 30, toothHealth: 100, lastTime: Date.now(),
+                     playerX: window.innerWidth / 2, projectiles: [], germs: [], powerups: [],
+                     keys: { ArrowLeft: false, ArrowRight: false, Space: false }, isDragging: false,
+                     levelUpImg: gameRef.current.levelUpImg
+                   };
+                   setScoreSubmitted(false);
+                   setPlayerName('');
+                   setGameState('playing');
+                 }}
+                 className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500 transition-colors"
+               >
+                 Play Again
+               </button>
+               <button onClick={onClose} className="w-full bg-slate-800 text-slate-300 font-bold py-3 rounded-xl hover:bg-slate-700 transition-colors">
+                 Exit Game
+               </button>
+            </div>
           </div>
         </div>
       )}
@@ -649,73 +747,6 @@ const STAFF_CARDS = [
   }
 ];
 
-const SmileSVG = ({ type }) => {
-  const isBefore = type === 'before';
-  
-  return (
-    <svg viewBox="0 0 800 400" className="w-full h-full bg-stone-900" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id={`tooth-grad-${type}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={isBefore ? '#fef08a' : '#ffffff'} />
-          <stop offset="100%" stopColor={isBefore ? '#d97706' : '#e7e5e4'} />
-        </linearGradient>
-        <linearGradient id="lip-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fb7185" />
-          <stop offset="100%" stopColor="#be123c" />
-        </linearGradient>
-        <clipPath id={`mouth-clip-${type}`}>
-          <path d="M 100 200 C 250 140, 550 140, 700 200 C 550 280, 250 280, 100 200 Z" />
-        </clipPath>
-      </defs>
-
-      <rect width="800" height="400" fill={isBefore ? "#e7e5e4" : "#f5f5f4"} />
-      <path d="M 100 200 C 250 140, 550 140, 700 200 C 550 280, 250 280, 100 200 Z" fill="#1c1917" />
-
-      <g clipPath={`url(#mouth-clip-${type})`}>
-        <path d="M 0 0 L 800 0 L 800 170 C 550 155, 250 155, 0 170 Z" fill={isBefore ? '#f87171' : '#fda4af'} />
-        <path d="M 0 400 L 800 400 L 800 245 C 550 260, 250 260, 0 245 Z" fill={isBefore ? '#f87171' : '#fda4af'} />
-
-        <g stroke="#292524" strokeWidth="1.5" fill={`url(#tooth-grad-${type})`}>
-          <rect x="360" y="160" width="38" height="55" rx="6" />
-          <rect x="402" y="160" width="38" height="55" rx="6" />
-          <rect x="325" y="158" width="32" height="48" rx="5" />
-          <rect x="443" y="158" width="32" height="48" rx="5" />
-          <rect x="295" y="155" width="28" height="45" rx="4" />
-          <rect x="477" y="155" width="28" height="45" rx="4" />
-          <rect x="270" y="155" width="22" height="40" rx="3" />
-          <rect x="508" y="155" width="22" height="40" rx="3" />
-        </g>
-
-        <g stroke="#292524" strokeWidth="1.5" fill={`url(#tooth-grad-${type})`}>
-          <rect x="365" y="217" width="33" height="40" rx="5" />
-          <rect x="402" y="217" width="33" height="40" rx="5" />
-          <rect x="335" y="219" width="28" height="38" rx="4" />
-          <rect x="437" y="219" width="28" height="38" rx="4" />
-          <rect x="308" y="222" width="25" height="35" rx="4" />
-          <rect x="467" y="222" width="25" height="35" rx="4" />
-        </g>
-        
-        {isBefore && (
-          <g fill="#ca8a04" opacity="0.4" filter="blur(3px)">
-             <ellipse cx="380" cy="165" rx="20" ry="10" />
-             <ellipse cx="420" cy="165" rx="20" ry="10" />
-             <ellipse cx="340" cy="165" rx="15" ry="8" />
-             <ellipse cx="460" cy="165" rx="15" ry="8" />
-             <ellipse cx="380" cy="245" rx="15" ry="10" />
-             <ellipse cx="420" cy="245" rx="15" ry="10" />
-          </g>
-        )}
-      </g>
-
-      <path d="M 100 200 C 250 100, 550 100, 700 200 C 550 140, 250 140, 100 200 Z" fill="url(#lip-grad)" />
-      <path d="M 100 200 C 250 300, 550 300, 700 200 C 550 280, 250 280, 100 200 Z" fill="url(#lip-grad)" />
-      
-      <path d="M 300 128 Q 400 120 500 128" stroke="#fecdd3" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.6"/>
-      <path d="M 320 285 Q 400 295 480 285" stroke="#fecdd3" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.4"/>
-    </svg>
-  );
-};
-
 const App = () => {
   const [hasEntered, setHasEntered] = useState(false); 
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -735,9 +766,11 @@ const App = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isXrayMode, setIsXrayMode] = useState(false);
   const [plaqueLevel, setPlaqueLevel] = useState(100);
+  
   const [sliderPos, setSliderPos] = useState(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const sliderRef = useRef(null);
+  
   const [fullSliderPos, setFullSliderPos] = useState(50);
   const [isDraggingFull, setIsDraggingFull] = useState(false);
   const fullSliderRef = useRef(null);
@@ -755,8 +788,6 @@ const App = () => {
     "Toggle the Advanced Sub-surface Imaging (X-Ray) switch to reveal hidden structures."
   ];
 
-
-  // ---> PASTE STEP 2 RIGHT HERE! <---
   useEffect(() => {
     const handleMove = (e) => {
       if (!isDraggingFull || !fullSliderRef.current) return;
@@ -779,7 +810,6 @@ const App = () => {
       window.removeEventListener('touchend', handleUp);
     };
   }, [isDraggingFull]);
-
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -941,7 +971,7 @@ const App = () => {
  const changeView = (newView) => {
     setView(newView);
     if(newView !== 'anatomy') setSelectedSection(null);
-    setHoveredStaff(null); // 
+    setHoveredStaff(null);
   };
 
   const renderTechBackground = (id) => {
@@ -1217,7 +1247,7 @@ const App = () => {
           <div className="w-full max-w-4xl flex flex-col items-center justify-center animate-in zoom-in duration-700 pb-12 pt-8 text-center h-full">
             <h2 className="text-5xl font-black uppercase tracking-widest mb-6 leading-none">Tooth Defender</h2>
             <p className={`text-lg md:text-xl mb-12 max-w-2xl leading-relaxed ${currentTheme.textSecondary}`}>
-              Protect the teeth from plaque and decay! Use your arrow keys or touch screen to move the toothbrush and shoot foam at the falling germs. Survive for 15 seconds to win a special clinical discount!
+              Protect the teeth from plaque and decay! Use your arrow keys or touch screen to move the toothbrush and shoot foam at the falling germs. Survive for 30 seconds to etch your name onto the daily leaderboard!
             </p>
             <button 
               onClick={() => setIsGameOpen(true)}
