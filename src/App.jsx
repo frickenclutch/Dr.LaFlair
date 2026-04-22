@@ -230,16 +230,27 @@ const GameModal = ({ onClose }) => {
         });
 
         // Check Collision with Teeth Row (Maxillary Arch)
-        if (g.x > tx && g.x < tx + tw && g.y > ty + th * 0.2) {
-           g.active = false;
-           state.toothHealth -= 13; // Increased damage
-           if (state.toothHealth <= 0) {
-               state.toothHealth = 0;
-               setGameState('lost');
-           }
-        } else if (g.y > canvas.height + 30) {
-           g.active = false; // Missed the teeth completely (fell off sides)
+    if (g.x > tx && g.x < tx + tw && g.y > ty + th * 0.2) {
+      g.active = false;
+      state.toothHealth -= 13; // Increased damage
+      
+      // TRIGGER HAPTIC FEEDBACK (Phone Vibration)
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate(150); // Sharp 150ms buzz to warn the player!
+      }
+
+      if (state.toothHealth <= 0) {
+        state.toothHealth = 0;
+        setGameState('lost');
+        
+        // Long double-vibration for game over!
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate([300, 100, 300]); 
         }
+      }
+    } else if (g.y > canvas.height + 30) {
+      g.active = false; // Missed the teeth completely (fell off sides)
+    }
       });
 
      // Update & Draw Lifesavers (Dr. LaFlair)
