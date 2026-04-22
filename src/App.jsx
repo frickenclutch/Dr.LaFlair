@@ -512,15 +512,40 @@ const GameModal = ({ onClose }) => {
   }, [gameState]);
 
   // --- NEW: Handle Score Submission & Reset ---
-  const handleSubmitScore = () => {
+ const handleSubmitScore = () => {
     if (!playerName.trim()) return;
     
-    // The "Naughty List" (Profanity Filter)
-    const badWords = ['fuck', 'shit', 'bitch', 'ass', 'dick', 'cunt', 'pussy', 'cock', 'slut', 'whore', 'crap'];
-    const lowerName = playerName.toLowerCase();
-    const isProfane = badWords.some(word => lowerName.includes(word));
+    // The Expanded "Naughty List" (Profanity & Slur Filter)
+    const badWords = [
+      'fuck', 'shit', 'bitch', 'cunt', 'pussy', 'slut', 'whore', 
+      'fag', 'faggot', 'dyke', 'tranny', 'nigger', 'nigga', 'nigg', 
+      'spic', 'chink', 'gook', 'kike', 'twat', 'prick', 'cum', 'jizz',
+      'bastard', 'douche', 'retard', 'nazi', 'hitler', 'rape', 'pedo', 
+      'cock', 'dick', 'boob', 'tits', 'anal', 'dildo', 'asshole', 
+      'dumbass', 'jackass', 'bullshit', 'motherfucker', 'wanker'
+    ];
     
-    // If they swear, automatically name them 'Tooth Fairy'
+    const lowerName = playerName.toLowerCase();
+
+    // "Leetspeak" Normalization map
+    // Translates numbers and symbols back to letters to catch "b1tch", "f4gg0t", etc.
+    const leetMap = {
+      '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', 
+      '7': 't', '8': 'b', '@': 'a', '!': 'i', '$': 's'
+    };
+    
+    let normalizedName = lowerName;
+    for (const [leet, letter] of Object.entries(leetMap)) {
+       // Replace all instances of the number/symbol with the corresponding letter
+       normalizedName = normalizedName.split(leet).join(letter); 
+    }
+    
+    // Check if the bad words exist in EITHER the original typed name or the decoded one
+    const isProfane = badWords.some(word => 
+       lowerName.includes(word) || normalizedName.includes(word)
+    );
+    
+    // If they swear or use a slur, automatically name them 'Tooth Fairy'
     const finalName = isProfane ? 'Tooth Fairy' : playerName.trim().substring(0, 12);
 
     const newScore = { 
