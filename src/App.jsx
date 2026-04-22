@@ -522,7 +522,7 @@ const GameModal = ({ onClose }) => {
       'spic', 'chink', 'gook', 'kike', 'twat', 'prick', 'cum', 'jizz',
       'bastard', 'douche', 'retard', 'nazi', 'hitler', 'rape', 'pedo', 
       'cock', 'dick', 'boob', 'tits', 'anal', 'dildo', 'asshole', 
-      'dumbass', 'jackass', 'bullshit', 'motherfucker', 'wanker'
+      'dumbass', 'jackass', 'bullshit', 'motherfucker', 'wanker', 'retarded'
     ];
     
     const lowerName = playerName.toLowerCase();
