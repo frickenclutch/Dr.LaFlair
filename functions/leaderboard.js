@@ -4,7 +4,13 @@
 export async function onRequestGet(context) {
   try {
     const scores = await context.env.LAFLAIR_SCORES.get("top_scores");
-    return new Response(scores || "[]", { headers: { "Content-Type": "application/json" } });
+    return new Response(scores || "[]", { 
+      headers: { 
+        "Content-Type": "application/json",
+        // Tells browsers and Cloudflare edge nodes NEVER to cache this response
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+      } 
+    });
   } catch (error) {
     return new Response("[]", { status: 200 });
   }

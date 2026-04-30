@@ -22,9 +22,10 @@ const GameModal = ({ onClose }) => {
   const [resetClicks, setResetClicks] = useState(0); // For the secret reset button
   const [leaderboard, setLeaderboard] = useState([]);
 
-  // --- NEW: Fetch Global Scores from Cloudflare on load ---
+ // --- NEW: Fetch Global Scores from Cloudflare on load ---
   useEffect(() => {
-    fetch('/api/leaderboard')
+    // Add the cache-busting command here!
+    fetch('/api/leaderboard', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setLeaderboard(data);
