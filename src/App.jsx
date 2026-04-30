@@ -569,19 +569,28 @@ const GameModal = ({ onClose }) => {
       date: new Date().toLocaleDateString() 
     };
     
-    // Add score, sort highest health to top, keep top 5
-    const newLeaderboard = [...leaderboard, newScore]
+    // Update locally immediately so the UI feels fast
+    const optimisticBoard = [...leaderboard, newScore]
       .sort((a, b) => b.health - a.health)
       .slice(0, 5); 
     
-    setLeaderboard(newLeaderboard);
-    // --- NEW: Send updated scores to Cloudflare KV ---
+    setLeaderboard(optimisticBoard);
+    setScoreSubmitted(true);
+
+    // --- NEW: Send ONLY the new score, and pull the official merged list back ---
     fetch('/api/leaderboard', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newLeaderboard)
-    }).catch(err => console.error("Failed to save global score", err));
-    setScoreSubmitted(true);
+      body: JSON.stringify(newScore) 
+    })
+    .then(res => res.json())
+    .then(serverLeaderboard => {
+       // Replace our local guess with the official global truth from Cloudflare
+       if (Array.isArray(serverLeaderboard)) {
+           setLeaderboard(serverLeaderboard);
+       }
+    })
+    .catch(err => console.error("Failed to save global score", err));
   };
 
   const handleSecretReset = () => {
