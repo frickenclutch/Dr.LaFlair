@@ -20,13 +20,17 @@ const GameModal = ({ onClose }) => {
   const [playerName, setPlayerName] = useState('');
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
   const [resetClicks, setResetClicks] = useState(0); // For the secret reset button
-  const [leaderboard, setLeaderboard] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('laflair_leaderboard');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
+  const [leaderboard, setLeaderboard] = useState([]);
+
+  // --- NEW: Fetch Global Scores from Cloudflare on load ---
+  useEffect(() => {
+    fetch('/api/leaderboard')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setLeaderboard(data);
+      })
+      .catch(err => console.error("Failed to load global scores", err));
+  }, []);
   
   // Game state vars (kept in ref to avoid react state batching in animation loop)
   const gameRef = useRef({
@@ -571,9 +575,12 @@ const GameModal = ({ onClose }) => {
       .slice(0, 5); 
     
     setLeaderboard(newLeaderboard);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('laflair_leaderboard', JSON.stringify(newLeaderboard));
-    }
+    // --- NEW: Send updated scores to Cloudflare KV ---
+    fetch('/api/leaderboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newLeaderboard)
+    }).catch(err => console.error("Failed to save global score", err));
     setScoreSubmitted(true);
   };
 
@@ -582,10 +589,7 @@ const GameModal = ({ onClose }) => {
         const next = prev + 1;
         if (next >= 3) { // 3 Clicks to reset
            setLeaderboard([]);
-           if (typeof window !== 'undefined') {
-              localStorage.removeItem('laflair_leaderboard');
-           }
-           return 0;
+                   return 0;
         }
         return next;
      });
@@ -598,6 +602,23 @@ const GameModal = ({ onClose }) => {
         className="absolute inset-0 z-0 block cursor-crosshair touch-none"
       />
       
+      {/* --- ALWAYS VISIBLE LEADERBOARD (Desktop/Tablet Only) --- */}
+      {gameState === 'playing' && (
+        <div className="absolute top-4 left-4 z-30 pointer-events-none hidden md:block">
+           <div className="bg-slate-900/60 backdrop-blur-md border border-cyan-500/30 rounded-xl p-3 shadow-xl">
+             <h3 className="text-cyan-400 font-black mb-2 uppercase tracking-widest text-[10px]">Global Top 5</h3>
+             <div className="space-y-1">
+               {leaderboard.length > 0 ? leaderboard.map((score, idx) => (
+                 <div key={idx} className="flex justify-between items-center text-[10px] font-bold text-white gap-6">
+                   <span>{idx + 1}. {score.name}</span>
+                   <span className="text-emerald-400">{score.health}%</span>
+                 </div>
+               )) : <div className="text-slate-400 text-[10px] italic">Awaiting first defender...</div>}
+             </div>
+           </div>
+        </div>
+      )}
+
       <button 
         onClick={onClose}
         className="absolute top-6 right-6 text-white font-bold text-sm bg-slate-800/60 hover:bg-slate-700 px-4 py-2 rounded-full backdrop-blur z-50 transition-colors flex items-center shadow-lg"
@@ -616,7 +637,17 @@ const GameModal = ({ onClose }) => {
             >✨🦷✨</div>
             <h2 className="text-3xl font-black text-white mb-2">TEETH SAVED!</h2>
             <p className="text-cyan-200 mb-6 font-semibold">You survived with {gameRef.current.toothHealth}% enamel intact!</p>
-            
+           
+            {/* DISCOUNT REWARD BOX */}
+            <div className="bg-cyan-900/40 border border-cyan-400/50 p-4 rounded-xl mb-6 shadow-inner animate-in fade-in duration-700 delay-300">
+              <p className="text-cyan-200 text-[10px] uppercase font-black tracking-widest mb-1">REMARKABLE SUCCESS!</p>
+              <p className="text-white font-bold text-sm">$25 Off Cleaning!</p>
+              <div className="bg-slate-900 text-cyan-400 font-mono text-xl py-2 px-4 rounded-lg mt-2 inline-block tracking-widest border border-cyan-500/50 select-all">
+                SMILESAVER
+              </div>
+              <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-wide">Screenshot and show the front desk!</p>
+            </div>
+
             {!scoreSubmitted ? (
               <div className="space-y-4 mb-6">
                 <input 
