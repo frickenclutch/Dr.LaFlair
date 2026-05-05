@@ -5,7 +5,7 @@ import {
   Heart, Moon, Sun, Users, Monitor, Crosshair, 
   Database, Shield, ArrowRight, Loader2, Lock, 
   CheckCircle, MessageCircle, Clock, Search,
-  X, ChevronDown
+  X, ChevronDown, Volume2, VolumeX
 } from 'lucide-react';
 
 // ============================================================================
@@ -834,6 +834,7 @@ const App = () => {
   const [isGameOpen, setIsGameOpen] = useState(false);
 
   const [view, setView] = useState('video');
+  const [isMuted, setIsMuted] = useState(true);
   const [selectedSection, setSelectedSection] = useState(null);
   const [healthScore, setHealthScore] = useState(85);
   
@@ -1323,13 +1324,27 @@ const App = () => {
 {/* --- NEW: VIDEO LANDING VIEW --- */}
       {view === 'video' && (
           <div className="w-full h-full max-w-5xl flex items-center justify-center animate-in fade-in duration-1000 z-20">
-            <video 
-              src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/toothdefender.mp4"
-              autoPlay 
-              loop               
-              playsInline 
-              className={`w-full max-h-full object-contain rounded-3xl shadow-2xl border ${currentTheme.border}`}
-            />
+            <div className="relative w-full max-h-full">
+              <video 
+                src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/toothdefender.mp4" 
+                autoPlay 
+                loop 
+                muted={isMuted} 
+                playsInline 
+                className={`w-full max-h-full object-contain rounded-3xl shadow-2xl border ${currentTheme.border}`}
+              />
+              
+              {/* --- UNMUTE BUTTON OVERLAY --- */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMuted(!isMuted);
+                }}
+                className="absolute bottom-6 right-6 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-md transition-all border border-white/20 z-30 shadow-lg"
+              >
+                {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+              </button>
+            </div>
           </div>
       )}
 
