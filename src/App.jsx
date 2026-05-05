@@ -808,10 +808,12 @@ const STAFF_CARDS = [
     name: "Dr. Chris LaFlair", 
     role: "Lead Dentist", 
     bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere.", 
-    image: "/drlaflairspecialist.jpg" 
+    image: "/drlaflairspecialist.jpg",
+    video: "https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/landing.mp4" // <-- ADD THIS LINE
   },
   { 
     name: "Suellen & Renee", 
+    // ... rest of the array stays the same
     role: "Front Desk & Assistants", 
     bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling.", 
     image: "/SueellenRenee.jpg" 
