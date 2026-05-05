@@ -837,11 +837,40 @@ const App = () => {
   const [isMuted, setIsMuted] = useState(true);
 const bgAudioRef = useRef(null);
 
-  // Sync the background music with the global mute toggle
+// Smart Audio Mixer: Smoothly Crossfades between BG Music and Video Audio
   useEffect(() => {
-    if (bgAudioRef.current) {
-      bgAudioRef.current.muted = isMuted;
+    const bgMusic = bgAudioRef.current;
+    if (!bgMusic) return;
+
+    let fadeInterval;
+
+    if (isMuted) {
+      // 1. Play the music
+      bgMusic.play().catch(e => console.log("Waiting for interaction...", e));
+      
+      // 2. Smoothly fade UP to 30% volume
+      fadeInterval = setInterval(() => {
+        if (bgMusic.volume < 0.28) {
+          bgMusic.volume += 0.02; // Gradually increase
+        } else {
+          bgMusic.volume = 0.3;   // Cap it exactly at 30%
+          clearInterval(fadeInterval);
+        }
+      }, 40); 
+    } else {
+      // Smoothly fade DOWN to 0% volume when video is unmuted
+      fadeInterval = setInterval(() => {
+        if (bgMusic.volume > 0.02) {
+          bgMusic.volume -= 0.02; // Gradually decrease
+        } else {
+          bgMusic.volume = 0;     // Cap it exactly at 0
+          clearInterval(fadeInterval);
+        }
+      }, 40);
     }
+
+    // Cleanup function: Prevents audio glitching if they click the button really fast
+    return () => clearInterval(fadeInterval);
   }, [isMuted]);
 
   const [selectedSection, setSelectedSection] = useState(null);
