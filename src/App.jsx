@@ -1324,7 +1324,7 @@ const App = () => {
       {view === 'video' && (
           <div className="w-full h-full max-w-5xl flex items-center justify-center animate-in fade-in duration-1000 z-20">
             <video 
-              src="/landing.mp4" 
+              src="/toothdefender.mp4" 
               autoPlay 
               loop 
               muted 
