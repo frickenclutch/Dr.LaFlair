@@ -1326,8 +1326,7 @@ const App = () => {
             <video 
               src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/toothdefender.mp4"
               autoPlay 
-              loop 
-              muted 
+              loop               
               playsInline 
               className={`w-full max-h-full object-contain rounded-3xl shadow-2xl border ${currentTheme.border}`}
             />
