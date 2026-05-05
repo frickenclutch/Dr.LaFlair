@@ -836,17 +836,17 @@ const App = () => {
   const [isGameOpen, setIsGameOpen] = useState(false);
 
   const [view, setView] = useState('video');
-  const [isMuted, setIsMuted] = useState(true);
+ const [activeAudio, setActiveAudio] = useState(null); // null = Background Music plays
 const bgAudioRef = useRef(null);
 
-// Smart Audio Mixer: Smoothly Crossfades between BG Music and Video Audio
+// Smart Audio Mixer: Smoothly Crossfades between BG Music and Active Video
   useEffect(() => {
     const bgMusic = bgAudioRef.current;
     if (!bgMusic) return;
 
     let fadeInterval;
 
-    if (isMuted) {
+    if (activeAudio === null) {
       // 1. Play the music
       bgMusic.play().catch(e => console.log("Waiting for interaction...", e));
       
@@ -860,7 +860,7 @@ const bgAudioRef = useRef(null);
         }
       }, 40); 
     } else {
-      // Smoothly fade DOWN to 0% volume when video is unmuted
+      // Smoothly fade DOWN to 0% volume when ANY video is unmuted
       fadeInterval = setInterval(() => {
         if (bgMusic.volume > 0.02) {
           bgMusic.volume -= 0.02; // Gradually decrease
@@ -873,7 +873,9 @@ const bgAudioRef = useRef(null);
 
     // Cleanup function: Prevents audio glitching if they click the button really fast
     return () => clearInterval(fadeInterval);
-  }, [isMuted]);
+  }, [activeAudio]); // <-- This must watch activeAudio now!
+    }
+
 
   const [selectedSection, setSelectedSection] = useState(null);
   const [healthScore, setHealthScore] = useState(85);
@@ -1366,14 +1368,26 @@ const bgAudioRef = useRef(null);
 
              {/* NEW: Conditional Video or Image Render */}
              {s.video && hoveredStaff?.name === s.name ? (
-                <video 
-                  src={s.video} 
-                  autoPlay 
-                  loop 
-                  muted={isMuted}
-                  playsInline 
-                  className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-1000"
-                />
+                <>
+                  <video 
+                    src={s.video} 
+                    autoPlay 
+                    loop 
+                    muted={activeAudio !== s.name} // <-- Uses his specific name
+                    playsInline 
+                    className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-1000"
+                  />
+                  {/* STAFF SPECIFIC UNMUTE BUTTON */}
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveAudio(activeAudio === s.name ? null : s.name);
+                    }}
+                    className="absolute bottom-6 right-6 md:bottom-12 md:right-12 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-md transition-all border border-white/20 z-50 shadow-lg"
+                  >
+                    {activeAudio !== s.name ? <VolumeX size={24} /> : <Volume2 size={24} />}
+                  </button>
+                </>
              ) : (
                 <img src={s.image} alt={s.name} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[10000ms] ease-out ${hoveredStaff?.name === s.name ? 'scale-110' : 'scale-100'}`} />
              )}
@@ -1394,7 +1408,7 @@ const bgAudioRef = useRef(null);
                 src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/toothdefender.mp4" 
                 autoPlay 
                 loop 
-                muted={isMuted} 
+                muted={activeAudio !== 'landing'} // <-- Now specifically checks for 'landing'
                 playsInline 
                 className={`w-full max-h-full object-contain rounded-3xl shadow-2xl border ${currentTheme.border}`}
               />
@@ -1403,11 +1417,12 @@ const bgAudioRef = useRef(null);
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsMuted(!isMuted);
+                  // Toggle between 'landing' and null
+                  setActiveAudio(activeAudio === 'landing' ? null : 'landing'); 
                 }}
                 className="absolute bottom-6 right-6 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-md transition-all border border-white/20 z-30 shadow-lg"
               >
-                {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+                {activeAudio !== 'landing' ? <VolumeX size={24} /> : <Volume2 size={24} />}
               </button>
             </div>
           </div>
@@ -1722,6 +1737,6 @@ const bgAudioRef = useRef(null);
       
     </div>
   );
-};
+
 
 export default App;
