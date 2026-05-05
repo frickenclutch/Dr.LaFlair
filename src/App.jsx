@@ -835,6 +835,15 @@ const App = () => {
 
   const [view, setView] = useState('video');
   const [isMuted, setIsMuted] = useState(true);
+const bgAudioRef = useRef(null);
+
+  // Sync the background music with the global mute toggle
+  useEffect(() => {
+    if (bgAudioRef.current) {
+      bgAudioRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
   const [selectedSection, setSelectedSection] = useState(null);
   const [healthScore, setHealthScore] = useState(85);
   
@@ -1120,6 +1129,13 @@ const App = () => {
         .rotate-y-180 { transform: rotateY(180deg); }
       `}</style>
 
+      {/* --- BACKGROUND AUDIO --- */}
+      <audio 
+        ref={bgAudioRef} 
+        src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/laflairclinic.mp3" 
+        loop 
+      />
+
       {/* --- SPLASH SCREEN OVERLAY --- */}
       <div className={`fixed inset-0 z-[200] bg-stone-950 flex flex-col items-center justify-center transition-all duration-1000 ${hasEntered ? 'opacity-0 pointer-events-none scale-105 blur-md' : 'opacity-100 scale-100 blur-0'}`}>
          
@@ -1131,7 +1147,13 @@ const App = () => {
          <div 
            className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group" 
            style={{ animation: 'float-cloud 6s ease-in-out infinite', perspective: '1000px' }} 
-           onClick={() => setHasEntered(true)}
+           onClick={() => {
+            setHasEntered(true);
+            if (bgAudioRef.current) {
+              bgAudioRef.current.volume = 0.3; // 30% volume so it's a nice background ambiance
+              bgAudioRef.current.play().catch(e => console.log("Audio blocked:", e));
+            }
+          }}
          >
             <div className="w-full h-full relative preserve-3d transition-transform group-hover:scale-105" style={{ animation: 'spin-flip 8s cubic-bezier(0.4, 0.0, 0.2, 1) infinite' }}>
                
