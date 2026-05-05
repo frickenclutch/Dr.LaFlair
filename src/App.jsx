@@ -1326,7 +1326,7 @@ const App = () => {
           <div className="w-full h-full max-w-5xl flex items-center justify-center animate-in fade-in duration-1000 z-20">
             <div className="relative w-full max-h-full">
               <video 
-                src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/landing.mp4" 
+                src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/toothdefender.mp4" 
                 autoPlay 
                 loop 
                 muted={isMuted} 
