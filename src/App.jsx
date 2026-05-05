@@ -833,7 +833,7 @@ const App = () => {
 
   const [isGameOpen, setIsGameOpen] = useState(false);
 
-  const [view, setView] = useState('anatomy'); 
+  const [view, setView] = useState('video');
   const [selectedSection, setSelectedSection] = useState(null);
   const [healthScore, setHealthScore] = useState(85);
   
@@ -1319,6 +1319,20 @@ const App = () => {
              </div>
           </div>
         ))}
+
+{/* --- NEW: VIDEO LANDING VIEW --- */}
+      {view === 'video' && (
+          <div className="w-full h-full max-w-5xl flex items-center justify-center animate-in fade-in duration-1000 z-20">
+            <video 
+              src="/landing.mp4" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className={`w-full max-h-full object-contain rounded-3xl shadow-2xl border ${currentTheme.border}`}
+            />
+          </div>
+      )}
 
       {view === 'game' && (
           <div className="w-full max-w-4xl flex flex-col items-center justify-center animate-in zoom-in duration-700 pb-12 pt-8 text-center h-full">
