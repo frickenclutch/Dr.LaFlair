@@ -1364,7 +1364,19 @@ const bgAudioRef = useRef(null);
                 <X size={24} />
              </button>
 
-             <img src={s.image} alt={s.name} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[10000ms] ease-out ${hoveredStaff?.name === s.name ? 'scale-110' : 'scale-100'}`} />
+             {/* NEW: Conditional Video or Image Render */}
+             {s.video && hoveredStaff?.name === s.name ? (
+                <video 
+                  src={s.video} 
+                  autoPlay 
+                  loop 
+                  muted={isMuted}
+                  playsInline 
+                  className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-1000"
+                />
+             ) : (
+                <img src={s.image} alt={s.name} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[10000ms] ease-out ${hoveredStaff?.name === s.name ? 'scale-110' : 'scale-100'}`} />
+             )}
              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
              <div className={`relative z-10 transition-all duration-700 delay-100 w-full ${hoveredStaff?.name === s.name ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
                 <p className={`text-xs md:text-sm font-black ${currentTheme.accentText} uppercase tracking-[0.4em] mb-4 drop-shadow-md`}>{s.role}</p>
