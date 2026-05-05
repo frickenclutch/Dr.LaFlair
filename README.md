@@ -8,4 +8,4 @@ Built with a focus on patient education, this application features a bespoke "In
 * **Framework:** React 18 + Vites
 * **Styling:** Tailwind CSS (Utility-first, zero custom CSS files)
 * **Icons:** Lucide React
-* **Deployment:** Vercel (Edge Network)
+* **Deployment:** Cloudflare (Edge Network)
