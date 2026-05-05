@@ -1123,7 +1123,7 @@ const App = () => {
       <div className={`fixed inset-0 z-[200] bg-stone-950 flex flex-col items-center justify-center transition-all duration-1000 ${hasEntered ? 'opacity-0 pointer-events-none scale-105 blur-md' : 'opacity-100 scale-100 blur-0'}`}>
          
          <div className="absolute inset-0 pointer-events-none">
-            <video src="/toothdefender.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
+            <img src="/laflairfrontapproach.jpg" alt="Dr. LaFlair Practice" className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-indigo-950/20 to-stone-950/80" />
          </div>
          
