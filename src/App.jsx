@@ -15,16 +15,13 @@ import {
 const GameModal = ({ onClose }) => {
   const canvasRef = useRef(null);
   
-  // --- NEW: Scoreboard States ---
   const [gameState, setGameState] = useState('playing'); 
   const [playerName, setPlayerName] = useState('');
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
-  const [resetClicks, setResetClicks] = useState(0); // For the secret reset button
+  const [resetClicks, setResetClicks] = useState(0); 
   const [leaderboard, setLeaderboard] = useState([]);
 
- // --- NEW: Fetch Global Scores from Cloudflare on load ---
   useEffect(() => {
-    // Add the cache-busting command here!
     fetch('/api/leaderboard', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
@@ -33,18 +30,17 @@ const GameModal = ({ onClose }) => {
       .catch(err => console.error("Failed to load global scores", err));
   }, []);
   
-  // Game state vars (kept in ref to avoid react state batching in animation loop)
   const gameRef = useRef({
-    timeRemaining: 30, // 30 SECONDS
-    toothHealth: 100,  // starts at 100%
+    timeRemaining: 30, 
+    toothHealth: 100,  
     lastTime: Date.now(),
     playerX: typeof window !== 'undefined' ? window.innerWidth / 2 : 500,
     projectiles: [],
     germs: [],
-    powerups: [], // Tracks Dr. LaFlair lifesavers
+    powerups: [], 
     keys: { ArrowLeft: false, ArrowRight: false, Space: false },
     isDragging: false,
-    levelUpImg: null // Holds the image
+    levelUpImg: null 
   });
 
   useEffect(() => {
@@ -53,22 +49,18 @@ const GameModal = ({ onClose }) => {
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
-    // PRELOAD DR. LAFLAIR IMAGE
     const img = new Image();
     img.src = '/levelup.png';
     gameRef.current.levelUpImg = img;
 
-    // Resize handler
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      // Keep player in bounds on resize
       gameRef.current.playerX = Math.min(gameRef.current.playerX, canvas.width - 20);
     };
     window.addEventListener('resize', resize);
     resize();
 
-    // Input Listeners
     const handleKeyDown = (e) => { 
       if(gameRef.current.keys.hasOwnProperty(e.code)) {
          gameRef.current.keys[e.code] = true; 
@@ -80,7 +72,6 @@ const GameModal = ({ onClose }) => {
       }
     };
     
-    // Touch/Mouse controls for mobile/ease of use
     const handlePointerMove = (e) => {
         if(gameRef.current.isDragging || e.type.startsWith('touch')) {
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -104,7 +95,6 @@ const GameModal = ({ onClose }) => {
 
     let frames = 0;
 
-    // The Main Game Loop
     const render = () => {
       const state = gameRef.current;
       if (gameState !== 'playing') return;
@@ -112,51 +102,41 @@ const GameModal = ({ onClose }) => {
       const now = Date.now();
       const dt = now - state.lastTime;
       
-      // Update Timer (every 1 second)
       if (dt > 1000) {
         state.timeRemaining -= 1;
         state.lastTime = now;
         
         if (state.timeRemaining <= 0) {
-          // WIN CONDITION
           setGameState('won');
           return;
         }
       }
 
-      // Clear Canvas
-      ctx.fillStyle = '#0f172a'; // dark background
+      ctx.fillStyle = '#0f172a'; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw Grid (Retro feel)
       ctx.strokeStyle = '#1e293b';
       ctx.lineWidth = 1;
       for(let i=0; i<canvas.width; i+=50) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
       for(let i=0; i<canvas.height; i+=50) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
 
-      // Update Player Position
       const speed = 8;
       if (state.keys.ArrowLeft) state.playerX -= speed;
       if (state.keys.ArrowRight) state.playerX += speed;
       
-      // Bounds check
       if (state.playerX < 20) state.playerX = 20;
       if (state.playerX > canvas.width - 20) state.playerX = canvas.width - 20;
 
-      // Calculate relative Y positions for scaling to device
-      const th = Math.min(canvas.height * 0.25, 150); // Height of the teeth row
-      const ty = canvas.height - th - 40; // Top bounding box for teeth
-      const tw = canvas.width * 0.94; // 94% footprint for the arch
-      const tx = canvas.width * 0.03; // Centered
-      const playerY = ty - 30; // Player hovers above the teeth
+      const th = Math.min(canvas.height * 0.25, 150); 
+      const ty = canvas.height - th - 40; 
+      const tw = canvas.width * 0.94; 
+      const tx = canvas.width * 0.03; 
+      const playerY = ty - 30; 
 
-      // --- NEW: TWEAKED DIFFICULTY ---
-      // Auto Shooting (Slightly slower fire rate to require better aiming)
       if (frames % 8 === 0) { 
          state.projectiles.push({ x: state.playerX, y: playerY - 35, active: true });
       }
 
-      // Spawn Enemies (Faster ramp-up for Doctor's requested difficulty)
       const spawnRate = Math.max(25, Math.floor(60 - (30 - state.timeRemaining) * 1.5)); 
       if (frames % spawnRate === 0) {
         const threats = ['🦠', '🍬', '🍩', '☕', '🍔', '🍭', '🥤'];
@@ -167,29 +147,25 @@ const GameModal = ({ onClose }) => {
           y: -30,
           active: true,
           emoji: randomThreat,
-          // Faster base speed and steeper ramp up
           speed: 1.8 + Math.random() * 2.5 + (30 - state.timeRemaining) * 0.1 
         });
       }
 
-      // Spawn Lifesaver (Dr. LaFlair)
-      if (frames > 0 && frames % 360 === 0) { // Drops in every few seconds
+      if (frames > 0 && frames % 360 === 0) { 
          state.powerups.push({
             x: Math.random() * (canvas.width - 60) + 30,
             y: -40,
             active: true,
-            hits: 0 // Starts with 0 foam hits
+            hits: 0 
          });
       }
 
-      // Update & Draw Projectiles (Foam blobs)
       state.projectiles.forEach(p => {
         if (!p.active) return;
         p.y -= 10;
         if (p.y < 0) p.active = false;
         
-        // Foam Blob (Cluster of bubbles)
-        ctx.fillStyle = '#ffffff'; // pure white foam
+        ctx.fillStyle = '#ffffff'; 
         ctx.beginPath();
         ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
         ctx.arc(p.x - 5, p.y + 4, 5, 0, Math.PI * 2);
@@ -198,7 +174,6 @@ const GameModal = ({ onClose }) => {
         ctx.arc(p.x + 3, p.y - 5, 4, 0, Math.PI * 2);
         ctx.fill();
         
-        // Minty trail foam
         ctx.fillStyle = 'rgba(52, 211, 153, 0.6)';
         ctx.beginPath();
         ctx.arc(p.x, p.y + 10, 5, 0, Math.PI * 2);
@@ -207,7 +182,6 @@ const GameModal = ({ onClose }) => {
         ctx.fill();
       });
 
-      // Update & Draw Germs
       ctx.font = '30px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -216,17 +190,14 @@ const GameModal = ({ onClose }) => {
         if (!g.active) return;
         g.y += g.speed;
         
-        // Draw Threat
         ctx.fillText(g.emoji || '🦠', g.x, g.y);
 
-        // Check Collision with projectiles
         state.projectiles.forEach(p => {
           if (!p.active) return;
           const dist = Math.hypot(p.x - g.x, p.y - g.y);
           if (dist < 20) {
             p.active = false;
             g.active = false;
-            // Draw explosion effect
             ctx.fillStyle = '#bef264';
             ctx.beginPath();
             ctx.arc(g.x, g.y, 15, 0, Math.PI*2);
@@ -234,43 +205,37 @@ const GameModal = ({ onClose }) => {
           }
         });
 
-        // Check Collision with Teeth Row (Maxillary Arch)
-    if (g.x > tx && g.x < tx + tw && g.y > ty + th * 0.2) {
-      g.active = false;
-      state.toothHealth -= 13; // Increased damage
-      
-      // TRIGGER HAPTIC FEEDBACK (Phone Vibration)
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-          navigator.vibrate(150); // Sharp 150ms buzz to warn the player!
-      }
+        if (g.x > tx && g.x < tx + tw && g.y > ty + th * 0.2) {
+          g.active = false;
+          state.toothHealth -= 13; 
+          
+          if (typeof navigator !== 'undefined' && navigator.vibrate) {
+              navigator.vibrate(150); 
+          }
 
-      if (state.toothHealth <= 0) {
-        state.toothHealth = 0;
-        setGameState('lost');
-        
-        // Long double-vibration for game over!
-        if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            navigator.vibrate([300, 100, 300]); 
+          if (state.toothHealth <= 0) {
+            state.toothHealth = 0;
+            setGameState('lost');
+            
+            if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                navigator.vibrate([300, 100, 300]); 
+            }
+          }
+        } else if (g.y > canvas.height + 30) {
+          g.active = false; 
         }
-      }
-    } else if (g.y > canvas.height + 30) {
-      g.active = false; // Missed the teeth completely (fell off sides)
-    }
       });
 
-     // Update & Draw Lifesavers (Dr. LaFlair)
       state.powerups.forEach(pu => {
         if (!pu.active) return;
-        pu.y += 1.5; // Floats down slower than germs
+        pu.y += 1.5; 
 
-        // Draw Dr. LaFlair Image
         if (state.levelUpImg && state.levelUpImg.complete) {
            ctx.drawImage(state.levelUpImg, pu.x - 20, pu.y - 20, 40, 40);
         } else {
-           ctx.fillText('👨‍⚕️', pu.x, pu.y); // Fallback emoji just in case
+           ctx.fillText('👨‍⚕️', pu.x, pu.y); 
         }
 
-        // Check if Foam hits Dr. LaFlair
         state.projectiles.forEach(p => {
            if (!p.active) return;
            const dist = Math.hypot(p.x - pu.x, p.y - pu.y);
@@ -278,18 +243,15 @@ const GameModal = ({ onClose }) => {
               p.active = false;
               pu.hits += 1;
               
-              // Draw a fun blue splash every time he is hit
               ctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
               ctx.beginPath();
               ctx.arc(pu.x, pu.y, 15 + pu.hits * 2, 0, Math.PI*2);
               ctx.fill();
 
-              // If he absorbs 5 hits of foam, trigger the Heal!
               if (pu.hits >= 5) {
                  pu.active = false;
-                 state.toothHealth = Math.min(100, state.toothHealth + 25); // Heals 25%
+                 state.toothHealth = Math.min(100, state.toothHealth + 25); 
                  
-                 // Giant Green Healing Flash
                  ctx.fillStyle = 'rgba(74, 222, 128, 0.8)';
                  ctx.beginPath();
                  ctx.arc(pu.x, pu.y, 60, 0, Math.PI*2);
@@ -298,16 +260,13 @@ const GameModal = ({ onClose }) => {
            }
         });
 
-        // If he falls off the bottom, just deactivate (no harm, no foul)
         if (pu.y > canvas.height + 30) pu.active = false; 
       });
 
-      // Clean up arrays
       state.projectiles = state.projectiles.filter(p => p.active);
       state.germs = state.germs.filter(g => g.active);
       state.powerups = state.powerups.filter(pu => pu.active);
 
-      // --- DRAWING LOGIC: Anatomical Row of Teeth ---
       const teethDef = [
         { type: 'molar',   wFactor: 1.4, hFactor: 0.7 },
         { type: 'premolar',wFactor: 1.0, hFactor: 0.8 },
@@ -324,9 +283,8 @@ const GameModal = ({ onClose }) => {
       const totalFactor = teethDef.reduce((sum, t) => sum + t.wFactor, 0);
       const unitW = tw / totalFactor;
       let currentX = tx;
-      const wear = (100 - state.toothHealth) / 100; // 0 to 1
+      const wear = (100 - state.toothHealth) / 100; 
 
-      // 1. Draw the individual teeth
       teethDef.forEach((tooth, idx) => {
           const w = tooth.wFactor * unitW;
           const h = th * tooth.hFactor;
@@ -338,11 +296,9 @@ const GameModal = ({ onClose }) => {
           ctx.lineWidth = 2;
           
           ctx.beginPath();
-          // Left Edge
           ctx.moveTo(currentX, yBase);
           ctx.quadraticCurveTo(currentX + w*0.05, yTop + h*0.3, currentX + w*0.1, yTop);
           
-          // Top Surface (Anatomical Cusps + Jagged Wear)
           let pts = [{x: currentX + w*0.1, y: yTop}];
           
           if (tooth.type === 'central' || tooth.type === 'lateral') {
@@ -363,7 +319,6 @@ const GameModal = ({ onClose }) => {
               pts.push({x: currentX + w*0.9, y: yTop});
           }
 
-          // Draw top surface, injecting noise for decay/jagged wear
           for(let i=1; i<pts.length; i++) {
               let p1 = pts[i-1];
               let p2 = pts[i];
@@ -382,13 +337,11 @@ const GameModal = ({ onClose }) => {
               }
           }
           
-          // Right Edge
           ctx.quadraticCurveTo(currentX + w*0.95, yTop + h*0.3, currentX + w, yBase);
           
           ctx.fill();
           ctx.stroke();
 
-          // Draw Cavities specific to each tooth
           if (state.toothHealth < 100) {
               const cavityChance = wear * 0.6;
               const rand1 = Math.abs(Math.sin(idx * 7.42));
@@ -405,7 +358,6 @@ const GameModal = ({ onClose }) => {
           currentX += w;
       });
 
-      // 2. Draw the Gums (Gingiva) overlapping the roots
       ctx.fillStyle = '#f472b6'; 
       ctx.beginPath();
       ctx.moveTo(0, canvas.height);
@@ -415,7 +367,6 @@ const GameModal = ({ onClose }) => {
       ctx.lineTo(tx, gumY);
       
       currentX = tx;
-      // Wavy gingival margins scalloping around each tooth
       teethDef.forEach((tooth) => {
           const w = tooth.wFactor * unitW;
           ctx.quadraticCurveTo(currentX + w*0.5, gumY - 18, currentX + w, gumY);
@@ -430,29 +381,23 @@ const GameModal = ({ onClose }) => {
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // 3. Icky Environment Overlay if health is very low
       if (state.toothHealth <= 40) {
           ctx.fillStyle = 'rgba(132, 204, 22, 0.2)'; 
           ctx.fillRect(tx, ty - th, tw, th * 2 + 100);
       }
 
-      // Draw Player (Toothbrush)
-      // Handle
       ctx.fillStyle = '#3b82f6'; 
       ctx.fillRect(state.playerX - 6, playerY - 5, 12, 30);
       ctx.beginPath();
       ctx.arc(state.playerX, playerY + 25, 6, 0, Math.PI);
       ctx.fill();
       
-      // Head base
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(state.playerX - 5, playerY - 20, 10, 15);
       
-      // Bristles
       ctx.fillStyle = '#e0f2fe';
       ctx.fillRect(state.playerX - 6, playerY - 35, 12, 15);
       
-      // Bristle texture/lines
       ctx.strokeStyle = '#bae6fd';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -462,7 +407,6 @@ const GameModal = ({ onClose }) => {
       ctx.lineTo(state.playerX + 3, playerY - 20);
       ctx.stroke();
 
-      // Extra Foam around the bristles
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.arc(state.playerX - 7, playerY - 35, 4, 0, Math.PI * 2);
@@ -477,7 +421,6 @@ const GameModal = ({ onClose }) => {
       ctx.arc(state.playerX - 8, playerY - 28, 2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Draw HUD (Top Left / Right)
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(0,0, canvas.width, 50);
 
@@ -494,7 +437,6 @@ const GameModal = ({ onClose }) => {
       ctx.fillStyle = state.timeRemaining <= 5 ? '#ef4444' : '#fff';
       ctx.fillText(`TIME: ${state.timeRemaining}s`, canvas.width - 20, 32);
       
-      // Health Bar
       const hpColor = state.toothHealth > 60 ? '#22c55e' : state.toothHealth > 30 ? '#eab308' : '#ef4444';
       ctx.fillStyle = hpColor;
       ctx.fillRect(canvas.width/2 - 100, 20, (state.toothHealth/100) * 200, 15);
@@ -527,11 +469,9 @@ const GameModal = ({ onClose }) => {
     };
   }, [gameState]);
 
-  // --- NEW: Handle Score Submission & Reset ---
  const handleSubmitScore = () => {
     if (!playerName.trim()) return;
     
-    // The Expanded "Naughty List" (Profanity & Slur Filter)
     const badWords = [
       'fuck', 'shit', 'bitch', 'cunt', 'pussy', 'slut', 'whore', 
       'fag', 'faggot', 'dyke', 'tranny', 'nigger', 'nigga', 'nigg', 
@@ -543,8 +483,6 @@ const GameModal = ({ onClose }) => {
     
     const lowerName = playerName.toLowerCase();
 
-    // "Leetspeak" Normalization map
-    // Translates numbers and symbols back to letters to catch "b1tch", "f4gg0t", etc.
     const leetMap = {
       '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', 
       '7': 't', '8': 'b', '@': 'a', '!': 'i', '$': 's'
@@ -552,16 +490,13 @@ const GameModal = ({ onClose }) => {
     
     let normalizedName = lowerName;
     for (const [leet, letter] of Object.entries(leetMap)) {
-       // Replace all instances of the number/symbol with the corresponding letter
        normalizedName = normalizedName.split(leet).join(letter); 
     }
     
-    // Check if the bad words exist in EITHER the original typed name or the decoded one
     const isProfane = badWords.some(word => 
        lowerName.includes(word) || normalizedName.includes(word)
     );
     
-    // If they swear or use a slur, automatically name them 'Tooth Fairy'
     const finalName = isProfane ? 'Tooth Fairy' : playerName.trim().substring(0, 12);
 
     const newScore = { 
@@ -570,7 +505,6 @@ const GameModal = ({ onClose }) => {
       date: new Date().toLocaleDateString() 
     };
     
-    // Update locally immediately so the UI feels fast
     const optimisticBoard = [...leaderboard, newScore]
       .sort((a, b) => b.health - a.health)
       .slice(0, 5); 
@@ -578,7 +512,6 @@ const GameModal = ({ onClose }) => {
     setLeaderboard(optimisticBoard);
     setScoreSubmitted(true);
 
-    // --- NEW: Send ONLY the new score, and pull the official merged list back ---
     fetch('/api/leaderboard', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -586,7 +519,6 @@ const GameModal = ({ onClose }) => {
     })
     .then(res => res.json())
     .then(serverLeaderboard => {
-       // Replace our local guess with the official global truth from Cloudflare
        if (Array.isArray(serverLeaderboard)) {
            setLeaderboard(serverLeaderboard);
        }
@@ -597,9 +529,9 @@ const GameModal = ({ onClose }) => {
   const handleSecretReset = () => {
      setResetClicks(prev => {
         const next = prev + 1;
-        if (next >= 3) { // 3 Clicks to reset
+        if (next >= 3) { 
            setLeaderboard([]);
-                   return 0;
+           return 0;
         }
         return next;
      });
@@ -612,9 +544,8 @@ const GameModal = ({ onClose }) => {
         className="absolute inset-0 z-0 block cursor-crosshair touch-none"
       />
       
-      {/* --- ALWAYS VISIBLE LEADERBOARD (Desktop/Tablet Only) --- */}
       {gameState === 'playing' && (
-        <div className="absolute top-4 left-4 z-30 pointer-events-none hidden md:block">
+        <div className="absolute top-[60px] left-2 md:top-16 md:left-4 z-30 pointer-events-none origin-top-left scale-[0.65] md:scale-100 opacity-60 md:opacity-100 transition-all">
            <div className="bg-slate-900/60 backdrop-blur-md border border-cyan-500/30 rounded-xl p-3 shadow-xl">
              <h3 className="text-cyan-400 font-black mb-2 uppercase tracking-widest text-[10px]">Global Top 5</h3>
              <div className="space-y-1">
@@ -636,7 +567,6 @@ const GameModal = ({ onClose }) => {
         Skip to Website &rarr;
       </button>
 
-      {/* --- NEW: WIN STATE & LEADERBOARD --- */}
       {gameState === 'won' && (
         <div className="absolute inset-0 bg-blue-900/90 flex flex-col items-center justify-center backdrop-blur-md z-40 p-4">
           <div className="bg-slate-900 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border-2 border-cyan-400 animate-in zoom-in duration-500">
@@ -648,7 +578,6 @@ const GameModal = ({ onClose }) => {
             <h2 className="text-3xl font-black text-white mb-2">TEETH SAVED!</h2>
             <p className="text-cyan-200 mb-6 font-semibold">You survived with {gameRef.current.toothHealth}% enamel intact!</p>
            
-            {/* DISCOUNT REWARD BOX */}
             <div className="bg-cyan-900/40 border border-cyan-400/50 p-4 rounded-xl mb-6 shadow-inner animate-in fade-in duration-700 delay-300">
               <p className="text-cyan-200 text-[10px] uppercase font-black tracking-widest mb-1">REMARKABLE SUCCESS!</p>
               <p className="text-white font-bold text-sm">$25 Off Cleaning!</p>
@@ -809,11 +738,10 @@ const STAFF_CARDS = [
     role: "Lead Dentist", 
     bio: "A North Country native who graduated with honors from Stony Brook. He specializes in providing exceptional general and cosmetic care in a relaxed atmosphere.", 
     image: "/drlaflairspecialist.jpg",
-    video: "https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/landing.mp4" // <-- ADD THIS LINE
+    video: "https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/landing.mp4" 
   },
   { 
     name: "Suellen & Renee", 
-    // ... rest of the array stays the same
     role: "Front Desk & Assistants", 
     bio: "Bringing over 20 years of combined experience. Suellen is a Licensed Certified Dental Assistant, while Renee ensures stress-free scheduling.", 
     image: "/SueellenRenee.jpg" 
@@ -836,10 +764,10 @@ const App = () => {
   const [isGameOpen, setIsGameOpen] = useState(false);
 
   const [view, setView] = useState('video');
- const [activeAudio, setActiveAudio] = useState(null); // null = Background Music plays
-const bgAudioRef = useRef(null);
+  const [activeAudio, setActiveAudio] = useState(null); 
+  const bgAudioRef = useRef(null);
 
-// Smart Audio Mixer: Smoothly Crossfades between BG Music and Active Video
+  // Smart Audio Mixer: Smoothly Crossfades between BG Music and Active Video
   useEffect(() => {
     const bgMusic = bgAudioRef.current;
     if (!bgMusic) return;
@@ -847,35 +775,27 @@ const bgAudioRef = useRef(null);
     let fadeInterval;
 
     if (activeAudio === null) {
-      // 1. Play the music
       bgMusic.play().catch(e => console.log("Waiting for interaction...", e));
-      
-      // 2. Smoothly fade UP to 30% volume
       fadeInterval = setInterval(() => {
         if (bgMusic.volume < 0.28) {
-          bgMusic.volume += 0.02; // Gradually increase
+          bgMusic.volume += 0.02; 
         } else {
-          bgMusic.volume = 0.3;   // Cap it exactly at 30%
+          bgMusic.volume = 0.3;   
           clearInterval(fadeInterval);
         }
       }, 40); 
     } else {
-      // Smoothly fade DOWN to 0% volume when ANY video is unmuted
       fadeInterval = setInterval(() => {
         if (bgMusic.volume > 0.02) {
-          bgMusic.volume -= 0.02; // Gradually decrease
+          bgMusic.volume -= 0.02; 
         } else {
-          bgMusic.volume = 0;     // Cap it exactly at 0
+          bgMusic.volume = 0;     
           clearInterval(fadeInterval);
         }
       }, 40);
     }
-
-    // Cleanup function: Prevents audio glitching if they click the button really fast
     return () => clearInterval(fadeInterval);
-  }, [activeAudio]); // <-- This must watch activeAudio now!
-    }
-
+  }, [activeAudio]);
 
   const [selectedSection, setSelectedSection] = useState(null);
   const [healthScore, setHealthScore] = useState(85);
@@ -1077,21 +997,12 @@ const bgAudioRef = useRef(null);
     }
   };
 
-  const executeRepair = () => {
-    setChipStatus('repaired');
-    setChipPos({ x: 0, y: 0 });
-    setHealthScore(100);
-    setSelectedSection({ 
-        title: "Simulated Repair", condition: "Integrity Restored", 
-        description: "Fragment repositioned. Physical assessment required for permanent bonding.", 
-        symptoms: ["Restored Surface", "Bite Integrity"], icon: <ShieldCheck className="w-6 h-6"/> 
-    });
-  };
-
- const changeView = (newView) => {
+  const changeView = (newView) => {
     setView(newView);
     if(newView !== 'anatomy') setSelectedSection(null);
     setHoveredStaff(null);
+    // --- AUDIO FIX: Automatically pause background videos when changing tabs ---
+    setActiveAudio(null); 
   };
 
   const renderTechBackground = (id) => {
@@ -1173,7 +1084,8 @@ const bgAudioRef = useRef(null);
       <div className={`fixed inset-0 z-[200] bg-stone-950 flex flex-col items-center justify-center transition-all duration-1000 ${hasEntered ? 'opacity-0 pointer-events-none scale-105 blur-md' : 'opacity-100 scale-100 blur-0'}`}>
          
          <div className="absolute inset-0 pointer-events-none">
-            <img src="/laflairfrontapproach.jpg" alt="Dr. LaFlair Practice" className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
+            {/* --- SPLASH SCREEN FIX: Video tag replaces Img tag --- */}
+            <video src="/toothdefender.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover opacity-40 mix-blend-luminosity" />
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-indigo-950/20 to-stone-950/80" />
          </div>
          
@@ -1183,7 +1095,7 @@ const bgAudioRef = useRef(null);
            onClick={() => {
             setHasEntered(true);
             if (bgAudioRef.current) {
-              bgAudioRef.current.volume = 0.3; // 30% volume so it's a nice background ambiance
+              bgAudioRef.current.volume = 0.3; 
               bgAudioRef.current.play().catch(e => console.log("Audio blocked:", e));
             }
           }}
@@ -1360,20 +1272,23 @@ const bgAudioRef = useRef(null);
           <div key={`overlay-${i}`} className={`absolute inset-0 z-[60] transition-all duration-700 bg-stone-950 flex flex-col items-center justify-end p-8 md:p-16 text-center overflow-hidden ${hoveredStaff?.name === s.name ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
              
              <button 
-                onClick={(e) => { e.stopPropagation(); setHoveredStaff(null); }}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setHoveredStaff(null);
+                  setActiveAudio(null); // AUDIO FIX: Pauses videos when you close the card
+                }}
                 className={`absolute top-6 right-6 w-12 h-12 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md border border-white/20 transition-all ${hoveredStaff?.name === s.name ? 'opacity-100 scale-100' : 'opacity-0 scale-50 delay-0'} md:hidden`}
              >
                 <X size={24} />
              </button>
 
-             {/* NEW: Conditional Video or Image Render */}
              {s.video && hoveredStaff?.name === s.name ? (
                 <>
                   <video 
                     src={s.video} 
                     autoPlay 
                     loop 
-                    muted={activeAudio !== s.name} // <-- Uses his specific name
+                    muted={activeAudio !== s.name} 
                     playsInline 
                     className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-1000"
                   />
@@ -1408,7 +1323,7 @@ const bgAudioRef = useRef(null);
                 src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/toothdefender.mp4" 
                 autoPlay 
                 loop 
-                muted={activeAudio !== 'landing'} // <-- Now specifically checks for 'landing'
+                muted={activeAudio !== 'landing'} 
                 playsInline 
                 className={`w-full max-h-full object-contain rounded-3xl shadow-2xl border ${currentTheme.border}`}
               />
@@ -1417,7 +1332,6 @@ const bgAudioRef = useRef(null);
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  // Toggle between 'landing' and null
                   setActiveAudio(activeAudio === 'landing' ? null : 'landing'); 
                 }}
                 className="absolute bottom-6 right-6 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-md transition-all border border-white/20 z-30 shadow-lg"
@@ -1707,7 +1621,10 @@ const bgAudioRef = useRef(null);
                   {STAFF_CARDS.map((s, i) => (
                     <div 
                       key={i} 
-                      onClick={() => setHoveredStaff(s)}
+                      onClick={() => {
+                        setHoveredStaff(s);
+                        setActiveAudio(null); // AUDIO FIX: Mutes main video when you click a staff member
+                      }}
                       onMouseEnter={() => !isTouchDevice && setHoveredStaff(s)}
                       onMouseLeave={() => !isTouchDevice && setHoveredStaff(null)}
                       className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm transition-all duration-300 cursor-pointer ${hoveredStaff?.name === s.name ? 'scale-[1.02] shadow-xl border-cyan-500/30' : 'hover:shadow-md'}`}
@@ -1732,11 +1649,10 @@ const bgAudioRef = useRef(null);
         )}
       </div>
 
-      {/* --- NEW: GAME MODAL RENDER --- */}
       {isGameOpen && <GameModal onClose={() => setIsGameOpen(false)} />}
       
     </div>
   );
-
+};
 
 export default App;
