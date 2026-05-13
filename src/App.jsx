@@ -580,7 +580,7 @@ const GameModal = ({ onClose }) => {
            
             <div className="bg-cyan-900/40 border border-cyan-400/50 p-4 rounded-xl mb-6 shadow-inner animate-in fade-in duration-700 delay-300">
               <p className="text-cyan-200 text-[10px] uppercase font-black tracking-widest mb-1">REMARKABLE SUCCESS!</p>
-              <p className="text-white font-bold text-sm">$25 Off Cleaning!</p>
+              <p className="text-white font-bold text-sm">$5 Off Cleaning!</p>
               <div className="bg-slate-900 text-cyan-400 font-mono text-xl py-2 px-4 rounded-lg mt-2 inline-block tracking-widest border border-cyan-500/50 select-all">
                 SMILESAVER
               </div>
@@ -747,7 +747,7 @@ const STAFF_CARDS = [
     image: "/SueellenRenee.jpg" 
   },
   { 
-    name: "Maria & Stephanie", 
+    name: "Olivia & Stephanie", 
     role: "Dental Hygienists", 
     bio: "Registered Dental Hygienists dedicated to advanced hygiene care and expanded orthodontic services, ensuring patients receive the best care possible.", 
     image: "/oloivastephanie.jpg" 
@@ -1159,7 +1159,7 @@ const App = () => {
            <p className="text-xs md:text-sm uppercase tracking-widest opacity-70 mb-12">Mainframe Override... Systems Optimal</p>
            
            <a 
-              href="https://patrick-lake.vercel.app" 
+              href="https://c4technologies.pages.dev" 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={() => setIsArkMode(false)}
