@@ -962,7 +962,7 @@ const App = () => {
       {/* --- BACKGROUND AUDIO (Now configured to use instrumental music only) --- */}
       <audio 
         ref={bgAudioRef} 
-        src="https://pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/laflairclinic.mp3" 
+        src="https:/pub-5f0c29564d124d5182fc08bffb9d8d3d.r2.dev/laflairclinic.mp3" 
         loop 
       />
 
