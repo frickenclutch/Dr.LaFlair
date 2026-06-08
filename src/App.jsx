@@ -1305,18 +1305,6 @@ const App = () => {
                    </div>
                 </div>
              </div>
-
-             {/* Static Before and After Thumbnails for Full Arch */}
-             <div className="grid grid-cols-2 gap-4 mb-16">
-               <div className={`rounded-xl overflow-hidden border ${currentTheme.border} shadow-sm relative`}>
-                 <img src="/dirtyfull.png" alt="Before Full Arch" className="w-full h-48 object-cover" />
-                 <div className="absolute top-2 left-2 bg-red-500/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow">Before</div>
-               </div>
-               <div className={`rounded-xl overflow-hidden border ${currentTheme.border} shadow-sm relative`}>
-                 <img src="/cleanfull.png" alt="After Full Arch" className="w-full h-48 object-cover" />
-                 <div className="absolute top-2 right-2 bg-cyan-500/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow">After</div>
-               </div>
-             </div>
              
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
                 {TESTIMONIALS.map((t, i) => (
