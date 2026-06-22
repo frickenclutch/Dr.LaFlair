@@ -1092,11 +1092,11 @@ const App = () => {
           </div>
 
           <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
-            {['services', 'archive', 'tech', 'connect', 'game'].map(v => (
-              <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>
-                {v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v === 'game' ? 'Play' : v}
-              </button>
-            ))}
+            {['about', 'services', 'archive', 'tech', 'connect', 'game'].map(v => (
+  <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>
+    {v === 'about' ? 'About Us' : v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v === 'game' ? 'Play' : v}
+  </button>
+))}
           </div>
 
           <div className="hidden lg:flex items-center gap-4 shrink-0">
@@ -1153,6 +1153,48 @@ const App = () => {
              </div>
           </div>
         ))}
+
+        {view === 'about' && (
+    <div className="w-full max-w-4xl animate-in fade-in zoom-in duration-700 pb-12 pt-8">
+        <div className="space-y-12">
+            <section>
+                <h2 className="text-5xl font-black uppercase tracking-tighter leading-none mb-4">Clinical Portal</h2>
+                <p className={`text-lg leading-relaxed ${currentTheme.textSecondary}`}>Led by Dr. Chris LaFlair, our practice delivers restorative precision and pain-free preventative care to the Ogdensburg community.</p>
+                <button onClick={handleBook} className={`w-full max-w-md py-4 mt-8 rounded-2xl ${currentTheme.accentBg} text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:scale-[1.02] transition-transform`}>Request Consultation</button>
+            </section>
+            <section>
+                <div className="flex items-center gap-2 mb-6 opacity-30 font-black text-[10px] uppercase tracking-widest"><Users size={14}/> Clinical Team</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20 md:pb-0">
+                  {STAFF_CARDS.map((s, i) => (
+                    <div 
+                      key={i} 
+                      onClick={() => {
+                        setHoveredStaff(s);
+                        setActiveAudio(null); 
+                      }}
+                      onMouseEnter={() => !isTouchDevice && setHoveredStaff(s)}
+                      onMouseLeave={() => !isTouchDevice && setHoveredStaff(null)}
+                      className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm transition-all duration-300 cursor-pointer ${hoveredStaff?.name === s.name ? 'scale-[1.02] shadow-xl border-cyan-500/30' : 'hover:shadow-md'}`}
+                    >
+                       {s.image ? (
+                           <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 transition-all duration-300 ${hoveredStaff?.name === s.name ? 'border-cyan-400' : currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.split(' ').join('+') + '&background=random'; }} />
+                       ) : (
+                           <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center ${currentTheme.accentBgSoft} ${currentTheme.accentText} font-bold text-xl border-2 ${currentTheme.accentBorder}`}>
+                               {s.name[0]}
+                           </div>
+                       )}
+                       <div>
+                          <p className={`text-[10px] font-black ${currentTheme.accentText} uppercase mb-1 transition-colors ${hoveredStaff?.name === s.name ? 'text-cyan-500' : ''}`}>{s.role}</p>
+                          <h4 className="text-lg font-bold leading-tight mb-1">{s.name}</h4>
+                          <p className={`text-xs ${currentTheme.textSecondary} leading-relaxed line-clamp-3`}>{s.bio}</p>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+            </section>
+        </div>
+    </div>
+)}
 
       {/* --- NEW: VIDEO LANDING VIEW --- */}
       {view === 'video' && (
@@ -1382,45 +1424,7 @@ const App = () => {
         )}
       </div>
 
-      <div className={`w-full md:w-[450px] lg:w-[500px] ${currentTheme.card} border-l ${currentTheme.border} p-10 pt-32 overflow-y-auto z-20 shadow-2xl relative shrink-0`}>
-          <div className="space-y-12 animate-in fade-in duration-500">
-             <section>
-                 <h2 className="text-5xl font-black uppercase tracking-tighter leading-none mb-4">Clinical Portal</h2>
-                 <p className={`text-lg leading-relaxed ${currentTheme.textSecondary}`}>Led by Dr. Chris LaFlair, our practice delivers restorative precision and pain-free preventative care to the Ogdensburg community.</p>
-                 <button onClick={handleBook} className={`w-full py-4 mt-8 rounded-2xl ${currentTheme.accentBg} text-white font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:scale-[1.02] transition-transform`}>Request Consultation</button>
-             </section>
-             <section>
-                <div className="flex items-center gap-2 mb-6 opacity-30 font-black text-[10px] uppercase tracking-widest"><Users size={14}/> Clinical Team</div>
-                <div className="flex flex-col gap-4 pb-20 md:pb-0">
-                  {STAFF_CARDS.map((s, i) => (
-                    <div 
-                      key={i} 
-                      onClick={() => {
-                        setHoveredStaff(s);
-                        setActiveAudio(null); 
-                      }}
-                      onMouseEnter={() => !isTouchDevice && setHoveredStaff(s)}
-                      onMouseLeave={() => !isTouchDevice && setHoveredStaff(null)}
-                      className={`p-5 rounded-3xl border ${currentTheme.border} ${currentTheme.card} flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm transition-all duration-300 cursor-pointer ${hoveredStaff?.name === s.name ? 'scale-[1.02] shadow-xl border-cyan-500/30' : 'hover:shadow-md'}`}
-                    >
-                       {s.image ? (
-                           <img src={s.image} alt={s.name} className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 transition-all duration-300 ${hoveredStaff?.name === s.name ? 'border-cyan-400' : currentTheme.accentBorder}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + s.name.split(' ').join('+') + '&background=random'; }} />
-                       ) : (
-                           <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center ${currentTheme.accentBgSoft} ${currentTheme.accentText} font-bold text-xl border-2 ${currentTheme.accentBorder}`}>
-                               {s.name[0]}
-                           </div>
-                       )}
-                       <div>
-                          <p className={`text-[10px] font-black ${currentTheme.accentText} uppercase mb-1 transition-colors ${hoveredStaff?.name === s.name ? 'text-cyan-500' : ''}`}>{s.role}</p>
-                          <h4 className="text-lg font-bold leading-tight mb-1">{s.name}</h4>
-                          <p className={`text-xs ${currentTheme.textSecondary} leading-relaxed line-clamp-3`}>{s.bio}</p>
-                       </div>
-                    </div>
-                  ))}
-                </div>
-             </section>
-          </div>
-      </div>
+      
 
       {isGameOpen && <GameModal onClose={() => setIsGameOpen(false)} />}
       
