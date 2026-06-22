@@ -1091,13 +1091,13 @@ const App = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
-            {['about', 'services', 'archive', 'tech', 'connect', 'game'].map(v => (
-  <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>
-    {v === 'about' ? 'About Us' : v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v === 'game' ? 'Play' : v}
-  </button>
-))}
-          </div>
+         <div className="flex gap-4 md:gap-8 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto xl:justify-center">
+  {['services', 'archive', 'tech', 'connect', 'game', 'about'].map(v => (
+    <button key={v} onClick={() => changeView(v)} className={`text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap ${view === v ? `${currentTheme.accentText} border-b-2 ${currentTheme.accentBorder} pb-1` : 'opacity-40 hover:opacity-100 transition-opacity'}`}>
+      {v === 'archive' ? 'Outcomes' : v === 'tech' ? 'Advanced' : v === 'game' ? 'Play' : v === 'about' ? 'About Us' : v}
+    </button>
+  ))}
+</div>
 
           <div className="hidden lg:flex items-center gap-4 shrink-0">
             <button onClick={handleBook} className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform`}>Request Consultation</button>
